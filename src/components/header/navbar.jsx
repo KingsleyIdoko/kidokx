@@ -1,64 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
+import menuItems from './menuItems';
 
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const dropdownRef = useRef(null);
 
-  const menuItems = [
-    {
-      name: 'inventory',
-      hasSubmenu: true,
-      items: [
-        { name: 'Routers', hasSubmenu: true },
-        { name: 'Switches', hasSubmenu: true },
-        { name: 'Firewalls', hasSubmenu: true },
-        { name: 'Loadbalancers', hasSubmenu: true },
-      ],
-    },
-    {
-      name: 'operations',
-      hasSubmenu: true,
-      items: [
-        { name: 'Routers', hasSubmenu: true },
-        { name: 'Switches', hasSubmenu: true },
-        { name: 'Firewalls', hasSubmenu: true },
-        { name: 'Loadbalancers', hasSubmenu: true },
-      ],
-    },
-    {
-      name: 'design',
-      hasSubmenu: true,
-      items: [
-        { name: 'Routers', hasSubmenu: true },
-        { name: 'Switches', hasSubmenu: true },
-        { name: 'Firewalls', hasSubmenu: true },
-        { name: 'Loadbalancers', hasSubmenu: true },
-      ],
-    },
-    {
-      name: 'monitoring',
-      hasSubmenu: true,
-      items: [
-        { name: 'Routers', hasSubmenu: true },
-        { name: 'Switches', hasSubmenu: true },
-        { name: 'Firewalls', hasSubmenu: true },
-        { name: 'Loadbalancers', hasSubmenu: true },
-      ],
-    },
-    {
-      name: 'alarms',
-      hasSubmenu: true,
-      items: [
-        { name: 'Routers', hasSubmenu: true },
-        { name: 'Switches', hasSubmenu: true },
-        { name: 'Firewalls', hasSubmenu: true },
-        { name: 'Loadbalancers', hasSubmenu: true },
-      ],
-    },
-  ];
-
-  // Toggle Dropdown
+  // Toggle Main Dropdown
   const toggleDropdown = (menu) => {
     setOpenDropdown(openDropdown === menu ? null : menu);
     setOpenSubmenu(null); // Reset submenus
@@ -101,20 +49,6 @@ export default function Navbar() {
           <div className="flex flex-row gap-4 items-center" ref={dropdownRef}>
             {/* Home */}
             <div className="relative flex items-center capitalize gap-2 hover:text-black rounded-lg hover:bg-white border-2 border-sky-400 duration-200 py-2 px-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth="1.5"
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-                />
-              </svg>
               <div className="text-lg capitalize">Home</div>
             </div>
 
@@ -142,15 +76,25 @@ export default function Navbar() {
 
                 {/* Main Dropdown Content */}
                 {openDropdown === menu.name && menu.hasSubmenu && (
-                  <div className="absolute mt-2 w-48 bg-white shadow-lg rounded-lg border border-gray-200">
-                    <ul className="cursor-pointer text-gray-700">
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white shadow-lg rounded-lg border border-gray-200 py-2 px-3">
+                    {/* SVG Pointer at Top */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="white"
+                      viewBox="0 0 24 24"
+                      className="absolute -top-5 left-1/2 -translate-x-1/2 h-12 w-16"
+                    >
+                      <path d="M12 3L3 14h18L12 3z" />
+                    </svg>
+
+                    <ul className="cursor-pointer text-gray-700 mt-2">
                       {menu.items.map((item) => (
                         <li
                           key={item.name}
                           onClick={() =>
                             item.hasSubmenu && toggleSubmenu(item.name)
                           }
-                          className="flex justify-between items-center px-4 py-2 hover:bg-sky-400 hover:text-white transition"
+                          className="relative flex justify-between capitalize items-center px-2 py-2 hover:bg-sky-400 rounded-md hover:text-white transition"
                         >
                           {item.name}
                           {item.hasSubmenu && (
@@ -165,6 +109,31 @@ export default function Navbar() {
                             >
                               <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                             </svg>
+                          )}
+                          {/* Nested Submenu */}
+                          {openSubmenu === item.name && item.subItems && (
+                            <div className="absolute left-full top-0 ml-6 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200">
+                              {/* SVG Pointer on the Left Side */}
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="white"
+                                viewBox="0 0 24 24"
+                                className="absolute top-2 left-[-15px] h-8 w-8"
+                              >
+                                <path d="M3 12L14 3v18L3 12z" />
+                              </svg>
+
+                              <ul className="cursor-pointer text-gray-700">
+                                {item.subItems.map((subItem, index) => (
+                                  <li
+                                    key={index}
+                                    className=" hover:bg-sky-400 rounded-lg py-2 px-4  hover:text-white transition"
+                                  >
+                                    {subItem}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
                           )}
                         </li>
                       ))}
