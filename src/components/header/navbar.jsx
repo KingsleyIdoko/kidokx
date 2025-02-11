@@ -34,7 +34,7 @@ export default function Navbar() {
 
   return (
     <header>
-      <div className="flex items-center justify-between mx-auto w-full bg-sky-400 p-3">
+      <div className="flex items-center justify-between mx-auto w-full bg-sky-400 p-3 mb-10">
         {/* Logo */}
         <div className="w-1/10">
           <img
@@ -49,7 +49,9 @@ export default function Navbar() {
           <div className="flex flex-row gap-4 items-center" ref={dropdownRef}>
             {/* Home */}
             <div className="relative flex items-center capitalize gap-2 hover:text-black rounded-lg hover:bg-white border-2 border-sky-400 duration-200 py-2 px-6">
-              <div className="text-lg capitalize">Home</div>
+              <div className="text-lg capitalize">
+                <a href="/">Home</a>
+              </div>
             </div>
 
             {/* Dropdown Menus */}
@@ -129,7 +131,7 @@ export default function Navbar() {
                                     key={index}
                                     className=" hover:bg-sky-400 rounded-lg py-2 px-4  hover:text-white transition"
                                   >
-                                    {subItem}
+                                    <a href="/vpn/site-to-site">{subItem}</a>
                                   </li>
                                 ))}
                               </ul>

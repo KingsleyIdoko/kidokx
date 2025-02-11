@@ -8,20 +8,17 @@ function SiteToSite() {
       acc[key] = ipsecItems.proposals[key][0]; // Set first value as default
       return acc;
     },
-    {},
+    {}
   );
 
   const [selectedOptions, setSelectedOptions] = useState(initialSelections);
 
   return (
-    <div className="w-[56rem] mx-auto bg-white shadow-md rounded-lg p-6">
+    <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
       {/* Heading */}
       <h2 className="text-lg font-semibold text-center mb-6">
         Juniper SRX Ipsec Proposal Configuration
       </h2>
-
-      {/* Two-column flex layout */}
-
       <div className="flex mx-auto items-center justify-between">
         {/* Left Side - Buttons */}
         <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
@@ -34,8 +31,6 @@ function SiteToSite() {
             </button>
           ))}
         </div>
-
-        {/* Right Side - Dropdowns */}
         <div className=" w-[24rem] flex flex-col space-y-5 items-center justify-center ">
           {Object.keys(ipsecItems.proposals).map((category) => (
             <select
@@ -62,7 +57,7 @@ function SiteToSite() {
         <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
           preview
         </button>
-        <div className=" flex space-x-3 items-center ">
+        <div className=" flex space-x-3 items-center justify-center ">
           <label htmlFor="" className="capitalize p-2 border rounded-lg">
             format:
           </label>
