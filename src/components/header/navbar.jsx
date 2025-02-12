@@ -34,7 +34,7 @@ export default function Navbar() {
 
   return (
     <header>
-      <div className="flex items-center justify-between mx-auto w-full bg-sky-400 p-3 mb-10">
+      <div className="flex items-center justify-between mx-auto w-full bg-sky-400 p-2">
         {/* Logo */}
         <div className="w-1/10">
           <img

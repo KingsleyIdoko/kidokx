@@ -1,6 +1,7 @@
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import RaVPN from './ra-vpn/ra-vpn'; // Capitalized RaVPN
 import SiteToSite from './site-to-site.jsx/s2s-vpn';
+import IPsecListgroup from './site-to-site.jsx/ipsec_listgroup';
 
 function VPN() {
   const navigate = useNavigate(); // Hook to navigate programmatically
@@ -16,7 +17,7 @@ function VPN() {
   };
 
   return (
-    <div className="w-[72rem] h-[48rem] bg-white flex mx-auto justify-center p-10">
+    <div className="min-h-screen bg-white flex mx-auto justify-center py-16">
       <div className="flex flex-col items-center space-y-4">
         <div className="flex space-x-16">
           <select
@@ -41,12 +42,18 @@ function VPN() {
             <option value="fortigate">FortiGate</option>
             <option value="firepower">Firepower</option>
           </select>
+          <button className="capitalize rounded-lg bg-green-600 text-white py-3 px-8 duration-200 hover:opacity-80">
+            <a href="#" className="font-semibold">
+              create new
+            </a>
+          </button>
         </div>
 
         {/* Routes for Site-to-Site and Remote Access VPN */}
         <Routes>
-          <Route path="/site-to-site" element={<SiteToSite />} />
-          <Route path="/ra-vpn" element={<RaVPN />} />
+          {/* <Route path="/site-to-site" element={<SiteToSite />} />
+          <Route path="/ra-vpn" element={<RaVPN />} /> */}
+          <Route path="/ipsec-list" element={<IPsecListgroup />} />
         </Routes>
       </div>
     </div>

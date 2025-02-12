@@ -1,5 +1,6 @@
 import Navbar from './components/header/navbar';
-import VPN from './components/operations/configuration/vpn/vpn'; // Import the VPN component
+import VPN from './components/operations/configuration/vpn/vpn'; // Import the
+import '@fortawesome/fontawesome-free/css/all.min.css';
 
 import { Route, Routes } from 'react-router-dom';
 
