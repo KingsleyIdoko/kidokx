@@ -1,49 +1,50 @@
 import { useState } from 'react';
-import _ from 'lodash';
+import Dropdown from '../../../../../utilities/dropdown/dropdown';
+import { Paginate } from '../../../../../utilities/pagination/paginate';
+import { Pagination } from '../../../../../utilities/pagination/pagination';
 import ipsecData from './ipsecListItems';
 
 export default function IPsecListgroup() {
-  const itemsPerPage = 12;
-  const [currentPage, setCurrentPage] = useState(0);
+  const itemsCount = ipsecData.length;
+  const pageSize = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const PaginateData = Paginate(ipsecData, currentPage, pageSize);
+  console.log(PaginateData);
 
-  // Paginate data using Lodash chunk
-  const paginatedData = _.chunk(ipsecData, itemsPerPage);
-  const currentItems = paginatedData[currentPage] || [];
-  const totalPages = paginatedData.length;
-
-  // Pagination Logic for Displaying Pages with Ellipsis
-  const getPageNumbers = () => {
-    if (totalPages <= 5) {
-      return _.range(0, totalPages);
-    }
-    if (currentPage <= 2) {
-      return [0, 1, 2, '...', totalPages - 1];
-    }
-    if (currentPage >= totalPages - 3) {
-      return [0, '...', totalPages - 3, totalPages - 2, totalPages - 1];
-    }
-    return [
-      0,
-      '...',
-      currentPage - 1,
-      currentPage,
-      currentPage + 1,
-      '...',
-      totalPages - 1,
-    ];
-  };
-
-  // Handle pagination
-  const goToPage = (page) => {
-    if (typeof page === 'number' && page >= 0 && page < totalPages) {
-      setCurrentPage(page);
-    }
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
-    <div className="overflow-x-auto p-4">
-      {/* Table */}
-      <table className="w-[110rem] h-[40rem] bg-white border border-gray-200 rounded-lg shadow-md">
+    <div className="overflow-x-auto">
+      <div className="flex flex-row items-center justify-between border-t-2 border-b-2 py-2 p-6">
+        <Dropdown
+          name="vpn-Type"
+          selection={['site-to-site', 'remote-access-vpn']}
+        />
+
+        <Dropdown
+          name="Site"
+          selection={['AMS-01', 'AMS-02', 'FRA-01', 'LON-01']}
+        />
+        <Dropdown
+          name="Model"
+          selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
+        />
+        <Dropdown
+          name="Device-type"
+          selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
+        />
+        <Dropdown
+          name="Device"
+          selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
+        />
+        <Dropdown
+          name="Top"
+          selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
+        />
+      </div>
+      <table className="w-[110rem] h-[40rem] ">
         <thead>
           <tr className="bg-gray-100 text-gray-700 capitalize text-sm leading-normal">
             <th className="py-4 px-8 text-left">S/N</th>
@@ -56,26 +57,16 @@ export default function IPsecListgroup() {
           </tr>
         </thead>
         <tbody className="text-gray-600 text-sm font-light">
-          {currentItems.map((entry, index) => (
+          {PaginateData.map((entry) => (
             <tr
               key={entry.id}
-              className="border-b border-gray-200 hover:bg-gray-50"
+              className="border-b border-gray-200 hover:bg-sky-100"
             >
-              <td className="py-3 px-6 text-left">
-                {index + 1 + currentPage * itemsPerPage}
-              </td>
+              <td className="py-3 px-6 text-left">{entry.id}</td>
               <td className="py-3 px-6 text-left">{entry.source}</td>
               <td className="py-3 px-6 text-left">{entry.destination}</td>
               <td className="py-3 px-6 text-center">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs capitalize ${
-                    entry.status === 'up'
-                      ? 'bg-green-200 text-green-700'
-                      : entry.status === 'down'
-                      ? 'bg-yellow-200 text-yellow-700'
-                      : 'bg-red-200 text-red-700'
-                  }`}
-                >
+                <span className="px-3 py-1 rounded-full text-xs capitalize">
                   {entry.status}
                 </span>
                 <span>
@@ -96,49 +87,13 @@ export default function IPsecListgroup() {
           ))}
         </tbody>
       </table>
-
-      {/* Pagination */}
-      <div className="flex justify-end items-center mt-4">
-        <button
-          onClick={() => goToPage(currentPage - 1)}
-          disabled={currentPage === 0}
-          className={`px-4 py-2 mx-1 rounded-lg ${
-            currentPage === 0
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-white border text-gray-700 hover:bg-gray-100'
-          }`}
-        >
-          &lt;
-        </button>
-
-        {getPageNumbers().map((page, index) => (
-          <button
-            key={index}
-            onClick={() => goToPage(page)}
-            className={`px-4 py-2 mx-1 rounded-lg ${
-              page === '...'
-                ? 'cursor-default bg-white text-gray-700'
-                : page === currentPage
-                ? 'bg-blue-500 text-white'
-                : 'bg-white border text-gray-700 hover:bg-gray-100'
-            }`}
-            disabled={page === '...'}
-          >
-            {page === '...' ? '...' : page + 1}
-          </button>
-        ))}
-
-        <button
-          onClick={() => goToPage(currentPage + 1)}
-          disabled={currentPage === totalPages - 1}
-          className={`px-4 py-2 mx-1 rounded-lg ${
-            currentPage === totalPages - 1
-              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-              : 'bg-white border text-gray-700 hover:bg-gray-100'
-          }`}
-        >
-          &gt;
-        </button>
+      <div>
+        <Pagination
+          itemsCount={itemsCount}
+          pageSize={pageSize}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   );
