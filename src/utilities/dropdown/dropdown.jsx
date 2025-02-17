@@ -19,7 +19,6 @@ const Dropdown = ({
         setIsOpen(false);
       }
     };
-
     document.addEventListener('click', handleClickOutside);
     return () => {
       document.removeEventListener('click', handleClickOutside);
