@@ -1,44 +1,107 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import PropTypes from 'prop-types';
 
-const Dropdown = ({ name, selection }) => {
+const Dropdown = ({
+  name,
+  selection,
+  setPageSize,
+  ipsecData,
+  setFilteredIPsecData,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [selected, setSelected] = useState(name);
+  const dropdownRef = useRef(null);
+  const [closeBtnVisible, setCloseBtnVisible] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, []);
+
+  const handleSelect = (option) => {
+    setSelected(option);
+    setIsOpen(false);
+    setCloseBtnVisible(true);
+
+    if (name === 'Top' && setPageSize) {
+      setPageSize(Number(option));
+    } else {
+      let updatedData = ipsecData;
+
+      if (name === 'Site') {
+        updatedData = ipsecData.filter((data) => data.location === option);
+      } else if (name === 'VPN-Type') {
+        updatedData = ipsecData.filter((data) => data.type === option);
+      } else if (name === 'Model') {
+        updatedData = ipsecData.filter((data) => data.deviceModel === option);
+      }
+
+      setFilteredIPsecData(updatedData);
+    }
+  };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-        type="button"
+        onClick={() => {
+          setIsOpen(!isOpen);
+        }}
+        className="flex justify-between items-center text-black focus:ring-4 focus:outline-none font-medium rounded-lg text-sm py-2 px-4 bg-white border border-gray-300 text-center cursor-pointer w-full"
       >
-        {name}
-        <svg
-          className="w-2.5 h-2.5 ms-3"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 6"
-        >
-          <path
-            stroke="currentColor"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2"
-            d="m1 1 4 4 4-4"
-          />
-        </svg>
+        <span className="text-lg">{selected}</span>
+        <div className="flex items-center">
+          {closeBtnVisible && (
+            <span
+              className="text-xl ml-4 cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelected(name);
+                setCloseBtnVisible(false);
+                if (name === 'Top' && setPageSize) {
+                  setPageSize(10);
+                }
+              }}
+            >
+              &times;
+            </span>
+          )}
+          <svg
+            className="w-2.5 h-2.5 ml-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+          >
+            <path
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="m1 1 4 4 4-4"
+            />
+          </svg>
+        </div>
       </button>
 
       {isOpen && (
-        <div className="absolute mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
-          <ul className="py-2 text-sm text-gray-700 dark:text-gray-200">
+        <div className="absolute mt-2 z-10 bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-full">
+          <ul className="py-2 text-sm dark:text-gray-200">
             {selection.map((select, index) => (
               <li key={index}>
-                <a
-                  href="#"
-                  className="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                <button
+                  onClick={() => handleSelect(select)}
+                  className="block w-full text-left px-4 py-2 hover:bg-sky-300 hover:text-white"
                 >
                   {select}
-                </a>
+                </button>
               </li>
             ))}
           </ul>
@@ -46,6 +109,24 @@ const Dropdown = ({ name, selection }) => {
       )}
     </div>
   );
+};
+
+Dropdown.propTypes = {
+  name: PropTypes.string.isRequired,
+  selection: PropTypes.array.isRequired,
+  setPageSize: PropTypes.func,
+  ipsecData: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      source: PropTypes.string.isRequired,
+      destination: PropTypes.string.isRequired,
+      location: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      incoming: PropTypes.number.isRequired,
+      outgoing: PropTypes.number.isRequired,
+    }),
+  ),
+  setFilteredIPsecData: PropTypes.func,
 };
 
 export default Dropdown;

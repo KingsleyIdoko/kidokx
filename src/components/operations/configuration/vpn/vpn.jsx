@@ -4,7 +4,7 @@ import IPsecListgroup from './site-to-site.jsx/ipsec_listgroup';
 function VPN() {
   const navigate = useNavigate(); // Hook to navigate programmatically
   return (
-    <div className="min-h-screen bg-white flex mx-auto justify-center py-10">
+    <div className="min-h-screen bg-sky-100 flex mx-auto justify-center py-10">
       <div className="flex flex-col items-center space-y-4">
         <div className="flex space-x-16"></div>
 
