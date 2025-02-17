@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { useEffect, useRef, useState } from 'react';
 
 const Dropdown = ({
   name,
@@ -67,6 +67,8 @@ const Dropdown = ({
                 setCloseBtnVisible(false);
                 if (name === 'Top' && setPageSize) {
                   setPageSize(10);
+                } else if (name === 'Site' && setFilteredIPsecData) {
+                  setFilteredIPsecData(ipsecData);
                 }
               }}
             >
@@ -124,7 +126,7 @@ Dropdown.propTypes = {
       status: PropTypes.string.isRequired,
       incoming: PropTypes.number.isRequired,
       outgoing: PropTypes.number.isRequired,
-    }),
+    })
   ),
   setFilteredIPsecData: PropTypes.func,
 };
