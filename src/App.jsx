@@ -9,7 +9,7 @@ function App() {
     <div className="bg-sky-100 min-h-screen">
       <Navbar />
       <Routes>
-        <Route path="/vpn/*" element={<VPN />} />{' '}
+        <Route path="/vpn/*" element={<VPN />} />
       </Routes>
     </div>
   );

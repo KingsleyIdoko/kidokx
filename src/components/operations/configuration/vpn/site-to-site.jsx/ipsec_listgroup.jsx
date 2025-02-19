@@ -16,7 +16,10 @@ export default function IPsecListgroup() {
   };
   return (
     <div className="overflow-x-auto bg-sky-50">
-      <div className="w-[110rem] grid grid-cols-6 gap-4 border-t-2 border-b-2 py-2 p-6">
+      <div className="w-[110rem] grid grid-cols-7 gap-4 border-t-2 border-b-2 py-2 p-6">
+      <button className='bg-green-600 rounded text-lg text-white py-2 px-6 mb-2 hover:opacity-70'>
+        <a href="/vpn/site-to-site/config">create new</a>
+      </button>
         <Dropdown
           name="VPN-Type"
           selection={['Site-to-Site', 'Remote-Access-VPN']}
@@ -45,7 +48,7 @@ export default function IPsecListgroup() {
           setPageSize={setPageSize}
         />
       </div>
-      <table className="w-[110rem] h-[40rem] ">
+      <table className="max-w-full max-h-screen w-full h-auto overflow-auto">
         <thead>
           <tr className="bg-gray-100 text-gray-700 capitalize text-sm">
             <th className="py-4 px-8 text-left">No</th>

@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Dropdown = ({
   name,
@@ -12,6 +13,7 @@ const Dropdown = ({
   const [selected, setSelected] = useState(name);
   const dropdownRef = useRef(null);
   const [closeBtnVisible, setCloseBtnVisible] = useState(false);
+  const navigate = useNavigate(); // ✅ Define useNavigate inside the component
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -38,7 +40,10 @@ const Dropdown = ({
       if (name === 'Site') {
         updatedData = ipsecData.filter((data) => data.location === option);
       } else if (name === 'VPN-Type') {
-        updatedData = ipsecData.filter((data) => data.type === option);
+        // ✅ Fix: Correct navigation logic
+        console.log(option)
+        navigate(option === 'Site-to-Site' ? '/vpn/site-to-site' : '/vpn/remote-access');
+        return; // Exit function after navigations
       } else if (name === 'Model') {
         updatedData = ipsecData.filter((data) => data.deviceModel === option);
       }

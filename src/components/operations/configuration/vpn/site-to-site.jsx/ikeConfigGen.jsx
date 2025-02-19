@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import ipsecItems from './ipsecItems';
+import ipsecItems from './ikeProposalItems';
 
-function SiteToSite() {
+function IpsecConfig() {
   // Store selected options for each category
   const initialSelections = Object.keys(ipsecItems.proposals).reduce(
     (acc, key) => {
@@ -12,12 +12,11 @@ function SiteToSite() {
   );
 
   const [selectedOptions, setSelectedOptions] = useState(initialSelections);
-
   return (
     <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
       {/* Heading */}
-      <h2 className="text-lg font-semibold text-center mb-6">
-        Juniper SRX Ipsec Proposal Configuration
+      <h2 className="text-lg font-semibold text-center mb-6 uppercase">
+        SRX Ipsec Proposal Configuration
       </h2>
       <div className="flex mx-auto items-center justify-between">
         {/* Left Side - Buttons */}
@@ -81,4 +80,4 @@ function SiteToSite() {
   );
 }
 
-export default SiteToSite;
+export default IpsecConfig;
