@@ -1,4 +1,5 @@
 from django.db import models
+from inventories.models import Device
 
 class IpsecProposal(models.Model):
     PROTOCOL_CHOICES = [
@@ -33,6 +34,7 @@ class IpsecProposal(models.Model):
     ]
 
     name = models.CharField(max_length=100, unique=True)
+    devices = models.ManyToManyField(Device)
     protocol = models.CharField(max_length=10, choices=PROTOCOL_CHOICES, default='esp')
     authentication_algorithm = models.CharField(max_length=50, choices=AUTH_ALGORITHM_CHOICES)
     encryption_algorithm = models.CharField(max_length=50, choices=ENCRYPTION_ALGORITHM_CHOICES)

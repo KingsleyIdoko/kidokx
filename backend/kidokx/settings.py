@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     #third party
     'ipsecs',
     'rest_framework',
+    'inventories'
 ]
 
 MIDDLEWARE = [

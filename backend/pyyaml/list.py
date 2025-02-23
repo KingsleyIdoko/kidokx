@@ -2,7 +2,7 @@ import requests
 import json
 
 
-endpoint = "http://localhost:8000/ipsec/proposal/"
+endpoint = "http://localhost:8000/inventories/devices/"
 
 get_response = requests.get(endpoint)
 
