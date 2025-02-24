@@ -1,7 +1,18 @@
 from rest_framework import serializers
-from .models import IpsecProposal
+from .models import IkeProposal
 
-class IpsecProposalSerializer(serializers.ModelSerializer):
+class IkeProposalSerializer(serializers.ModelSerializer):
+    get_device = serializers.ReadOnlyField()  
     class Meta:
-        model = IpsecProposal
-        fields = '__all__'
+        model = IkeProposal
+        fields = [
+            'name',
+            'get_device',
+            'protocol',
+            'authentication_algorithm',
+            'encryption_algorithm',
+            'dh_group',
+            'lifetime_seconds',
+            'lifetime_kilobytes',
+        ]
+

@@ -1,7 +1,7 @@
 from django.db import models
 from inventories.models import Device
 
-class IpsecProposal(models.Model):
+class IkeProposal(models.Model):
     PROTOCOL_CHOICES = [
         ('esp', 'ESP'),
         ('ah', 'AH'),
@@ -33,14 +33,18 @@ class IpsecProposal(models.Model):
         ('group20', 'Group 20'),
     ]
 
-    name = models.CharField(max_length=100, unique=True)
-    devices = models.ManyToManyField(Device)
+    name = models.CharField(max_length=100, unique=False)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
     protocol = models.CharField(max_length=10, choices=PROTOCOL_CHOICES, default='esp')
     authentication_algorithm = models.CharField(max_length=50, choices=AUTH_ALGORITHM_CHOICES)
     encryption_algorithm = models.CharField(max_length=50, choices=ENCRYPTION_ALGORITHM_CHOICES)
     dh_group = models.CharField(max_length=20, choices=DH_GROUP_CHOICES)
     lifetime_seconds = models.PositiveIntegerField(default=86400)
-    lifetime_kilobytes = models.PositiveIntegerField(null=True, blank=True)
+    lifetime_kilobytes = models.PositiveIntegerField(default=64000)
 
     def __str__(self):
         return self.name
+
+    @property
+    def get_device(self):
+        return self.device.name if self.device else None  

@@ -1,8 +1,9 @@
 from django.contrib import admin
-from .models import IpsecProposal
+from .models import IkeProposal
 
-@admin.register(IpsecProposal)
-class IpsecProposalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'protocol', 'authentication_algorithm', 'encryption_algorithm', 'lifetime_seconds', 'lifetime_kilobytes', 'dh_group')
+class IkeProposalAdmin(admin.ModelAdmin):
+    list_display = ('id','device', 'name')
     search_fields = ('name', 'authentication_algorithm', 'encryption_algorithm', 'dh_group')
     list_filter = ('protocol', 'authentication_algorithm', 'encryption_algorithm', 'dh_group')
+
+admin.site.register(IkeProposal, IkeProposalAdmin)
