@@ -1,18 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ipsecProposalItems as ipsecItems } from './ikeProposalItems';
+import React, { Component } from 'react';
+import axios from 'axios';
 
 function IpsecConfig() {
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  console.log(data);
   if (!ipsecItems?.proposals) {
     return <p>Loading...</p>;
   }
 
   const initialSelections = Object.keys(ipsecItems.proposals).reduce(
     (acc, key) => {
-      acc[key] = ipsecItems.proposals[key][0] || ''; // Handle empty arrays
+      acc[key] = ipsecItems.proposals[key][0] || '';
       return acc;
     },
     {},
   );
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:8000/ipsec/proposal/')
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        setError('Error fetching data');
+        console.error('Error fetching data:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
   const [selectedOptions, setSelectedOptions] = useState(initialSelections);
   const [selectedFormat, setSelectedFormat] = useState('json');

@@ -1,10 +1,50 @@
 from django.urls import path
-from .views import (proposal_list_view ,proposal_update_view, proposal_detail_view, proposal_delete_view,proposal_create_view,proposal_create_view )
+from ipsecs.views.IkeProposalView import ikeproposal_list_view,ikeproposal_detail_view,ikeproposal_create_view,ikeproposal_update_view,ikeproposal_delete_view
+from ipsecs.views.ikeGatewayView import ikegateway_create_view, ikegateway_delete_view, ikegateway_detail_view, ikegateway_list_view, ikegateway_update_view
+from ipsecs.views.ikePolicyView import ikepolicy_list_view,ikepolicy_detail_view,ikepolicy_create_view,ikepolicy_update_view,ikepolicy_delete_view
+from ipsecs.views.ipsecProposalView import ipsecproposal_create_view, ipsecproposal_delete_view, ipsecproposal_detail_view, ipsecproposal_list_view, ipsecproposal_update_view
+from ipsecs.views.ipsecPolicyView import ipsecpolicy_create_view, ipsecpolicy_delete_view, ipsecpolicy_detail_view, ipsecpolicy_list_view, ipsecpolicy_update_view
+from ipsecs.views.ipsecVpnView import ipsecvpn_create_view, ipsecvpn_delete_view, ipsecvpn_detail_view, ipsecvpn_list_view, ipsecvpn_update_view
 
 urlpatterns = [
-    path('proposal/',proposal_list_view),
-    path('proposal/<int:pk>',proposal_detail_view),
-    path('proposal/create/',proposal_create_view),
-    path('proposal/<int:pk>/update/',proposal_update_view,),
-    path('proposal/<int:pk>/delete/',proposal_delete_view),
+    #ikeproposal
+    path('ikeproposal/',ikeproposal_list_view),
+    path('ikeproposal/<int:pk>',ikeproposal_detail_view),
+    path('ikeproposal/create/',ikeproposal_create_view),
+    path('ikeproposal/<int:pk>/update/',ikeproposal_update_view,),
+    path('ikeproposal/<int:pk>/delete/',ikeproposal_delete_view),
+    #ikepolicy
+    path('ikepolicy/',ikepolicy_list_view),
+    path('ikepolicy/<int:pk>',ikepolicy_detail_view),
+    path('ikepolicy/create/',ikepolicy_create_view),
+    path('ikepolicy/<int:pk>/update/',ikepolicy_update_view,),
+    path('ikepolicy/<int:pk>/delete/',ikepolicy_delete_view),
+
+    #ikegateway
+    path('ikegateway/',ikegateway_list_view),
+    path('ikegateway/<int:pk>',ikegateway_detail_view),
+    path('ikegateway/create/',ikegateway_create_view),
+    path('ikegateway/<int:pk>/update/',ikegateway_update_view,),
+    path('ikegateway/<int:pk>/delete/',ikegateway_delete_view),
+
+    #ipsecproposal
+    path('ipsecproposal/',ipsecproposal_list_view),
+    path('ipsecproposal/<int:pk>',ipsecproposal_detail_view),
+    path('ipsecproposal/create/',ipsecproposal_create_view),
+    path('ipsecproposal/<int:pk>/update/',ipsecproposal_update_view,),
+    path('ipsecproposal/<int:pk>/delete/',ipsecproposal_delete_view),
+
+    #ipsecpolicy
+    path('ipsecpolicy/',ipsecpolicy_list_view),
+    path('ipsecpolicy/<int:pk>',ipsecpolicy_detail_view),
+    path('ipsecpolicy/create/',ipsecpolicy_create_view),
+    path('ipsecpolicy/<int:pk>/update/',ipsecpolicy_update_view,),
+    path('ipsecpolicy/<int:pk>/delete/',ipsecpolicy_delete_view),
+
+    #ipsecvpn
+    path('ipsecvpn/',ipsecvpn_list_view),
+    path('ipsecvpn/<int:pk>',ipsecvpn_detail_view),
+    path('ipsecvpn/create/',ipsecvpn_create_view),
+    path('ipsecvpn/<int:pk>/update/',ipsecvpn_update_view,),
+    path('ipsecvpn/<int:pk>/delete/',ipsecvpn_delete_view),
 ]
