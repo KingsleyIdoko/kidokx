@@ -9,8 +9,8 @@ class IpsecProposalSerializer(serializers.ModelSerializer):
         fields = [
             'id',  
             'name',
-            'device',  # ForeignKey (needed for updates)
-            'device_name',  # Read-only field for device name
+            'device',  
+            'device_name',  
             'authentication_algorithm',
             'encryption_algorithm',
             'lifetime_seconds',

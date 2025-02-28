@@ -2,13 +2,12 @@ from rest_framework import serializers
 from ipsecs.models import IkeProposal
 
 class IkeProposalSerializer(serializers.ModelSerializer):
-    get_device = serializers.ReadOnlyField()  
+    device_name = serializers.ReadOnlyField(source='device.name') 
     class Meta:
         model = IkeProposal
         fields = [
             'name',
-            'get_device',
-            'protocol',
+            'device_name',
             'authentication_algorithm',
             'encryption_algorithm',
             'dh_group',

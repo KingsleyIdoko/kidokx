@@ -4,9 +4,9 @@ from .models import IkeProposal, IkePolicy, IkeGateway, IpsecProposal, IpsecPoli
 
 @admin.register(IkeProposal)
 class IkeProposalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'name', 'protocol', 'authentication_algorithm', 'encryption_algorithm', 'dh_group')
+    list_display = ('name','device','authentication_algorithm','encryption_algorithm','dh_group','lifetime_seconds')
     search_fields = ('name', 'authentication_algorithm', 'encryption_algorithm', 'dh_group')
-    list_filter = ('protocol', 'authentication_algorithm', 'encryption_algorithm', 'dh_group')
+    list_filter = ('name','device','authentication_algorithm','encryption_algorithm','dh_group','lifetime_seconds')
 
 
 @admin.register(IkePolicy)
