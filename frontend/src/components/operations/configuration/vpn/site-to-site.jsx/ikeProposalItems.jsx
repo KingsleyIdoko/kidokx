@@ -1,66 +1,37 @@
-const ikeProposalItems = {
-  name: 'IKE-Proposal-1',
-  proposals: {
-    'encryption-algorithm': [
-      'aes-128-cbc',
-      'aes-192-cbc',
-      'aes-256-cbc',
-      '3des-cbc',
-    ],
-    'authentication-algorithm': [
-      'hmac-sha1-96',
-      'hmac-sha-256-128',
-      'hmac-sha-512-256',
-    ],
-    'dh-group': ['group2', 'group14', 'group19', 'group20'],
-    'life-time': ['28800s'],
-  },
-};
+import axios from 'axios';
+import { useState, useEffect } from 'react';
 
-const ikePolicyItems = {
-  name: 'IKE-Policy-1',
-  proposals: [ikeProposalItems.name],
-  mode: ['main', 'aggressive'],
-  'pre-shared-key': 'JuniperSecretKey',
-};
+function useIpsecData() {
+  const [ikeProposalData, setIkeProposalData] = useState(null);
+  const [ipsecChoicesData, setIpsecChoicesData] = useState(null);
 
-const ikeGatewayItems = {
-  name: 'IKE-Gateway-1',
-  proposals: [ikePolicyItems.name],
-  address: '192.168.1.1',
-  'external-interface': 'ge-0/0/0',
-  'ike-version': 'v2',
-};
+  const [error, setError] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const ipsecProposalItems = {
-  name: 'IPsec-Proposal-1',
-  proposals: {
-    'encryption-algorithm': ['aes-128-cbc', 'aes-256-cbc'],
-    'authentication-algorithm': ['hmac-sha-256-128'],
-    'life-time': ['3600s'],
-  },
-};
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      let errors = [];
 
-const ipsecPolicyItems = {
-  name: 'IPsec-Policy-1',
-  proposals: [ipsecProposalItems.name],
-  'perfect-forward-secrecy': 'group14',
-};
+      try {
+        const [ikeResponse, ipsecResponse] = await Promise.all([
+          axios.get('http://127.0.0.1:8000/api/ipsec/ikeproposal/'),
+          axios.get('http://127.0.0.1:8000/api/ipsec/ipsec-choices/'),
+        ]);
+        setIkeProposalData(ikeResponse.data);
+        setIpsecChoicesData(ipsecResponse.data);
+      } catch (err) {
+        errors.push(`Error fetching data: ${err.message}`);
+        console.error('Error fetching IPsec data:', err);
+      } finally {
+        setError(errors.length ? errors : null);
+        setLoading(false);
+      }
+    };
 
-const ipsecVPNItems = {
-  name: 'IPsec-VPN-1',
-  proposals: [ipsecPolicyItems.name],
-  'bind-interface': 'st0.0',
-  'ike-gateway': ikeGatewayItems.name,
-  'vpn-monitor': 'optimized',
-};
+    fetchData();
+  }, []);
+  return { ikeProposalData, ipsecChoicesData, error, loading };
+}
 
-// ✅ Fix: Export all items as named exports
-export {
-  ikeProposalItems,
-  ikePolicyItems,
-  ikeGatewayItems,
-  ipsecProposalItems,
-  ipsecPolicyItems,
-  ipsecVPNItems,
-};
+export { useIpsecData };
