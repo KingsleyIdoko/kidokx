@@ -2,6 +2,8 @@
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from ipsecs.models import IkeGateway
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from ipsecs.serializers.ikeGatewaySerializers import IkeGatewaySerializer
 
 class IkeGatewayListView(ListAPIView):

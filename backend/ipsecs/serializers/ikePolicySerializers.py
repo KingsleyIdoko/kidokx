@@ -3,8 +3,12 @@ from ipsecs.models import IkePolicy
 
 class IkePolicySerializer(serializers.ModelSerializer):
     get_device = serializers.ReadOnlyField(source='device.name')  
-    proposals = serializers.PrimaryKeyRelatedField(many=True, queryset=IkePolicy.objects.all()) 
-    
+    proposals = serializers.SlugRelatedField(
+        many=True, 
+        read_only=True, 
+        slug_field='name'  # Returns the proposal "name" instead of its ID
+    )
+
     class Meta:
         model = IkePolicy
         fields = [
@@ -12,9 +16,11 @@ class IkePolicySerializer(serializers.ModelSerializer):
             'name',
             'get_device',  
             'device', 
-            'proposals',  
+            'proposals',  # Returns names instead of IDs
             'authentication_method',
             'pre_shared_key',
         ]
+
+    
 
 

@@ -2,6 +2,8 @@
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from  ipsecs.models import IkeProposal
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from ipsecs.serializers.ikeProposalSerializers import IkeProposalSerializer
 
 class IkeProposalListView(ListAPIView):
@@ -34,3 +36,10 @@ class IkeProposalDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
 ikeproposal_delete_view = IkeProposalDestroyView.as_view()
+
+
+class IkeProposalListNames(APIView):
+    def get(self, request):
+        names = IkeProposal.objects.values_list('name', flat=True)
+        return Response(names)  
+ikeproposal_list_view = IkeProposalListNames.as_view()

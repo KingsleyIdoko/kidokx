@@ -9,14 +9,10 @@ class ipsecConfiguationItems:
         GROUP14 = 'group14', 'Group 14'
         GROUP15 = 'group15', 'Group 15'
         GROUP16 = 'group16', 'Group 16'
-        GROUP17 = 'group17', 'Group 17'
-        GROUP18 = 'group18', 'Group 18'
         GROUP19 = 'group19', 'Group 19'
         GROUP20 = 'group20', 'Group 20'
         GROUP21 = 'group21', 'Group 21'
-        GROUP22 = 'group22', 'Group 22'
-        GROUP23 = 'group23', 'Group 23'
-        GROUP24 = 'group24', 'Group 24'
+
 
     class Protocol(models.TextChoices):
         ESP = 'esp', 'ESP'

@@ -2,6 +2,8 @@
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from ipsecs.models import IkePolicy
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from ipsecs.serializers.ikePolicySerializers import IkePolicySerializer
 
 class IkePolicyListView(ListAPIView):
@@ -34,3 +36,10 @@ class IkePolicyDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
 ikepolicy_delete_view = IkePolicyDestroyView.as_view()
+
+
+class IkePolicylListNames(APIView):
+    def get(self, request):
+        names = IkePolicy.objects.values_list('name', flat=True)
+        return Response(names)  
+ikepolicy_list_view = IkePolicylListNames.as_view()
