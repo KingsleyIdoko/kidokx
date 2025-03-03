@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import IpsecSteps from './ipsec_steps';
 
 function IkePolicyConfig() {
   const [selectedOptions, setSelectedOptions] = useState({
@@ -78,8 +79,7 @@ function IkePolicyConfig() {
 
   return (
     <>
-      <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        {/* Navigation Buttons */}
+      <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
             <a href="/vpn/site-to-site/config/ikePolicy">Previous</a>
@@ -93,104 +93,108 @@ function IkePolicyConfig() {
             <a href="/vpn/site-to-site/config/ipsecproposal">Next</a>
           </button>
         </div>
-
-        {/* Form Fields */}
-        <div className="flex mx-auto mb-6">
-          {/* Labels Section (Left Column) */}
-          <div className="w-[32rem] flex flex-col space-y-4 items-center">
-            {ikeGatewayParams.map((label_name, index) => (
-              <button
-                key={index}
-                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-              >
-                {label_name}
-              </button>
-            ))}
+        {/* IPsec Table List */}
+        <div className="flex items-center justify-between">
+          <div className="flex">
+            <IpsecSteps />
           </div>
-
-          {/* Input Fields (Right Column) */}
-          <div className="flex flex-col space-y-5  justify-left">
-            <input
-              type="text"
-              placeholder="Enter Policy Name"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.policyName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  policyName: e.target.value,
-                }))
-              }
-            />
-
-            {/* External Interface Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.ike_mode}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  ike_mode: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Interface</option>
-              <option value="ge-0/0/0">ge-0/0/0</option>
-            </select>
-
-            {/* IKE Policy Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.policyName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  policyName: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select a Policy</option>
-              {ikePolicyNames.map((Policy, index) => (
-                <option key={index} value={Policy}>
-                  {Policy}
-                </option>
+          {/* Form Fields */}
+          <div className="flex mx-auto">
+            {/* Labels Section (Left Column) */}
+            <div className="w-[32rem] flex flex-col space-y-4 items-center">
+              {ikeGatewayParams.map((label_name, index) => (
+                <button
+                  key={index}
+                  className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+                >
+                  {label_name}
+                </button>
               ))}
-            </select>
+            </div>
 
-            {/* IKE Version Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.ike_version}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  ike_version: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Version</option>
-              {ikeVersions.map((version, index) => (
-                <option key={index} value={version}>
-                  {version}
-                </option>
-              ))}
-            </select>
+            {/* Input Fields (Right Column) */}
+            <div className="flex flex-col space-y-5  justify-left">
+              <input
+                type="text"
+                placeholder="Enter Policy Name"
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                value={selectedOptions.policyName}
+                onChange={(e) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    policyName: e.target.value,
+                  }))
+                }
+              />
 
-            <input
-              type="text"
-              placeholder="Enter Ascii Password"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.policyName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  policyName: e.target.value,
-                }))
-              }
-            />
+              {/* External Interface Selection */}
+              <select
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                value={selectedOptions.ike_mode}
+                onChange={(e) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    ike_mode: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Select Interface</option>
+                <option value="ge-0/0/0">ge-0/0/0</option>
+              </select>
+
+              {/* IKE Policy Selection */}
+              <select
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                value={selectedOptions.policyName}
+                onChange={(e) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    policyName: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Select a Policy</option>
+                {ikePolicyNames.map((Policy, index) => (
+                  <option key={index} value={Policy}>
+                    {Policy}
+                  </option>
+                ))}
+              </select>
+
+              {/* IKE Version Selection */}
+              <select
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                value={selectedOptions.ike_version}
+                onChange={(e) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    ike_version: e.target.value,
+                  }))
+                }
+              >
+                <option value="">Select Version</option>
+                {ikeVersions.map((version, index) => (
+                  <option key={index} value={version}>
+                    {version}
+                  </option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                placeholder="Enter Ascii Password"
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                value={selectedOptions.policyName}
+                onChange={(e) =>
+                  setSelectedOptions((prev) => ({
+                    ...prev,
+                    policyName: e.target.value,
+                  }))
+                }
+              />
+            </div>
           </div>
         </div>
-
         {/* Preview & Deploy Buttons */}
         <div className="flex items-center justify-between">
           <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">

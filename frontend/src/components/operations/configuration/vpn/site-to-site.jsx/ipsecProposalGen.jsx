@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useIpsecData } from './ikeProposalItems';
+import IpsecSteps from './ipsec_steps';
 
 function IPsecProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
@@ -59,7 +60,7 @@ function IPsecProposalConfig() {
 
   return (
     <>
-      <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
+      <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
         <div className="flex items-center justify-between mb-4">
           <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
             <a href="/vpn/site-to-site/config/ikegateway">Previous</a>
@@ -73,62 +74,68 @@ function IPsecProposalConfig() {
             <a href="/vpn/site-to-site/config/ipsecpolicy">Next</a>
           </button>
         </div>
-        <div className="flex mx-auto items-center  mb-6 ">
-          <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
-            <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
-              IPsec Proposal Name
-            </button>
-            {Object.keys(filteredIsecData).map((category) => (
-              <button
-                key={category}
-                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-              >
-                {String(category).replace(/_/g, ' ')}
-              </button>
-            ))}
-            <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
-              lifetime-seconds
-            </button>
+        <div className="flex">
+          <div className="flex">
+            <IpsecSteps />
           </div>
-          <div className="flex flex-col space-y-5  justify-left">
-            <input
-              type="text"
-              placeholder="Enter Name"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.proposalName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  proposalName: e.target.value,
-                }))
-              }
-            />
-            {Object.keys(filteredIsecData).map((category) => (
-              <select
-                key={category}
+
+          <div className="flex mx-auto items-center  mb-6 ">
+            <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
+              <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
+                IPsec Proposal Name
+              </button>
+              {Object.keys(filteredIsecData).map((category) => (
+                <button
+                  key={category}
+                  className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+                >
+                  {String(category).replace(/_/g, ' ')}
+                </button>
+              ))}
+              <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
+                lifetime-seconds
+              </button>
+            </div>
+            <div className="flex flex-col space-y-5  justify-left">
+              <input
+                type="text"
+                placeholder="Enter Name"
                 className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions[category] || ''}
+                value={selectedOptions.proposalName}
                 onChange={(e) =>
                   setSelectedOptions((prev) => ({
                     ...prev,
-                    [category]: e.target.value,
+                    proposalName: e.target.value,
                   }))
                 }
-              >
-                {filteredIsecData[category].map((option, index) =>
-                  option[0] !== 'Pre-Shared Key' ? (
-                    <option key={option[0] || index} value={option[0]}>
-                      {option[1]}
-                    </option>
-                  ) : null,
-                )}
-              </select>
-            ))}
-            <input
-              type="text"
-              placeholder="Enter lifetime-seconds"
-              className=" px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            />
+              />
+              {Object.keys(filteredIsecData).map((category) => (
+                <select
+                  key={category}
+                  className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                  value={selectedOptions[category] || ''}
+                  onChange={(e) =>
+                    setSelectedOptions((prev) => ({
+                      ...prev,
+                      [category]: e.target.value,
+                    }))
+                  }
+                >
+                  {filteredIsecData[category].map((option, index) =>
+                    option[0] !== 'Pre-Shared Key' ? (
+                      <option key={option[0] || index} value={option[0]}>
+                        {option[1]}
+                      </option>
+                    ) : null,
+                  )}
+                </select>
+              ))}
+              <input
+                type="text"
+                placeholder="Enter lifetime-seconds"
+                className=" px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              />
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-between">
