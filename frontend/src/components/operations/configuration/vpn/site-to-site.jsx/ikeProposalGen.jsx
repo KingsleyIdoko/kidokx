@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useIpsecData } from './ikeProposalItems';
 
-function IPsecPolicyConfig() {
+function IkeProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
 
   const [selectedOptions, setSelectedOptions] = useState({ proposalName: '' });
@@ -57,20 +57,20 @@ function IPsecPolicyConfig() {
   return (
     <>
       <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecproposal">Previous</a>
+        <div className="flex items-center  mb-4">
+          <button className="capitalize hidden font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 opacity-50">
+            Previous
           </button>
 
           <h2 className="text-lg font-semibold text-center flex-1 capitalize">
-            Juniper IPsec Policy Configuration
+            Juniper IKE Proposal Configuration
           </h2>
 
           <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecvpn">Next</a>
+            <a href="/vpn/site-to-site/config/ikepolicy">Next</a>
           </button>
         </div>
-        <div className="flex mx-auto items-center mb-6">
+        <div className="flex mx-auto items-center mb-6 ">
           {/* Buttons */}
           <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
             <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
@@ -85,7 +85,6 @@ function IPsecPolicyConfig() {
               </button>
             ))}
           </div>
-          {/* Input Fields (Right Column) */}
           <div className="flex flex-col space-y-5 justify-left">
             <input
               type="text"
@@ -158,4 +157,4 @@ function IPsecPolicyConfig() {
     </>
   );
 }
-export default IPsecPolicyConfig;
+export default IkeProposalConfig;

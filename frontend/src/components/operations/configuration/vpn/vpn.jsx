@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 import RaVPN from './ra-vpn/ra-vpn';
 import IPsecListgroup from './site-to-site.jsx/ipsec_listgroup';
-import IkeProposalConfig from './site-to-site.jsx/ikeConfigGen';
+import IkeProposalConfig from './site-to-site.jsx/ikeProposalGen';
 import IkePolicyConfig from './site-to-site.jsx/ikePolicyGen';
 import IkeGatewayConfig from './site-to-site.jsx/ikeGatewayGen';
 import IPsecProposalConfig from './site-to-site.jsx/ipsecProposalGen';

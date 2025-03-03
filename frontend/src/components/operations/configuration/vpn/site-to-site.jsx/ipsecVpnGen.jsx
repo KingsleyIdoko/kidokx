@@ -66,11 +66,11 @@ function IPsecVPNConfig() {
             Juniper IPsec VPN Configuration
           </h2>
 
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 opacity-50">
+          <button className="capitalize hidden font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 opacity-50">
             <a href="/vpn/site-to-site/config/ikepolicy">Next</a>
           </button>
         </div>
-        <div className="flex mx-auto items-center justify-between mb-6 ">
+        <div className="flex mx-auto items-center mb-6">
           {/* Buttons */}
           <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
             <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
@@ -85,11 +85,11 @@ function IPsecVPNConfig() {
               </button>
             ))}
           </div>
-          <div className="w-[24rem] flex flex-col space-y-5 items-center justify-center">
+          <div className="flex flex-col space-y-5 justify-left">
             <input
               type="text"
               placeholder="Enter Name"
-              className="w-1/2 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.proposalName}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
@@ -101,7 +101,7 @@ function IPsecVPNConfig() {
             {Object.keys(filteredIsecData).map((category) => (
               <select
                 key={category}
-                className="w-1/2 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
                 value={selectedOptions[category] || ''}
                 onChange={(e) =>
                   setSelectedOptions((prev) => ({

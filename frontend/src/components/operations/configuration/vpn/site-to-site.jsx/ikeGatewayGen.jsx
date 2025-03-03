@@ -109,11 +109,11 @@ function IkePolicyConfig() {
           </div>
 
           {/* Input Fields (Right Column) */}
-          <div className="w-[24rem] flex flex-col space-y-5 items-center">
+          <div className="flex flex-col space-y-5  justify-left">
             <input
               type="text"
               placeholder="Enter Policy Name"
-              className="w-full px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.policyName}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
@@ -125,7 +125,7 @@ function IkePolicyConfig() {
 
             {/* External Interface Selection */}
             <select
-              className="w-full px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.ike_mode}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
@@ -140,7 +140,7 @@ function IkePolicyConfig() {
 
             {/* IKE Policy Selection */}
             <select
-              className="w-full px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.policyName}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
@@ -159,7 +159,7 @@ function IkePolicyConfig() {
 
             {/* IKE Version Selection */}
             <select
-              className="w-full px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.ike_version}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
@@ -179,7 +179,7 @@ function IkePolicyConfig() {
             <input
               type="text"
               placeholder="Enter Ascii Password"
-              className="w-full px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
               value={selectedOptions.policyName}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
