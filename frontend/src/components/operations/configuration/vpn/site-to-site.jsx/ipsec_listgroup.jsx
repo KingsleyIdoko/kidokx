@@ -32,7 +32,7 @@ export default function IPsecListgroup() {
     <div className="overflow-x-auto bg-sky-50">
       <div className="w-[110rem] grid grid-cols-7 gap-4 border-t-2 border-b-2 py-2 p-6">
         <button className="bg-green-600 rounded text-lg text-white py-2 px-6 mb-2 hover:opacity-70">
-          <a href="/vpn/site-to-site/config">Create New</a>
+          <a href="/vpn/site-to-site/config/ikeproposal">Create New</a>
         </button>
         <Dropdown
           name="VPN-Type"
