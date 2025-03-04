@@ -1,9 +1,11 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-function IpsecSteps() {
-  // ✅ Component name in PascalCase
+function IpsecSteps({ webpage }) {
+  const [urlState, setUrlState] = useState('');
   const navigate = useNavigate();
 
+  // Array of navigation options
   const ipsecSelection = [
     { name: 'IKE Proposal', path: '/vpn/site-to-site/config/ikeproposal' },
     { name: 'IKE Policy', path: '/vpn/site-to-site/config/ikepolicy' },
@@ -13,10 +15,16 @@ function IpsecSteps() {
     { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
   ];
 
+  // Update the URL state when `webpage` prop changes
+  useEffect(() => {
+    setUrlState(webpage);
+  }, [webpage]);
+
+  // Handle selection and navigation
   const handleSelection = (ipsec) => {
     const selected = ipsecSelection.find((item) => item.name === ipsec);
     if (selected?.path) {
-      navigate(selected.path, { replace: true });
+      navigate(selected.path); // Navigate to the selected path
     }
   };
 
@@ -27,7 +35,9 @@ function IpsecSteps() {
         {ipsecSelection.map((ipsec) => (
           <div
             key={ipsec.name}
-            className="border py-2 px-6 text-xl text-left cursor-pointer rounded-lg hover:bg-sky-300 hover:text-white"
+            className={`border py-2 px-6 text-left ${
+              urlState === ipsec.name ? 'bg-sky-400 text-white' : ''
+            } cursor-pointer rounded-lg hover:bg-sky-300 hover:text-white`}
             onClick={() => handleSelection(ipsec.name)}
           >
             {ipsec.name}

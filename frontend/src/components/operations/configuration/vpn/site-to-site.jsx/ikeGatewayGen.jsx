@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import IpsecSteps from './ipsec_steps';
-
-function IkePolicyConfig() {
+import { Link } from 'react-router-dom';
+/**
+ * IkeGatewayConfig Component
+ * --------------------------
+ * This component configures an IKE Gateway for Juniper VPN.
+ * Users can input:
+ * - Remote Address
+ * - External Interface
+ * - IKE Policy Selection (Fetched from API)
+ * - IKE Version Selection
+ * - Pre-Shared Key Input
+ *
+ * Data is fetched dynamically from the backend.
+ */
+function IkeGatewayConfig() {
+  // State to manage user selections
   const [selectedOptions, setSelectedOptions] = useState({
     policyName: '',
     ike_mode: '',
@@ -10,6 +24,7 @@ function IkePolicyConfig() {
     ike_version: '',
   });
 
+  // Field labels for the left column
   const ikeGatewayParams = [
     'Remote Address',
     'External Interface',
@@ -18,13 +33,18 @@ function IkePolicyConfig() {
     'Pre-Shared Key',
   ];
 
+  // Available IKE versions
   const ikeVersions = ['v1-only', 'v2-only', 'ikev1-ikev2'];
+
+  // State for output format selection (JSON, XML, CLI)
   const [selectedFormat, setSelectedFormat] = useState('json');
+
+  // API data states
   const [ikePolicyNames, setIkePolicyNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Optimized fetch function
+  /** Fetch available IKE Policies from the API */
   const fetchIkePolicyNames = async () => {
     setLoading(true);
     let errorMessages = [];
@@ -43,10 +63,12 @@ function IkePolicyConfig() {
     }
   };
 
+  // Fetch IKE Policy names when the component mounts
   useEffect(() => {
     fetchIkePolicyNames();
   }, []);
 
+  // Handle API loading state
   if (loading)
     return (
       <div className="flex flex-col items-center justify-center h-40">
@@ -73,47 +95,62 @@ function IkePolicyConfig() {
       </div>
     );
 
+  // Handle API error state
   if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+
+  // Handle empty API response
   if (!ikePolicyNames)
     return <p className="text-gray-500">No IKE Policies available</p>;
 
   return (
     <>
+      {/* Main Container */}
       <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ikePolicy">Previous</a>
-          </button>
+        <div className="flex items-center mb-4">
+          {/* Convert Previous button to Link */}
+          <Link
+            to="/vpn/site-to-site/config/ikepolicy"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Previous
+          </Link>
 
           <h2 className="text-lg font-semibold text-center flex-1 capitalize">
             Juniper IKE Gateway Configuration
           </h2>
 
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecproposal">Next</a>
-          </button>
+          {/* Convert Next button to Link */}
+          <Link
+            to="/vpn/site-to-site/config/ipsecproposal"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Next
+          </Link>
         </div>
-        {/* IPsec Table List */}
-        <div className="flex items-center justify-between">
+
+        <div className="flex items-center">
+          {/* Sidebar with IPsec Steps */}
           <div className="flex">
-            <IpsecSteps />
+            <IpsecSteps webpage="IKE Gateway" />
           </div>
+
           {/* Form Fields */}
           <div className="flex mx-auto">
             {/* Labels Section (Left Column) */}
             <div className="w-[32rem] flex flex-col space-y-4 items-center">
-              {ikeGatewayParams.map((label_name, index) => (
+              {ikeGatewayParams.map((label, index) => (
                 <button
                   key={index}
                   className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
                 >
-                  {label_name}
+                  {label}
                 </button>
               ))}
             </div>
 
             {/* Input Fields (Right Column) */}
-            <div className="flex flex-col space-y-5  justify-left">
+            <div className="flex flex-col space-y-5">
+              {/* Policy Name Input */}
               <input
                 type="text"
                 placeholder="Enter Policy Name"
@@ -154,9 +191,9 @@ function IkePolicyConfig() {
                 }
               >
                 <option value="">Select a Policy</option>
-                {ikePolicyNames.map((Policy, index) => (
-                  <option key={index} value={Policy}>
-                    {Policy}
+                {ikePolicyNames.map((policy, index) => (
+                  <option key={index} value={policy}>
+                    {policy}
                   </option>
                 ))}
               </select>
@@ -179,24 +216,24 @@ function IkePolicyConfig() {
                   </option>
                 ))}
               </select>
-
               <input
                 type="text"
                 placeholder="Enter Ascii Password"
                 className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.policyName}
+                value={selectedOptions.psk_passwd}
                 onChange={(e) =>
                   setSelectedOptions((prev) => ({
                     ...prev,
-                    policyName: e.target.value,
+                    psk_passwd: e.target.value,
                   }))
                 }
               />
             </div>
           </div>
         </div>
+
         {/* Preview & Deploy Buttons */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mt-6">
           <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
             preview
           </button>
@@ -229,4 +266,4 @@ function IkePolicyConfig() {
   );
 }
 
-export default IkePolicyConfig;
+export default IkeGatewayConfig;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useIpsecData } from './ikeProposalItems';
 import IpsecSteps from './ipsec_steps';
+import { Link } from 'react-router-dom';
 
 function IPsecProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
@@ -61,25 +62,31 @@ function IPsecProposalConfig() {
   return (
     <>
       <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ikegateway">Previous</a>
-          </button>
+        <div className="flex items-center mb-4">
+          {/* Convert Previous button to Link */}
+          <Link
+            to="/vpn/site-to-site/config/ikegateway"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Previous
+          </Link>
 
           <h2 className="text-lg font-semibold text-center flex-1 capitalize">
             Juniper IPsec Proposal Configuration
           </h2>
-
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecpolicy">Next</a>
-          </button>
+          <Link
+            to="/vpn/site-to-site/config/ipsecpolicy"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Next
+          </Link>
         </div>
-        <div className="flex">
+        <div className="flex items-center justify-between">
           <div className="flex">
-            <IpsecSteps />
+            <IpsecSteps webpage="IPsec Proposal" />
           </div>
 
-          <div className="flex mx-auto items-center  mb-6 ">
+          <div className="flex mx-auto">
             <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
               <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
                 IPsec Proposal Name

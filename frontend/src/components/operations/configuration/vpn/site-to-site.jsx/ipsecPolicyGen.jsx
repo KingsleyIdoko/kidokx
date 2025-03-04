@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useIpsecData } from './ikeProposalItems';
+import IpsecSteps from './ipsec_steps';
+import { Link } from 'react-router-dom';
 
 function IPsecPolicyConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
@@ -56,70 +58,83 @@ function IPsecPolicyConfig() {
 
   return (
     <>
-      <div className="w-[56rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecproposal">Previous</a>
-          </button>
+      <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          {/* Convert Previous button to Link */}
+          <Link
+            to="/vpn/site-to-site/config/ipsecproposal"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Previous
+          </Link>
 
           <h2 className="text-lg font-semibold text-center flex-1 capitalize">
             Juniper IPsec Policy Configuration
           </h2>
 
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            <a href="/vpn/site-to-site/config/ipsecvpn">Next</a>
-          </button>
+          {/* Convert Next button to Link */}
+          <Link
+            to="/vpn/site-to-site/config/ipsecvpn"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+          >
+            Next
+          </Link>
         </div>
-        <div className="flex mx-auto items-center mb-6">
-          {/* Buttons */}
-          <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
-            <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
-              IKE Proposal Name
-            </button>
-            {Object.keys(filteredIsecData).map((category) => (
-              <button
-                key={category}
-                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-              >
-                {String(category).replace(/_/g, ' ')}
-              </button>
-            ))}
+        <div className="flex items-center justify-between">
+          <div className="flex">
+            <IpsecSteps webpage="IPsec Policy" />
           </div>
-          {/* Input Fields (Right Column) */}
-          <div className="flex flex-col space-y-5 justify-left">
-            <input
-              type="text"
-              placeholder="Enter Name"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.proposalName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  proposalName: e.target.value,
-                }))
-              }
-            />
-            {Object.keys(filteredIsecData).map((category) => (
-              <select
-                key={category}
+          <div className="flex mx-auto">
+            {/* Buttons */}
+            <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
+              <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
+                IKE Proposal Name
+              </button>
+              {Object.keys(filteredIsecData).map((category) => (
+                <button
+                  key={category}
+                  className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+                >
+                  {String(category).replace(/_/g, ' ')}
+                </button>
+              ))}
+            </div>
+            {/* Input Fields (Right Column) */}
+            <div className="flex flex-col space-y-5 justify-left">
+              <input
+                type="text"
+                placeholder="Enter Name"
                 className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions[category] || ''}
+                value={selectedOptions.proposalName}
                 onChange={(e) =>
                   setSelectedOptions((prev) => ({
                     ...prev,
-                    [category]: e.target.value,
+                    proposalName: e.target.value,
                   }))
                 }
-              >
-                {filteredIsecData[category].map((option, index) =>
-                  option[0] !== 'Pre-Shared Key' ? (
-                    <option key={option[0] || index} value={option[0]}>
-                      {option[1]}
-                    </option>
-                  ) : null,
-                )}
-              </select>
-            ))}
+              />
+              {Object.keys(filteredIsecData).map((category) => (
+                <select
+                  key={category}
+                  className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+                  value={selectedOptions[category] || ''}
+                  onChange={(e) =>
+                    setSelectedOptions((prev) => ({
+                      ...prev,
+                      [category]: e.target.value,
+                    }))
+                  }
+                >
+                  {filteredIsecData[category].map((option, index) =>
+                    option[0] !== 'Pre-Shared Key' ? (
+                      <option key={option[0] || index} value={option[0]}>
+                        {option[1]}
+                      </option>
+                    ) : null,
+                  )}
+                </select>
+              ))}
+            </div>
           </div>
         </div>
         <div className="flex items-center justify-between">

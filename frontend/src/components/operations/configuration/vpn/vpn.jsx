@@ -20,11 +20,18 @@ function VPN() {
     { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
   ];
 
+  const handleSelection = (ipsec) => {
+    const selected = ipsecSelection.find((item) => item.name === ipsec);
+    if (selected) {
+      navigate(selected.path, { replace: true }); // ✅ Ensures absolute navigation
+    }
+  };
+
   return (
     <>
-      <div className="min-h-screen bg-sky-100 flex mx-auto justify-center py-10">
+      <div className="min-h-screen bg-sky-100 flex mx-auto justify-center  py-10">
         {/* Routes for Site-to-Site and Remote Access VPN */}
-        <div className="flex flex-col items-center space-y-4">
+        <div className="w-[68rem] h-[30rem] shadow-lg  flex flex-col items-center space-y-4 bg-white">
           <Routes>
             <Route path="/site-to-site" element={<IPsecListgroup />} />
             <Route
