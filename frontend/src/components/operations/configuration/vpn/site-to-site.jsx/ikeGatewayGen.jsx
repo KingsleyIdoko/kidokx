@@ -105,102 +105,100 @@ function IkeGatewayConfig() {
   return (
     <>
       {/* Main Container */}
-      <div className="mx-auto bg-white rounded-lg p-6">
-        <div className="flex items-center">
-          <div className="flex mx-auto">
-            {/* Labels Section (Left Column) */}
-            <div className="w-[32rem] flex flex-col space-y-4 items-center">
-              {ikeGatewayParams.map((label, index) => (
-                <button
-                  key={index}
-                  className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-                >
-                  {label}
-                </button>
+      <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
+        <div className="flex mx-auto">
+          {/* Labels Section (Left Column) */}
+          <div className="w-[24rem] flex flex-col space-y-4">
+            {ikeGatewayParams.map((label, index) => (
+              <button
+                key={index}
+                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Input Fields (Right Column) */}
+          <div className="w-[20rem] flex flex-col space-y-5">
+            {/* Policy Name Input */}
+            <input
+              type="text"
+              placeholder="Enter Policy Name"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.policyName}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  policyName: e.target.value,
+                }))
+              }
+            />
+
+            {/* External Interface Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.ike_mode}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  ike_mode: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Interface</option>
+              <option value="ge-0/0/0">ge-0/0/0</option>
+            </select>
+
+            {/* IKE Policy Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.policyName}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  policyName: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select a Policy</option>
+              {ikePolicyNames.map((policy, index) => (
+                <option key={index} value={policy}>
+                  {policy}
+                </option>
               ))}
-            </div>
+            </select>
 
-            {/* Input Fields (Right Column) */}
-            <div className="flex flex-col space-y-5">
-              {/* Policy Name Input */}
-              <input
-                type="text"
-                placeholder="Enter Policy Name"
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.policyName}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    policyName: e.target.value,
-                  }))
-                }
-              />
-
-              {/* External Interface Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.ike_mode}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    ike_mode: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select Interface</option>
-                <option value="ge-0/0/0">ge-0/0/0</option>
-              </select>
-
-              {/* IKE Policy Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.policyName}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    policyName: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select a Policy</option>
-                {ikePolicyNames.map((policy, index) => (
-                  <option key={index} value={policy}>
-                    {policy}
-                  </option>
-                ))}
-              </select>
-
-              {/* IKE Version Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.ike_version}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    ike_version: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select Version</option>
-                {ikeVersions.map((version, index) => (
-                  <option key={index} value={version}>
-                    {version}
-                  </option>
-                ))}
-              </select>
-              <input
-                type="text"
-                placeholder="Enter Ascii Password"
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.psk_passwd}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    psk_passwd: e.target.value,
-                  }))
-                }
-              />
-            </div>
+            {/* IKE Version Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.ike_version}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  ike_version: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Version</option>
+              {ikeVersions.map((version, index) => (
+                <option key={index} value={version}>
+                  {version}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              placeholder="Enter Ascii Password"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.psk_passwd}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  psk_passwd: e.target.value,
+                }))
+              }
+            />
           </div>
         </div>
       </div>

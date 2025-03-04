@@ -105,91 +105,87 @@ function IkePolicyConfig() {
   return (
     <>
       {/* Main Container */}
-      <div className="mx-auto bg-white rounded-lg p-6">
+      <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
+        {/* Form Fields */}
         <div className="flex items-center justify-between">
-          {/* Sidebar with IPsec Steps */}
+          {/* Labels Section (Left Column) */}
+          <div className="w-[24rem] flex flex-col space-y-4">
+            {ikePolicyLabels.map((label_name, index) => (
+              <button
+                key={index}
+                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+              >
+                {label_name}
+              </button>
+            ))}
+          </div>
 
-          {/* Form Fields */}
-          <div className="flex mx-auto ">
-            {/* Labels Section (Left Column) */}
-            <div className="w-[32rem] flex flex-col space-y-4 items-center">
-              {ikePolicyLabels.map((label_name, index) => (
-                <button
-                  key={index} // ✅ Added a unique key for React
-                  className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-                >
-                  {label_name}
-                </button>
+          {/* Input Fields (Right Column) */}
+          <div className="w-[20rem] flex flex-col space-y-5">
+            {/* IKE Policy Name Input */}
+            <input
+              type="text"
+              placeholder="Enter Name"
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.policyName}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  policyName: e.target.value,
+                }))
+              }
+            />
+
+            {/* IKE Mode Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.ike_mode}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  ike_mode: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Mode</option>
+              <option value="main">Main</option>
+              <option value="aggressive">Aggressive</option>
+            </select>
+
+            {/* IKE Proposal Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.proposalName}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  proposalName: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select a Proposal</option>
+              {ikeProposalNames.map((proposal, index) => (
+                <option key={index} value={proposal}>
+                  {proposal}
+                </option>
               ))}
-            </div>
+            </select>
 
-            {/* Input Fields (Right Column) */}
-            <div className="flex flex-col space-y-5">
-              {/* IKE Policy Name Input */}
-              <input
-                type="text"
-                placeholder="Enter Name"
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.policyName}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    policyName: e.target.value,
-                  }))
-                }
-              />
-
-              {/* IKE Mode Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.ike_mode}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    ike_mode: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select Mode</option>
-                <option value="main">Main</option>
-                <option value="aggressive">Aggressive</option>
-              </select>
-
-              {/* IKE Proposal Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.proposalName}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    proposalName: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select a Proposal</option>
-                {ikeProposalNames.map((proposal, index) => (
-                  <option key={index} value={proposal}>
-                    {proposal}
-                  </option>
-                ))}
-              </select>
-
-              {/* Authentication Method Selection */}
-              <select
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-                value={selectedOptions.authentication_method}
-                onChange={(e) =>
-                  setSelectedOptions((prev) => ({
-                    ...prev,
-                    authentication_method: e.target.value,
-                  }))
-                }
-              >
-                <option value="">Select Auth Method</option>
-                <option value="pre-shared-key">Pre-Shared Key</option>
-                <option value="rsa">RSA</option>
-              </select>
-            </div>
+            {/* Authentication Method Selection */}
+            <select
+              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+              value={selectedOptions.authentication_method}
+              onChange={(e) =>
+                setSelectedOptions((prev) => ({
+                  ...prev,
+                  authentication_method: e.target.value,
+                }))
+              }
+            >
+              <option value="">Select Auth Method</option>
+              <option value="pre-shared-key">Pre-Shared Key</option>
+              <option value="rsa">RSA</option>
+            </select>
           </div>
         </div>
       </div>
