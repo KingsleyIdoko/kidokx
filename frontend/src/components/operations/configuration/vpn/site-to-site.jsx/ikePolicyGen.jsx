@@ -105,34 +105,9 @@ function IkePolicyConfig() {
   return (
     <>
       {/* Main Container */}
-      <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center mb-4">
-          {/* Convert Previous button to Link */}
-          <Link
-            to="/vpn/site-to-site/config/ikeproposal"
-            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
-          >
-            Previous
-          </Link>
-
-          <h2 className="text-lg font-semibold text-center flex-1 capitalize">
-            Juniper IKE Policy Configuration
-          </h2>
-
-          {/* Convert Next button to Link */}
-          <Link
-            to="/vpn/site-to-site/config/ikegateway"
-            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
-          >
-            Next
-          </Link>
-        </div>
-
+      <div className="mx-auto bg-white rounded-lg p-6">
         <div className="flex items-center justify-between">
           {/* Sidebar with IPsec Steps */}
-          <div className="flex">
-            <IpsecSteps webpage="IKE Policy" />
-          </div>
 
           {/* Form Fields */}
           <div className="flex mx-auto ">
@@ -216,17 +191,6 @@ function IkePolicyConfig() {
               </select>
             </div>
           </div>
-        </div>
-
-        {/* Preview & Deploy Buttons */}
-        <div className="flex items-center justify-between">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            preview
-          </button>
-
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70">
-            deploy
-          </button>
         </div>
       </div>
     </>

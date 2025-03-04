@@ -61,31 +61,8 @@ function IPsecProposalConfig() {
 
   return (
     <>
-      <div className="w-[68rem] mx-auto bg-white shadow-lg rounded-lg p-6">
-        <div className="flex items-center mb-4">
-          {/* Convert Previous button to Link */}
-          <Link
-            to="/vpn/site-to-site/config/ikegateway"
-            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
-          >
-            Previous
-          </Link>
-
-          <h2 className="text-lg font-semibold text-center flex-1 capitalize">
-            Juniper IPsec Proposal Configuration
-          </h2>
-          <Link
-            to="/vpn/site-to-site/config/ipsecpolicy"
-            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
-          >
-            Next
-          </Link>
-        </div>
+      <div className="mx-auto bg-white rounded-lg p-6">
         <div className="flex items-center justify-between">
-          <div className="flex">
-            <IpsecSteps webpage="IPsec Proposal" />
-          </div>
-
           <div className="flex mx-auto">
             <div className="w-[32rem] flex flex-col space-y-4 items-center justify-center">
               <button className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
@@ -144,38 +121,6 @@ function IPsecProposalConfig() {
               />
             </div>
           </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-            preview
-          </button>
-          <div className="flex space-x-3 items-center justify-center">
-            <button
-              htmlFor="format"
-              className="capitalize text-black bg-gray-100 rounded-lg py-2 px-6 hover:opacity-70"
-            >
-              format:
-            </button>
-            <select
-              id="format"
-              className="capitalize  text-black rounded-lg py-2 px-6 hover:opacity-70 focus:outline-none"
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-            >
-              <option value="json" className="capitalize">
-                json
-              </option>
-              <option value="xml" className="capitalize">
-                xml
-              </option>
-              <option value="cli" className="capitalize">
-                cli
-              </option>
-            </select>
-          </div>
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70">
-            deploy
-          </button>
         </div>
       </div>
     </>
