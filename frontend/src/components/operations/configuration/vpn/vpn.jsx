@@ -13,11 +13,13 @@ import DeployPreview from './site-to-site.jsx/deploy_preview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 
 function VPN() {
-  const [webPage, setWebPage] = useState('IKE Proposal');
   const navigate = useNavigate();
-  const location = useLocation(); // To get the current URL location
+  const location = useLocation();
+  const [webPage, setWebPage] = useState('IKE Proposal');
+  const [nextPage, setNextPage] = useState(true);
+  const [prevPage, setPrevPage] = useState(false);
 
-  // Array of navigation options
+  // IPsec navigation steps
   const ipsecSelection = [
     { name: 'IKE Proposal', path: '/vpn/site-to-site/config/ikeproposal' },
     { name: 'IKE Policy', path: '/vpn/site-to-site/config/ikepolicy' },
@@ -27,30 +29,65 @@ function VPN() {
     { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
   ];
 
-  // Update the webpage state when the location changes
+  // ✅ Update webPage, nextPage, and prevPage when the route changes
   useEffect(() => {
     const currentPath = location.pathname;
-    console.log(currentPath);
-    const selected = ipsecSelection.find((item) => item.path === currentPath);
-    if (selected) {
-      setWebPage(selected.name); // Set the webpage name based on the current path
+    const currentIndex = ipsecSelection.findIndex(
+      (item) => item.path === currentPath,
+    );
+
+    if (currentIndex !== -1) {
+      setWebPage(ipsecSelection[currentIndex].name);
+      setNextPage(currentIndex < ipsecSelection.length - 1);
+      setPrevPage(currentIndex > 0);
     }
   }, [location, ipsecSelection]);
+
+  function handleNextBtn() {
+    setTimeout(() => {
+      const currentIndex = ipsecSelection.findIndex(
+        (item) => item.path === location.pathname,
+      );
+
+      if (currentIndex !== -1 && currentIndex < ipsecSelection.length - 1) {
+        const nextPath = ipsecSelection[currentIndex + 1].path;
+        navigate(nextPath);
+      }
+    }, 50);
+  }
+
+  function handlePreviousBtn() {
+    setTimeout(() => {
+      const currentIndex = ipsecSelection.findIndex(
+        (item) => item.path === location.pathname,
+      );
+      if (currentIndex > 0) {
+        const prevPath = ipsecSelection[currentIndex - 1].path;
+        navigate(prevPath);
+      }
+    }, 50);
+  }
 
   return (
     <>
       <div className="min-h-screen bg-sky-100 flex justify-center mx-auto py-12 rounded-xl">
         {/* Main container for the VPN configuration steps */}
         <div className="w-[68rem] h-[36rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative">
-          {/* Navigation Bar: Fixed position */}
+          {/* Navigation Bar */}
           <div className="w-[64rem] pt-6">
-            <NavigationBar />
+            <NavigationBar
+              urlPath={location.pathname}
+              onhandleNextBtn={handleNextBtn}
+              onhandlePreviousBtn={handlePreviousBtn}
+              nextPage={nextPage}
+              prevPage={prevPage}
+              pageTitle={webPage}
+            />
           </div>
           {/* IPsec Steps Sidebar */}
           <div className="w-[64rem] h-[24rem] flex items-center justify-between bg-white p-3 gap-3">
             <div>
-              <IpsecSteps webpage={webPage} />
-              {/* Pass the webpage name as a prop */}
+              <IpsecSteps webpage={webPage} /> {/* ✅ Pass webpage name */}
             </div>
 
             {/* Routes for Site-to-Site and Remote Access VPN */}
@@ -85,7 +122,7 @@ function VPN() {
               </Routes>
             </div>
           </div>
-          {/* Deploy and Preview Section: Fixed position */}
+          {/* Deploy and Preview Section */}
           <div className="w-[64rem] pb-10">
             <DeployPreview />
           </div>

@@ -1,34 +1,54 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-function NavigationBar() {
-  // State to handle the selected format (though it's not currently being used here)
-  const [selectedFormat, setSelectedFormat] = useState('json');
+function NavigationBar({
+  previousPath,
+  nextPath,
+  onhandleNextBtn,
+  onhandlePreviousBtn,
+  nextPage,
+  prevPage,
+  pageTitle,
+}) {
+  const navigate = useNavigate();
+
+  const handlePreviousClick = () => {
+    onhandlePreviousBtn();
+    navigate(previousPath);
+  };
+
+  const handleNextClick = () => {
+    onhandleNextBtn();
+    navigate(nextPath);
+  };
+
+  console.log(nextPage);
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        {/* Previous Button wrapped with Link for routing */}
-        <Link
-          to="/vpn/site-to-site/config/ikeproposal"
-          className="capitalize font-semibold text-white bg-gray-400 rounded-lg py-2 px-6"
-        >
-          Previous
-        </Link>
+    <div className="flex items-center justify-between mb-4">
+      {/* Previous Button */}
+      <button
+        onClick={handlePreviousClick}
+        className={`capitalize font-semibold ${
+          prevPage ? 'bg-sky-400' : 'bg-gray-400'
+        } text-white rounded-lg py-2 px-6`}
+      >
+        Previous
+      </button>
 
-        <h2 className="text-lg font-semibold text-center flex-1 capitalize">
-          Juniper IKE Proposal Configuration
-        </h2>
+      <h2 className="text-lg font-semibold text-center flex-1 capitalize">
+        {`Juniper ${pageTitle} Configuration`}
+      </h2>
 
-        {/* Next Button wrapped with Link for routing */}
-        <Link
-          to="/vpn/site-to-site/config/ikepolicy"
-          className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
-        >
-          Next
-        </Link>
-      </div>
-    </>
+      {/* Next Button */}
+      <button
+        onClick={handleNextClick}
+        className={`capitalize font-semibold ${
+          nextPage ? 'bg-sky-400' : 'bg-gray-400'
+        } text-white rounded-lg py-2 px-6`}
+      >
+        Next
+      </button>
+    </div>
   );
 }
 
