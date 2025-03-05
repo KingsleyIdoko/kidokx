@@ -11,6 +11,7 @@ import IPsecVPNConfig from './site-to-site.jsx/ipsecVpnGen';
 import NavigationBar from './site-to-site.jsx/navigation';
 import DeployPreview from './site-to-site.jsx/deploy_preview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
+import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 
 function VPN() {
   const navigate = useNavigate();
@@ -42,6 +43,10 @@ function VPN() {
       setPrevPage(currentIndex > 0);
     }
   }, [location, ipsecSelection]);
+
+  function handlePreviewBtn() {
+    navigate('/vpn/site-to-site/config/preview');
+  }
 
   function handleNextBtn() {
     setTimeout(() => {
@@ -91,13 +96,19 @@ function VPN() {
             </div>
 
             {/* Routes for Site-to-Site and Remote Access VPN */}
-            <div className="w-[44rem] rounded-lg">
+            <div className="w-[50rem] rounded-lg">
               <Routes>
                 <Route path="/site-to-site" element={<IPsecListgroup />} />
                 <Route
                   path="/site-to-site/config/ikeproposal"
                   element={<IkeProposalConfig />}
                 />
+
+                <Route
+                  path="/site-to-site/config/preview"
+                  element={<PagePreview />}
+                />
+
                 <Route
                   path="/site-to-site/config/ikepolicy"
                   element={<IkePolicyConfig />}
@@ -124,7 +135,7 @@ function VPN() {
           </div>
           {/* Deploy and Preview Section */}
           <div className="w-[64rem] pb-10">
-            <DeployPreview />
+            <DeployPreview onPreviewBtn={handlePreviewBtn} />
           </div>
         </div>
       </div>

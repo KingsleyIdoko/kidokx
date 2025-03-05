@@ -1,14 +1,16 @@
 import { useState } from 'react';
 
-function DeployPreview() {
+function DeployPreview({ onPreviewBtn }) {
   // State to handle the selected format (json, xml, cli)
   const [selectedFormat, setSelectedFormat] = useState('json');
-
   return (
     <div className="flex items-center justify-between">
       {/* Preview Button */}
-      <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70">
-        preview
+      <button
+        className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+        onClick={onPreviewBtn}
+      >
+        Preview
       </button>
 
       <div className="flex space-x-3 items-center justify-center">

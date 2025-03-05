@@ -21,8 +21,6 @@ function NavigationBar({
     navigate(nextPath);
   };
 
-  console.log(nextPage);
-
   return (
     <div className="flex items-center justify-between mb-4">
       {/* Previous Button */}
