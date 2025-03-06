@@ -9,7 +9,7 @@ import IPsecProposalConfig from './site-to-site.jsx/ipsecProposalGen';
 import IPsecPolicyConfig from './site-to-site.jsx/ipsecPolicyGen';
 import IPsecVPNConfig from './site-to-site.jsx/ipsecVpnGen';
 import NavigationBar from './site-to-site.jsx/navigation';
-import DeployPreview from './site-to-site.jsx/deploy_preview';
+import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 
@@ -19,6 +19,7 @@ function VPN() {
   const [webPage, setWebPage] = useState('IKE Proposal');
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
+  const [selectedFormat, setSelectedFormat] = useState('CLI');
 
   // IPsec navigation steps
   const ipsecSelection = [
@@ -106,7 +107,7 @@ function VPN() {
 
                 <Route
                   path="/site-to-site/config/preview"
-                  element={<PagePreview />}
+                  element={<PagePreview selectedFormat={selectedFormat} />}
                 />
 
                 <Route
@@ -135,7 +136,11 @@ function VPN() {
           </div>
           {/* Deploy and Preview Section */}
           <div className="w-[64rem] pb-10">
-            <DeployPreview onPreviewBtn={handlePreviewBtn} />
+            <DeployPreview
+              onPreviewBtn={handlePreviewBtn}
+              onSelectedFormat={selectedFormat}
+              setSelectedFormat={setSelectedFormat}
+            />
           </div>
         </div>
       </div>

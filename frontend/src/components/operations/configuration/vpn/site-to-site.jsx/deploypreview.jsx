@@ -1,8 +1,6 @@
 import { useState } from 'react';
 
-function DeployPreview({ onPreviewBtn }) {
-  // State to handle the selected format (json, xml, cli)
-  const [selectedFormat, setSelectedFormat] = useState('json');
+function DeployPreview({ onPreviewBtn, onSelectedFormat, setSelectedFormat }) {
   return (
     <div className="flex items-center justify-between">
       {/* Preview Button */}
@@ -24,8 +22,8 @@ function DeployPreview({ onPreviewBtn }) {
         <select
           id="format"
           className="capitalize text-black rounded-lg py-2 px-6 hover:opacity-70 focus:outline-none"
-          value={selectedFormat}
-          onChange={(e) => setSelectedFormat(e.target.value)} // Update selected format
+          value={onSelectedFormat}
+          onChange={(e) => setSelectedFormat(e.target.value)}
         >
           <option value="json" className="capitalize">
             JSON
