@@ -25,14 +25,14 @@ function DeployPreview({ onPreviewBtn, onSelectedFormat, setSelectedFormat }) {
           value={onSelectedFormat}
           onChange={(e) => setSelectedFormat(e.target.value)}
         >
-          <option value="json" className="capitalize">
-            JSON
+          <option value="cli" className="capitalize">
+            CLI
           </option>
           <option value="xml" className="capitalize">
             XML
           </option>
-          <option value="cli" className="capitalize">
-            CLI
+          <option value="json" className="capitalize">
+            JSON
           </option>
         </select>
       </div>

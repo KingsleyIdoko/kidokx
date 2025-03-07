@@ -1,6 +1,6 @@
-function PagePreview({ selectedFormat }) {
+function PagePreview({ selectedFormat = 'cli' }) {
   const formats = {
-    set: `
+    cli: `
 set security ike proposal proposal-1 authentication-method pre-shared-keys
 set security ike proposal proposal-1 dh-group group14
 set security ike proposal proposal-1 authentication-algorithm sha-256
@@ -42,15 +42,22 @@ set security ike proposal proposal-1 lifetime-seconds 28800
 </configuration>
     `,
   };
+  const formatToDisplay = formats[selectedFormat] ? selectedFormat : 'cli';
 
   return (
-    <div className="max-w-4xl mx-auto bg-gray-800 rounded-lg p-6">
-      <h1 className="text-lg font-semibold text-white mb-4">
-        Selected Format: {selectedFormat.toUpperCase()}
-      </h1>
-      {/* ✅ Display the correct format dynamically */}
-      <pre className="bg-gray-600 text-sm leading-7 text-yellow-400 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap">
-        {formats[selectedFormat] || 'Invalid format selected'}
+    <div
+      className={`max-w-full w-[46rem] ${
+        selectedFormat !== 'cli' ? 'h-[26rem]' : 'h-[24rem]'
+      } flex items-center justify-center mx-auto bg-black p-3 rounded-lg shadow-lg border border-gray-700`}
+    >
+      <pre
+        className={`w-full h-full flex bg-gray-800  text-sm text-white font-semibold ${
+          selectedFormat !== 'cli' ? '' : 'leading-7 '
+        } items-center leading-7 ${
+          selectedFormat === 'json' ? '' : 'items-center '
+        }rounded-lg overflow-hidden whitespace-pre-wrap min-h-0`}
+      >
+        {formats[formatToDisplay] || formats['cli']}
       </pre>
     </div>
   );

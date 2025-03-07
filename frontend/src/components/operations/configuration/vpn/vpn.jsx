@@ -78,7 +78,7 @@ function VPN() {
     <>
       <div className="min-h-screen bg-sky-100 flex justify-center mx-auto py-12 rounded-xl">
         {/* Main container for the VPN configuration steps */}
-        <div className="w-[68rem] h-[36rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative">
+        <div className="w-[68rem] h-[38rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative">
           {/* Navigation Bar */}
           <div className="w-[64rem] pt-6">
             <NavigationBar
@@ -91,7 +91,7 @@ function VPN() {
             />
           </div>
           {/* IPsec Steps Sidebar */}
-          <div className="w-[64rem] h-[24rem] flex items-center justify-between bg-white p-3 gap-3">
+          <div className="w-[64rem] h-[26rem] flex items-center justify-between bg-white p-3 gap-3">
             <div>
               <IpsecSteps webpage={webPage} /> {/* ✅ Pass webpage name */}
             </div>
