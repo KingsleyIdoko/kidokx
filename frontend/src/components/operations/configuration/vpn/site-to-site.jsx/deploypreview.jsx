@@ -1,11 +1,19 @@
 import { useState } from 'react';
 
-function DeployPreview({ onPreviewBtn, onSelectedFormat, setSelectedFormat }) {
+function DeployPreview({
+  onPreviewBtn,
+  onSelectedFormat,
+  setSelectedFormat,
+  onPreview,
+}) {
+  console.log(onPreview);
   return (
     <div className="flex items-center justify-between">
       {/* Preview Button */}
       <button
-        className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 hover:opacity-70"
+        className={`capitalize font-semibold text-white ${
+          onPreview ? 'bg-gray-400' : 'bg-sky-400'
+        } rounded-lg py-2 px-6 hover:opacity-70`}
         onClick={onPreviewBtn}
       >
         Preview
@@ -44,5 +52,4 @@ function DeployPreview({ onPreviewBtn, onSelectedFormat, setSelectedFormat }) {
     </div>
   );
 }
-
 export default DeployPreview;

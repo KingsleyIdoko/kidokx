@@ -20,6 +20,8 @@ function VPN() {
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('CLI');
+  const [ipsecPath, setIpsecPath] = useState('');
+  const [clickedPreview, setClickedPreview] = useState(false);
 
   // IPsec navigation steps
   const ipsecSelection = [
@@ -30,8 +32,6 @@ function VPN() {
     { name: 'IPsec Policy', path: '/vpn/site-to-site/config/ipsecpolicy' },
     { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
   ];
-
-  // ✅ Update webPage, nextPage, and prevPage when the route changes
   useEffect(() => {
     const currentPath = location.pathname;
     const currentIndex = ipsecSelection.findIndex(
@@ -45,9 +45,24 @@ function VPN() {
     }
   }, [location, ipsecSelection]);
 
-  function handlePreviewBtn() {
-    navigate('/vpn/site-to-site/config/preview');
-  }
+  const handlePreviewBtn = () => {
+    const currentPath = location.pathname.split('/').pop();
+    if (!clickedPreview) {
+      navigate(`/vpn/site-to-site/config/preview/${currentPath}`);
+    } else {
+      navigate(`/vpn/site-to-site/config/${currentPath}`);
+    }
+    setClickedPreview((prev) => !prev);
+  };
+
+  const handleSelection = (ipsecName, ipsecPath, ipsecSelection) => {
+    const selected = ipsecSelection.find((item) => item.name === ipsecName);
+    if (selected?.path) {
+      setIpsecPath(ipsecPath);
+      navigate(selected.path);
+      setClickedPreview(false);
+    }
+  };
 
   function handleNextBtn() {
     setTimeout(() => {
@@ -93,7 +108,11 @@ function VPN() {
           {/* IPsec Steps Sidebar */}
           <div className="w-[64rem] h-[26rem] flex items-center justify-between bg-white p-3 gap-3">
             <div>
-              <IpsecSteps webpage={webPage} /> {/* ✅ Pass webpage name */}
+              <IpsecSteps
+                webpage={webPage}
+                onhandleSelection={handleSelection}
+                ipsecPath={ipsecPath}
+              />
             </div>
 
             {/* Routes for Site-to-Site and Remote Access VPN */}
@@ -104,12 +123,15 @@ function VPN() {
                   path="/site-to-site/config/ikeproposal"
                   element={<IkeProposalConfig />}
                 />
-
                 <Route
-                  path="/site-to-site/config/preview"
-                  element={<PagePreview selectedFormat={selectedFormat} />}
+                  path="/site-to-site/config/preview/:ipsecType"
+                  element={
+                    <PagePreview
+                      selectedFormat={selectedFormat}
+                      ipsecPath={ipsecPath}
+                    />
+                  }
                 />
-
                 <Route
                   path="/site-to-site/config/ikepolicy"
                   element={<IkePolicyConfig />}
@@ -134,12 +156,12 @@ function VPN() {
               </Routes>
             </div>
           </div>
-          {/* Deploy and Preview Section */}
           <div className="w-[64rem] pb-10">
             <DeployPreview
               onPreviewBtn={handlePreviewBtn}
               onSelectedFormat={selectedFormat}
               setSelectedFormat={setSelectedFormat}
+              onPreview={clickedPreview}
             />
           </div>
         </div>
@@ -147,5 +169,4 @@ function VPN() {
     </>
   );
 }
-
 export default VPN;
