@@ -60,7 +60,7 @@ export default function Navbar() {
                 {/* Main Dropdown Button */}
                 <button
                   onClick={() => toggleDropdown(menu.name)}
-                  className="flex items-center capitalize gap-2 hover:text-black rounded-lg hover:bg-white border-2 border-sky-400 py-2 px-6"
+                  className="flex items-center capitalize gap-2 hover:text-black rounded-lg hover:bg-white border-2 border-sky-400 py-2 px-6 z-50"
                 >
                   <div className="text-lg">{menu.name}</div>
                   {menu.hasSubmenu && (
@@ -78,7 +78,7 @@ export default function Navbar() {
 
                 {/* Main Dropdown Content */}
                 {openDropdown === menu.name && menu.hasSubmenu && (
-                  <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white shadow-lg rounded-lg border border-gray-200 py-2 px-3">
+                  <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white shadow-lg rounded-lg border border-gray-200 py-2 px-3 z-50">
                     {/* SVG Pointer at Top */}
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -114,7 +114,7 @@ export default function Navbar() {
                           )}
                           {/* Nested Submenu */}
                           {openSubmenu === item.name && item.subItems && (
-                            <div className="absolute left-full top-0 ml-6 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200">
+                            <div className="absolute left-full top-0 ml-6 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
                               {/* SVG Pointer on the Left Side */}
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"

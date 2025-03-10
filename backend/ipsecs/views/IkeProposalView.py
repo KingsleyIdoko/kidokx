@@ -42,4 +42,4 @@ class IkeProposalListNames(APIView):
     def get(self, request):
         names = IkeProposal.objects.values_list('name', flat=True)
         return Response(names)  
-ikeproposal_list_view = IkeProposalListNames.as_view()
+ikeproposal_names_view = IkeProposalListNames.as_view()

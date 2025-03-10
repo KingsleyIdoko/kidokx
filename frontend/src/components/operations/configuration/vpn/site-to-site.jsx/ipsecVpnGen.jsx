@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useIpsecData } from './ikeProposalItems';
+import { useIpsecData } from './api/ikeProposalItems';
 import IpsecSteps from './ipsec_steps';
 import { Link } from 'react-router-dom';
 

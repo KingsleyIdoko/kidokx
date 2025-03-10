@@ -7,11 +7,11 @@ class IkeProposalSerializer(serializers.ModelSerializer):
         model = IkeProposal
         fields = [
             'name',
+            'device',
             'device_name',
             'authentication_algorithm',
             'encryption_algorithm',
             'dh_group',
             'lifetime_seconds',
-            'lifetime_kilobytes',
         ]
 

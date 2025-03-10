@@ -1,5 +1,5 @@
 from django.urls import path
-from ipsecs.views.IkeProposalView import ikeproposal_list_view,ikeproposal_detail_view,ikeproposal_create_view,ikeproposal_update_view,ikeproposal_delete_view,ikeproposal_list_view
+from ipsecs.views.IkeProposalView import ikeproposal_list_view,ikeproposal_detail_view,ikeproposal_create_view,ikeproposal_update_view,ikeproposal_delete_view,ikeproposal_names_view 
 from ipsecs.views.ikeGatewayView import ikegateway_create_view, ikegateway_delete_view, ikegateway_detail_view, ikegateway_list_view, ikegateway_update_view
 from ipsecs.views.ikePolicyView import ikepolicy_list_view,ikepolicy_detail_view,ikepolicy_create_view,ikepolicy_update_view,ikepolicy_delete_view,ikepolicy_list_view
 from ipsecs.views.ipsecProposalView import ipsecproposal_create_view, ipsecproposal_delete_view, ipsecproposal_detail_view, ipsecproposal_list_view, ipsecproposal_update_view
@@ -10,7 +10,7 @@ from ipsecs.views.configtextchoicesview import get_ipsec_choices
 urlpatterns = [
     #ikeproposal
     path('ikeproposal/',ikeproposal_list_view),
-    path('ikeproposal/names/',ikeproposal_list_view),
+    path('ikeproposal/names/',ikeproposal_names_view),
     path('ikeproposal/<int:pk>',ikeproposal_detail_view),
     path('ikeproposal/create/',ikeproposal_create_view),
     path('ikeproposal/<int:pk>/update/',ikeproposal_update_view,),

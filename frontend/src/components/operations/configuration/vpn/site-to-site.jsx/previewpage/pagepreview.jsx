@@ -5,7 +5,7 @@ import { ikePolicyPreview } from './ikepolicypreview';
 import { ikeGatewayPreview } from './ikegatewaypreview';
 import { ipsecProposalPreview } from './ipsecproposalpreview';
 import { ipsecPolicyPreview } from './ipsecpolicy';
-import { ipsecVpnPreview } from './ipsecvpnpreview';
+import { ipsecVpnPolicyPreview } from './ipsecvpnpreview';
 
 function PagePreview({
   selectedFormat = 'cli',
@@ -15,6 +15,16 @@ function PagePreview({
   auth_algo,
   encrypt_algo,
   lifetime,
+  policy_name,
+  mode,
+  policyPasswd,
+  gateway_name,
+  ike_policy,
+  address,
+  external_interface,
+  local_address,
+  version,
+  bind_interface,
 }) {
   const { ipsecType } = useParams();
 
@@ -39,56 +49,49 @@ function PagePreview({
     case 'ikepolicy':
       formats = ikePolicyPreview({
         selectedFormat,
+        policy_name,
         proposal_name,
-        group,
-        auth_mth,
-        auth_algo,
-        encrypt_algo,
-        lifetime,
+        mode,
+        policyPasswd,
       });
       break;
     case 'ikegateway':
       formats = ikeGatewayPreview({
         selectedFormat,
-        proposal_name,
-        group,
-        auth_mth,
-        auth_algo,
-        encrypt_algo,
-        lifetime,
+        gateway_name,
+        ike_policy,
+        address,
+        external_interface,
+        local_address,
+        version,
       });
       break;
     case 'ipsecproposal':
       formats = ipsecProposalPreview({
         selectedFormat,
         proposal_name,
-        group,
-        auth_mth,
-        auth_algo,
-        encrypt_algo,
-        lifetime,
+        protocol: 'esp',
+        authentication_algorithm: auth_algo,
+        encryption_algorithm: encrypt_algo,
+        lifetime_seconds: lifetime,
       });
       break;
     case 'ipsecpolicy':
       formats = ipsecPolicyPreview({
         selectedFormat,
-        proposal_name,
-        group,
-        auth_mth,
-        auth_algo,
-        encrypt_algo,
-        lifetime,
+        policy_name,
+        proposals: proposal_name,
+        perfect_forward_secrecy: group,
+        proposal_set: 'basic',
       });
       break;
     case 'ipsecvpn':
-      formats = ipsecVpnPreview({
+      formats = ipsecVpnPolicyPreview({
         selectedFormat,
-        proposal_name,
-        group,
-        auth_mth,
-        auth_algo,
-        encrypt_algo,
-        lifetime,
+        vpn_name: policy_name,
+        bind_interface,
+        ike_gateway: gateway_name,
+        ipsec_policy: ike_policy,
       });
       break;
     default:

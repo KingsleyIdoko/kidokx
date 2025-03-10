@@ -52,7 +52,6 @@ class IkeProposal(models.Model):
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
     lifetime_seconds = models.PositiveIntegerField(default=86400)
-    lifetime_kilobytes = models.PositiveIntegerField(default=86400)
 
     def __str__(self):
         return self.name

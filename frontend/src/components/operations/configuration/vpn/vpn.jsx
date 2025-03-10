@@ -12,6 +12,7 @@ import NavigationBar from './site-to-site.jsx/navigation';
 import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
+import { SearchDevice } from '../../../inventory/searchdevice';
 
 function VPN() {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ function VPN() {
   const [selectedFormat, setSelectedFormat] = useState('CLI');
   const [ipsecPath, setIpsecPath] = useState('');
   const [clickedPreview, setClickedPreview] = useState(false);
+  const [apiData, setApiData] = useState('');
+  const [selectedDevice, setSelectedDevice] = useState('');
 
   // IPsec navigation steps
   const ipsecSelection = [
@@ -44,6 +47,14 @@ function VPN() {
       setPrevPage(currentIndex > 0);
     }
   }, [location, ipsecSelection]);
+
+  function onConfigChange(api_data) {
+    setApiData((prevApiData) => {
+      const updated = { ...prevApiData, ...api_data, device: selectedDevice };
+      console.log(updated);
+      return updated;
+    });
+  }
 
   const handlePreviewBtn = () => {
     const currentPath = location.pathname.split('/').pop();
@@ -93,8 +104,13 @@ function VPN() {
     <>
       <div className="min-h-screen bg-sky-100 flex justify-center mx-auto py-12 rounded-xl">
         {/* Main container for the VPN configuration steps */}
-        <div className="w-[68rem] h-[38rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative">
-          {/* Navigation Bar */}
+        <div className="w-[68rem] h-[48rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative rounded-xl">
+          <div className="w-[64rem] pt-6">
+            <SearchDevice
+              setSelectedDevice={setSelectedDevice}
+              selectedDevice={selectedDevice}
+            />
+          </div>
           <div className="w-[64rem] pt-6">
             <NavigationBar
               urlPath={location.pathname}
@@ -120,11 +136,16 @@ function VPN() {
               <Routes>
                 <Route path="/site-to-site" element={<IPsecListgroup />} />
                 <Route
-                  path="/site-to-site/config/ikeproposal"
-                  element={<IkeProposalConfig />}
+                  path="/site-to-site/ikeproposal"
+                  element={
+                    <IkeProposalConfig
+                      onConfigChange={onConfigChange}
+                      selectedDevice={selectedDevice}
+                    />
+                  }
                 />
                 <Route
-                  path="/site-to-site/config/preview/:ipsecType"
+                  path="/site-to-site/preview/:ipsecType"
                   element={
                     <PagePreview
                       selectedFormat={selectedFormat}
@@ -133,23 +154,23 @@ function VPN() {
                   }
                 />
                 <Route
-                  path="/site-to-site/config/ikepolicy"
+                  path="/site-to-site/ikepolicy"
                   element={<IkePolicyConfig />}
                 />
                 <Route
-                  path="/site-to-site/config/ikegateway"
+                  path="/site-to-site/ikegateway"
                   element={<IkeGatewayConfig />}
                 />
                 <Route
-                  path="/site-to-site/config/ipsecproposal"
+                  path="/site-to-site/ipsecproposal"
                   element={<IPsecProposalConfig />}
                 />
                 <Route
-                  path="/site-to-site/config/ipsecpolicy"
+                  path="/site-to-site/ipsecpolicy"
                   element={<IPsecPolicyConfig />}
                 />
                 <Route
-                  path="/site-to-site/config/ipsecvpn"
+                  path="/site-to-site/ipsecvpn"
                   element={<IPsecVPNConfig />}
                 />
                 <Route path="/remote-access" element={<RaVPN />} />

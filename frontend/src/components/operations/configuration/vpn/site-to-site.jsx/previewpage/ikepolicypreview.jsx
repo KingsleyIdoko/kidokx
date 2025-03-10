@@ -1,32 +1,26 @@
 export function ikePolicyPreview({
   selectedFormat = 'cli',
+  policy_name,
   proposal_name,
-  group,
-  auth_mth,
-  auth_algo,
-  encrypt_algo,
-  lifetime,
+  mode,
+  policyPasswd,
 }) {
-  // Ensure variables have default values
-  const safeName = proposal_name || 'proposal-1';
-  const safeGroup = group || 'group14';
-  const safeAuthMth = auth_mth || 'pre-shared-keys';
-  const safeAuthAlgo = auth_algo || 'sha-256';
-  const safeEncryptAlgo = encrypt_algo || 'aes-128-cbc';
-  const safeLifetime = lifetime || 28800;
+  const safeName = policy_name || 'ike-policy-1';
+  const safeProposalName = proposal_name || 'proposal-1';
+  const safeMode = mode || 'main';
+  const safePolicyPasswd = policyPasswd || 'cisco123';
 
-  // Styled variables with inline HTML
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
-  const styledMode = `<span class="text-blue-400 font-bold">${safeGroup}</span>`;
-  const styledIkeProposal = `<span class="text-yellow-400 font-bold">${safeAuthMth}</span>`;
-  const styledPasswd = `<span class="text-purple-400 font-bold">${safeAuthAlgo}</span>`;
+  const styledMode = `<span class="text-blue-400 font-bold">${safeMode}</span>`;
+  const styledProposal = `<span class="text-yellow-400 font-bold">${safeProposalName}</span>`;
+  const styledPasswd = `<span class="text-purple-400 font-bold">${safePolicyPasswd}</span>`;
 
   const formats = {
     cli: `
 <pre class="whitespace-pre-wrap text-white">
 set security ike policy ${styledName} mode ${styledMode}
-set security ike policy ${styledName} proposal ${styledIkeProposal}
-set security ike policy ${styledName}  pre-shared-key ascii-text ${styledPasswd}
+set security ike policy ${styledName} proposals ${styledProposal}
+set security ike policy ${styledName} pre-shared-key ascii-text ${styledPasswd}
 </pre>`,
 
     json: `
@@ -35,14 +29,16 @@ set security ike policy ${styledName}  pre-shared-key ascii-text ${styledPasswd}
     "configuration": {
         "security": {
             "ike": {
-                "proposal": {
-                    "name": "${styledName}",
-                    "authentication-method": "${styledAuthMth}",
-                    "dh-group": "${styledGroup}",
-                    "authentication-algorithm": "${styledAuthAlgo}",
-                    "encryption-algorithm": "${styledEncryptAlgo}",
-                    "lifetime-seconds": ${styledLifetime}
-                }
+                "policy": [
+                    {
+                        "name": "${styledName}",
+                        "mode": "${styledMode}",
+                        "proposals": ["${styledProposal}"],
+                        "pre-shared-key": {
+                            "ascii-text": "${styledPasswd}"
+                        }
+                    }
+                ]
             }
         }
     }
@@ -54,14 +50,14 @@ set security ike policy ${styledName}  pre-shared-key ascii-text ${styledPasswd}
 &lt;configuration&gt;
     &lt;security&gt;
         &lt;ike&gt;
-            &lt;proposal&gt;
+            &lt;policy&gt;
                 &lt;name&gt;${styledName}&lt;/name&gt;
-                &lt;authentication-method&gt;${styledAuthMth}&lt;/authentication-method&gt;
-                &lt;dh-group&gt;${styledGroup}&lt;/dh-group&gt;
-                &lt;authentication-algorithm&gt;${styledAuthAlgo}&lt;/authentication-algorithm&gt;
-                &lt;encryption-algorithm&gt;${styledEncryptAlgo}&lt;/encryption-algorithm&gt;
-                &lt;lifetime-seconds&gt;${styledLifetime}&lt;/lifetime-seconds&gt;
-            &lt;/proposal&gt;
+                &lt;mode&gt;${styledMode}&lt;/mode&gt;
+                &lt;proposals&gt;${styledProposal}&lt;/proposals&gt;
+                &lt;pre-shared-key&gt;
+                    &lt;ascii-text&gt;${styledPasswd}&lt;/ascii-text&gt;
+                &lt;/pre-shared-key&gt;
+            &lt;/policy&gt;
         &lt;/ike&gt;
     &lt;/security&gt;
 &lt;/configuration&gt;

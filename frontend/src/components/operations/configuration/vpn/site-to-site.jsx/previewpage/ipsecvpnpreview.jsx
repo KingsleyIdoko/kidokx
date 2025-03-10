@@ -1,36 +1,28 @@
-export function ipsecVpnPreview({
+export function ipsecVpnPolicyPreview({
   selectedFormat = 'cli',
-  proposal_name,
-  group,
-  auth_mth,
-  auth_algo,
-  encrypt_algo,
-  lifetime,
+  vpn_name,
+  bind_interface,
+  ike_gateway,
+  ipsec_policy,
 }) {
   // Ensure variables have default values
-  const safeName = proposal_name || 'proposal-1';
-  const safeGroup = group || 'group14';
-  const safeAuthMth = auth_mth || 'pre-shared-keys';
-  const safeAuthAlgo = auth_algo || 'sha-256';
-  const safeEncryptAlgo = encrypt_algo || 'aes-128-cbc';
-  const safeLifetime = lifetime || 28800;
+  const safeName = vpn_name || 'ipsec-vpn-1';
+  const safeBindInterface = bind_interface || 'st0.0';
+  const safeIkeGateway = ike_gateway || 'gateway-1';
+  const safeIpsecPolicy = ipsec_policy || 'ipsec-policy-1';
 
   // Styled variables with inline HTML
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
-  const styledGroup = `<span class="text-blue-400 font-bold">${safeGroup}</span>`;
-  const styledAuthMth = `<span class="text-yellow-400 font-bold">${safeAuthMth}</span>`;
-  const styledAuthAlgo = `<span class="text-purple-400 font-bold">${safeAuthAlgo}</span>`;
-  const styledEncryptAlgo = `<span class="text-red-400 font-bold">${safeEncryptAlgo}</span>`;
-  const styledLifetime = `<span class="text-cyan-400 font-bold">${safeLifetime}</span>`;
+  const styledBindInterface = `<span class="text-yellow-400 font-bold">${safeBindInterface}</span>`;
+  const styledIkeGateway = `<span class="text-purple-400 font-bold">${safeIkeGateway}</span>`;
+  const styledIpsecPolicy = `<span class="text-red-400 font-bold">${safeIpsecPolicy}</span>`;
 
   const formats = {
     cli: `
 <pre class="whitespace-pre-wrap text-white">
-set security ike proposal ${styledName} authentication-method ${styledAuthMth}
-set security ike proposal ${styledName} dh-group ${styledGroup}
-set security ike proposal ${styledName} authentication-algorithm ${styledAuthAlgo}
-set security ike proposal ${styledName} encryption-algorithm ${styledEncryptAlgo}
-set security ike proposal ${styledName} lifetime-seconds ${styledLifetime}
+set security ipsec vpn ${styledName} bind-interface ${styledBindInterface}
+set security ipsec vpn ${styledName} ike gateway ${styledIkeGateway}
+set security ipsec vpn ${styledName} ike ipsec-policy ${styledIpsecPolicy}
 </pre>`,
 
     json: `
@@ -38,15 +30,17 @@ set security ike proposal ${styledName} lifetime-seconds ${styledLifetime}
 {
     "configuration": {
         "security": {
-            "ike": {
-                "proposal": {
-                    "name": "${styledName}",
-                    "authentication-method": "${styledAuthMth}",
-                    "dh-group": "${styledGroup}",
-                    "authentication-algorithm": "${styledAuthAlgo}",
-                    "encryption-algorithm": "${styledEncryptAlgo}",
-                    "lifetime-seconds": ${styledLifetime}
-                }
+            "ipsec": {
+                "vpn": [
+                    {
+                        "name": "${styledName}",
+                        "bind-interface": "${styledBindInterface}",
+                        "ike": {
+                            "gateway": "${styledIkeGateway}",
+                            "ipsec-policy": "${styledIpsecPolicy}"
+                        }
+                    }
+                ]
             }
         }
     }
@@ -57,16 +51,16 @@ set security ike proposal ${styledName} lifetime-seconds ${styledLifetime}
 <pre class="whitespace-pre-wrap text-white">
 &lt;configuration&gt;
     &lt;security&gt;
-        &lt;ike&gt;
-            &lt;proposal&gt;
+        &lt;ipsec&gt;
+            &lt;vpn&gt;
                 &lt;name&gt;${styledName}&lt;/name&gt;
-                &lt;authentication-method&gt;${styledAuthMth}&lt;/authentication-method&gt;
-                &lt;dh-group&gt;${styledGroup}&lt;/dh-group&gt;
-                &lt;authentication-algorithm&gt;${styledAuthAlgo}&lt;/authentication-algorithm&gt;
-                &lt;encryption-algorithm&gt;${styledEncryptAlgo}&lt;/encryption-algorithm&gt;
-                &lt;lifetime-seconds&gt;${styledLifetime}&lt;/lifetime-seconds&gt;
-            &lt;/proposal&gt;
-        &lt;/ike&gt;
+                &lt;bind-interface&gt;${styledBindInterface}&lt;/bind-interface&gt;
+                &lt;ike&gt;
+                    &lt;gateway&gt;${styledIkeGateway}&lt;/gateway&gt;
+                    &lt;ipsec-policy&gt;${styledIpsecPolicy}&lt;/ipsec-policy&gt;
+                &lt;/ike&gt;
+            &lt;/vpn&gt;
+        &lt;/ipsec&gt;
     &lt;/security&gt;
 &lt;/configuration&gt;
 </pre>`,
