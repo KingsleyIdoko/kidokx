@@ -4,25 +4,43 @@ import menuItems from './menuItems';
 export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
   const [openSubmenu, setOpenSubmenu] = useState(null);
+  const [openNestedSubmenu, setOpenNestedSubmenu] = useState(null);
+  const [openDeeperSubmenu, setOpenDeeperSubmenu] = useState(null);
   const dropdownRef = useRef(null);
 
-  // Toggle Main Dropdown
   const toggleDropdown = (menu) => {
     setOpenDropdown(openDropdown === menu ? null : menu);
-    setOpenSubmenu(null); // Reset submenus
+    setOpenSubmenu(null);
+    setOpenNestedSubmenu(null);
+    setOpenDeeperSubmenu(null);
   };
 
-  // Toggle Submenu
   const toggleSubmenu = (itemName) => {
     setOpenSubmenu(openSubmenu === itemName ? null : itemName);
+    setOpenNestedSubmenu(null);
+    setOpenDeeperSubmenu(null);
   };
 
-  // Close dropdown when clicking outside
+  const toggleNestedSubmenu = (subItemName) => {
+    setOpenNestedSubmenu(
+      openNestedSubmenu === subItemName ? null : subItemName,
+    );
+    setOpenDeeperSubmenu(null);
+  };
+
+  const toggleDeeperSubmenu = (deeperSubItemName) => {
+    setOpenDeeperSubmenu(
+      openDeeperSubmenu === deeperSubItemName ? null : deeperSubItemName,
+    );
+  };
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setOpenDropdown(null);
         setOpenSubmenu(null);
+        setOpenNestedSubmenu(null);
+        setOpenDeeperSubmenu(null);
       }
     }
 
@@ -57,7 +75,6 @@ export default function Navbar() {
             {/* Dropdown Menus */}
             {menuItems.map((menu) => (
               <div key={menu.name} className="relative">
-                {/* Main Dropdown Button */}
                 <button
                   onClick={() => toggleDropdown(menu.name)}
                   className="flex items-center capitalize gap-2 hover:text-black rounded-lg hover:bg-white border-2 border-sky-400 py-2 px-6 z-50"
@@ -76,26 +93,17 @@ export default function Navbar() {
                   )}
                 </button>
 
-                {/* Main Dropdown Content */}
+                {/* First Dropdown */}
                 {openDropdown === menu.name && menu.hasSubmenu && (
                   <div className="absolute left-1/2 -translate-x-1/2 mt-3 w-56 bg-white shadow-lg rounded-lg border border-gray-200 py-2 px-3 z-50">
-                    {/* SVG Pointer at Top */}
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="white"
-                      viewBox="0 0 24 24"
-                      className="absolute -top-5 left-1/2 -translate-x-1/2 h-12 w-16"
-                    >
-                      <path d="M12 3L3 14h18L12 3z" />
-                    </svg>
-
                     <ul className="cursor-pointer text-gray-700 mt-2">
                       {menu.items.map((item) => (
                         <li
                           key={item.name}
-                          onClick={() =>
-                            item.hasSubmenu && toggleSubmenu(item.name)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            item.hasSubmenu && toggleSubmenu(item.name);
+                          }}
                           className="relative flex justify-between capitalize items-center px-2 py-2 hover:bg-sky-400 rounded-md hover:text-white transition"
                         >
                           {item.name}
@@ -112,28 +120,141 @@ export default function Navbar() {
                               <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
                             </svg>
                           )}
-                          {/* Nested Submenu */}
-                          {openSubmenu === item.name && item.subItems && (
-                            <div className="absolute left-full top-0 ml-6 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
-                              {/* SVG Pointer on the Left Side */}
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="white"
-                                viewBox="0 0 24 24"
-                                className="absolute top-2 left-[-15px] h-8 w-8"
-                              >
-                                <path d="M3 12L14 3v18L3 12z" />
-                              </svg>
 
+                          {/* Second Dropdown */}
+                          {openSubmenu === item.name && item.subItems && (
+                            <div className="absolute left-full top-0 ml-6 w-48 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
                               <ul className="cursor-pointer text-gray-700">
-                                {item.subItems.map((subItem, index) => (
-                                  <li
-                                    key={index}
-                                    className=" hover:bg-sky-400 rounded-lg py-2 px-4  hover:text-white transition"
-                                  >
-                                    <a href="/vpn/site-to-site">{subItem}</a>
-                                  </li>
-                                ))}
+                                {item.subItems.map((subItem, index) => {
+                                  const hasDeeperSubItems =
+                                    subItem.subItems &&
+                                    subItem.subItems.length > 0;
+
+                                  return (
+                                    <li
+                                      key={index}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        hasDeeperSubItems &&
+                                          toggleNestedSubmenu(subItem.name);
+                                      }}
+                                      className="relative hover:bg-sky-400 rounded-lg py-2 px-4 hover:text-white transition"
+                                    >
+                                      <div className="flex justify-between items-center">
+                                        {subItem.name}
+
+                                        {hasDeeperSubItems && (
+                                          <svg
+                                            className={`fill-current h-4 w-4 transition-transform duration-300 ease-in-out ${
+                                              openNestedSubmenu === subItem.name
+                                                ? 'rotate-90'
+                                                : 'rotate-0'
+                                            }`}
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20"
+                                          >
+                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                          </svg>
+                                        )}
+                                      </div>
+
+                                      {/* Third Dropdown */}
+                                      {openNestedSubmenu === subItem.name &&
+                                        hasDeeperSubItems && (
+                                          <div className="absolute left-full top-0 ml-4 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
+                                            <ul className="cursor-pointer text-gray-700">
+                                              {subItem.subItems.map(
+                                                (itm, idx) => {
+                                                  const hasDeepestSubItems =
+                                                    itm.subItems &&
+                                                    itm.subItems.length > 0;
+
+                                                  return (
+                                                    <li
+                                                      key={idx}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        hasDeepestSubItems &&
+                                                          toggleDeeperSubmenu(
+                                                            itm.name,
+                                                          );
+                                                      }}
+                                                      className="relative hover:bg-sky-400 rounded-lg py-2 px-4 hover:text-white transition"
+                                                    >
+                                                      <div className="flex justify-between items-center">
+                                                        <a
+                                                          href={`/vpn/config/${itm.name
+                                                            .toLowerCase()
+                                                            .replace(
+                                                              /\s+/g,
+                                                              '-',
+                                                            )}`}
+                                                          className="block w-full"
+                                                        >
+                                                          {itm.name}
+                                                        </a>
+
+                                                        {hasDeepestSubItems && (
+                                                          <svg
+                                                            className={`fill-current h-4 w-4 transition-transform ${
+                                                              openDeeperSubmenu ===
+                                                              itm.name
+                                                                ? 'rotate-90'
+                                                                : 'rotate-0'
+                                                            }`}
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 0 20 20"
+                                                          >
+                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                                          </svg>
+                                                        )}
+                                                      </div>
+
+                                                      {/* Fourth Dropdown */}
+                                                      {openDeeperSubmenu ===
+                                                        itm.name &&
+                                                        hasDeepestSubItems && (
+                                                          <div className="absolute left-full top-0 ml-4 w-40 px-4 py-2 bg-white shadow-lg rounded-lg border border-gray-200 z-50">
+                                                            <ul className="cursor-pointer text-gray-700">
+                                                              {itm.subItems.map(
+                                                                (
+                                                                  deepItem,
+                                                                  deepIdx,
+                                                                ) => (
+                                                                  <li
+                                                                    key={
+                                                                      deepIdx
+                                                                    }
+                                                                    className="hover:bg-sky-400 rounded-lg py-2 px-4 hover:text-white transition"
+                                                                  >
+                                                                    <a
+                                                                      href={`/vpn/list/${deepItem.name
+                                                                        .toLowerCase()
+                                                                        .replace(
+                                                                          /\s+/g,
+                                                                          '-',
+                                                                        )}`}
+                                                                    >
+                                                                      {
+                                                                        deepItem.name
+                                                                      }
+                                                                    </a>
+                                                                  </li>
+                                                                ),
+                                                              )}
+                                                            </ul>
+                                                          </div>
+                                                        )}
+                                                    </li>
+                                                  );
+                                                },
+                                              )}
+                                            </ul>
+                                          </div>
+                                        )}
+                                    </li>
+                                  );
+                                })}
                               </ul>
                             </div>
                           )}

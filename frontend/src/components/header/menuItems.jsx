@@ -6,15 +6,28 @@ const menuItems = [
       {
         name: 'routers',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2', 'Item-3'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }, { name: 'Item-3' }],
       },
-      { name: 'Switches', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
+      {
+        name: 'Switches',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
       {
         name: 'Firewalls',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2', 'Item-3', 'Item-4'],
+        subItems: [
+          { name: 'Item-1' },
+          { name: 'Item-2' },
+          { name: 'Item-3' },
+          { name: 'Item-4' },
+        ],
       },
-      { name: 'Loadbalancers', hasSubmenu: true, subItems: ['Item-1'] },
+      {
+        name: 'Loadbalancers',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }],
+      },
     ],
   },
   {
@@ -24,19 +37,36 @@ const menuItems = [
       {
         name: 'provisioning',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
       },
       {
         name: 'configuration',
         hasSubmenu: true,
-        subItems: ['routing', 'VPN', 'switching'],
+        subItems: [
+          {
+            name: 'routing',
+            subItems: [{ name: 'site-to-site' }, { name: 'remote-access' }],
+          },
+          {
+            name: 'VPN',
+            subItems: [{ name: 's2s-vpn' }, { name: 'ra-vpn' }],
+          },
+          {
+            name: 'switching',
+            subItems: [{ name: 'site-to-site' }, { name: 'remote-access' }],
+          },
+        ],
       },
       {
         name: 'security',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2', 'Item-3'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }, { name: 'Item-3' }],
       },
-      { name: 'Automation', hasSubmenu: true, subItems: ['Item-1'] },
+      {
+        name: 'Automation',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }],
+      },
     ],
   },
   {
@@ -46,14 +76,27 @@ const menuItems = [
       {
         name: 'deployment',
         hasSubmenu: true,
-        subItems: ['BRs', 'CEs', 'FWs', 'TPS'],
+        subItems: [
+          { name: 'BRs' },
+          { name: 'CEs' },
+          { name: 'FWs' },
+          { name: 'TPS' },
+        ],
       },
-      { name: 'peerings', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
-      { name: 'firewalls', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
+      {
+        name: 'peerings',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
+      {
+        name: 'firewalls',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
       },
     ],
   },
@@ -61,13 +104,25 @@ const menuItems = [
     name: 'monitoring',
     hasSubmenu: true,
     items: [
-      { name: 'Routers', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
-      { name: 'Switches', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
-      { name: 'Firewalls', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
+      {
+        name: 'Routers',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
+      {
+        name: 'Switches',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
+      {
+        name: 'Firewalls',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
       },
     ],
   },
@@ -75,13 +130,25 @@ const menuItems = [
     name: 'alarms',
     hasSubmenu: true,
     items: [
-      { name: 'Routers', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
-      { name: 'Switches', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
-      { name: 'Firewalls', hasSubmenu: true, subItems: ['Item-1', 'Item-2'] },
+      {
+        name: 'Routers',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
+      {
+        name: 'Switches',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
+      {
+        name: 'Firewalls',
+        hasSubmenu: true,
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+      },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: ['Item-1', 'Item-2'],
+        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
       },
     ],
   },

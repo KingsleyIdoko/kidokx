@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router';
 // Import FontAwesome if not already in your project
 import '@fortawesome/fontawesome-free/css/all.min.css';
 
-export default function IPsecListgroup() {
+export default function S2sVPNList() {
   const itemsCount = ipsecData.length;
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,8 +31,11 @@ export default function IPsecListgroup() {
   return (
     <div className="overflow-x-auto bg-sky-50">
       <div className="w-[110rem] grid grid-cols-7 gap-4 border-t-2 border-b-2 py-2 p-6">
-        <button className="bg-green-600 rounded text-lg text-white py-2 px-6 mb-2 hover:opacity-70">
-          <a href="/vpn/site-to-site/config/ikeproposal">Create New</a>
+        <button
+          onClick={() => navigate('/vpn/config/site-to-site/ikeproposal')}
+          className="bg-green-600 rounded text-lg text-white py-2 px-6 mb-2 hover:opacity-70"
+        >
+          create new
         </button>
         <Dropdown
           name="VPN-Type"

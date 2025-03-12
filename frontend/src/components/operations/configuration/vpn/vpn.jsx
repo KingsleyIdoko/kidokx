@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
 import RaVPN from './ra-vpn/ra-vpn';
-import IPsecListgroup from './site-to-site.jsx/ipsec_listgroup';
 import IkeProposalConfig from './site-to-site.jsx/ikeProposalGen';
 import IkePolicyConfig from './site-to-site.jsx/ikePolicyGen';
 import IkeGatewayConfig from './site-to-site.jsx/ikeGatewayGen';
@@ -134,7 +133,6 @@ function VPN() {
             {/* Routes for Site-to-Site and Remote Access VPN */}
             <div className="w-[50rem] rounded-lg">
               <Routes>
-                <Route path="/site-to-site" element={<IPsecListgroup />} />
                 <Route
                   path="/site-to-site/ikeproposal"
                   element={
