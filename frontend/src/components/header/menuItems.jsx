@@ -49,7 +49,7 @@ const menuItems = [
           },
           {
             name: 'VPN',
-            subItems: [{ name: 's2s-vpn' }, { name: 'ra-vpn' }],
+            subItems: [{ name: 'site-to-site' }, { name: 'remote-access' }],
           },
           {
             name: 'switching',
