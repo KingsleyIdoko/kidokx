@@ -1,89 +1,51 @@
-import { useReducer, useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import menuItems from './menuItems';
 import { useNavigate } from 'react-router-dom';
-
-const initialState = {
-  navMenu: null,
-  firstDropDown: null,
-  secondDropDown: null,
-  thirdDropDown: null,
-};
-
-const Actions = {
-  navMenu: 'NAV_MENU',
-  firstDropDown: 'FIRST_DROP_DOWN',
-  secondDropDown: 'SECOND_DROP_DOWN',
-  thirdDropDown: 'THIRD_DROP_DOWN',
-};
-
-const reducer = (state, action) => {
-  switch (action.type) {
-    case Actions.navMenu:
-      return {
-        ...state,
-        navMenu: state.navMenu === action.payload ? null : action.payload,
-        firstDropDown: null,
-        secondDropDown: null,
-        thirdDropDown: null,
-      };
-    case Actions.firstDropDown:
-      return {
-        ...state,
-        firstDropDown:
-          state.firstDropDown === action.payload ? null : action.payload,
-        secondDropDown: null,
-        thirdDropDown: null,
-      };
-    case Actions.secondDropDown:
-      return {
-        ...state,
-        secondDropDown:
-          state.secondDropDown === action.payload ? null : action.payload,
-        thirdDropDown: null,
-      };
-    case Actions.thirdDropDown:
-      return {
-        ...state,
-        thirdDropDown:
-          state.thirdDropDown === action.payload ? null : action.payload,
-      };
-    default:
-      return state;
-  }
-};
+import { Actions } from './actions';
+import store from '../store/store';
+import { useSelector } from 'react-redux';
 
 export default function Navbar() {
-  const [state, dispatch] = useReducer(reducer, initialState);
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
+  const {
+    activeNavMenu,
+    activeFirstDropDown,
+    activeSecondDropDown,
+    activeThirdDropDown,
+  } = useSelector((state) => state);
 
   const handleNavMenu = (menu_name) => {
-    dispatch({ type: Actions.navMenu, payload: menu_name });
+    store.dispatch({ type: Actions.navMenu, payload: menu_name });
   };
 
   const handleFirstDropDown = (firstDropDownName) => {
-    dispatch({ type: Actions.firstDropDown, payload: firstDropDownName });
+    store.dispatch({ type: Actions.firstDropDown, payload: firstDropDownName });
   };
 
   const handleSecondDropDown = (secondDropDownName) => {
-    dispatch({ type: Actions.secondDropDown, payload: secondDropDownName });
+    store.dispatch({
+      type: Actions.secondDropDown,
+      payload: secondDropDownName,
+    });
   };
 
-  const handleNavigateURL = (urlPath) => {
+  const handleNavigateURL = (thirdDropDownName) => {
     const paths = {
       'site-to-site': '/vpn/site-to-site/list',
       'remote-access': '/vpn/remote-access/list',
     };
-    if (paths[urlPath]) navigate(paths[urlPath]);
+    if (paths[thirdDropDownName]) navigate(paths[thirdDropDownName]);
+    store.dispatch({ type: Actions.thirdDropDown, payload: thirdDropDownName });
   };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        dispatch({ type: Actions.navMenu, payload: null });
-        dispatch({ type: Actions.firstDropDown, payload: null });
-        dispatch({ type: Actions.secondDropDown, payload: null });
-        dispatch({ type: Actions.thirdDropDown, payload: null });
+        store.dispatch({ type: Actions.navMenu, payload: null });
+        store.dispatch({ type: Actions.firstDropDown, payload: null });
+        store.dispatch({ type: Actions.secondDropDown, payload: null });
+        store.dispatch({ type: Actions.thirdDropDown, payload: null });
       }
     };
 
@@ -116,7 +78,7 @@ export default function Navbar() {
                   {menu.hasSubmenu && (
                     <svg
                       className={`fill-current h-6 w-6 transition-transform ${
-                        state.navMenu === menu.name ? '-rotate-180' : 'rotate-0'
+                        activeNavMenu === menu.name ? '-rotate-180' : 'rotate-0'
                       }`}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 20 20"
@@ -126,7 +88,7 @@ export default function Navbar() {
                   )}
                 </div>
 
-                {state.navMenu === menu.name && menu.hasSubmenu && (
+                {activeNavMenu === menu.name && menu.hasSubmenu && (
                   <div className="bg-white absolute top-20 py-2 px-2 rounded-lg text-gray-500 shadow-lg z-50">
                     {menu.items.map((firstdropdown) => (
                       <div key={firstdropdown.name} className="relative">
@@ -140,7 +102,7 @@ export default function Navbar() {
                           <div>{firstdropdown.name}</div>
                           <svg
                             className={`fill-current h-6 w-6 transition-transform ${
-                              state.firstDropDown === firstdropdown.name
+                              activeFirstDropDown === firstdropdown.name
                                 ? '-rotate-90'
                                 : 'rotate-0'
                             }`}
@@ -151,7 +113,7 @@ export default function Navbar() {
                           </svg>
                         </div>
 
-                        {state.firstDropDown === firstdropdown.name &&
+                        {activeFirstDropDown === firstdropdown.name &&
                           firstdropdown.subItems && (
                             <div className="absolute top-0 left-full ml-5 w-40 bg-white text-gray-700 rounded-lg shadow-lg py-2 px-4">
                               {firstdropdown.subItems.map((secondDropdown) => (
@@ -169,7 +131,7 @@ export default function Navbar() {
                                     <div>{secondDropdown.name}</div>
                                     <svg
                                       className={`fill-current h-6 w-6 transition-transform ${
-                                        state.secondDropDown ===
+                                        activeSecondDropDown ===
                                         secondDropdown.name
                                           ? '-rotate-90'
                                           : 'rotate-0'
@@ -181,7 +143,7 @@ export default function Navbar() {
                                     </svg>
                                   </div>
 
-                                  {state.secondDropDown ===
+                                  {activeSecondDropDown ===
                                     secondDropdown.name &&
                                     secondDropdown.subItems && (
                                       <div className="absolute top-0 left-full ml-6 w-40 bg-white text-gray-700 rounded-lg shadow-lg py-2 px-1">
