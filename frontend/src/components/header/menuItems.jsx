@@ -6,27 +6,31 @@ const menuItems = [
       {
         name: 'routers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }, { name: 'Item-3' }],
+        subItems: [
+          { name: 'no code' },
+          { name: 'no code' },
+          { name: 'no code' },
+        ],
       },
       {
         name: 'Switches',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Firewalls',
         hasSubmenu: true,
         subItems: [
-          { name: 'Item-1' },
-          { name: 'Item-2' },
-          { name: 'Item-3' },
-          { name: 'Item-4' },
+          { name: 'no code' },
+          { name: 'no code' },
+          { name: 'no code' },
+          { name: 'no code' },
         ],
       },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }],
+        subItems: [{ name: 'no code' }],
       },
     ],
   },
@@ -37,7 +41,7 @@ const menuItems = [
       {
         name: 'provisioning',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'configuration',
@@ -60,12 +64,16 @@ const menuItems = [
       {
         name: 'security',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }, { name: 'Item-3' }],
+        subItems: [
+          { name: 'no code' },
+          { name: 'no code' },
+          { name: 'no code' },
+        ],
       },
       {
         name: 'Automation',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }],
+        subItems: [{ name: 'no code' }],
       },
     ],
   },
@@ -86,17 +94,17 @@ const menuItems = [
       {
         name: 'peerings',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'firewalls',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
     ],
   },
@@ -107,22 +115,22 @@ const menuItems = [
       {
         name: 'Routers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Switches',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Firewalls',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
     ],
   },
@@ -133,22 +141,22 @@ const menuItems = [
       {
         name: 'Routers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Switches',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Firewalls',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
       {
         name: 'Loadbalancers',
         hasSubmenu: true,
-        subItems: [{ name: 'Item-1' }, { name: 'Item-2' }],
+        subItems: [{ name: 'no code' }, { name: 'no code' }],
       },
     ],
   },

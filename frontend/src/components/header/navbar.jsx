@@ -1,33 +1,38 @@
 import { useEffect, useRef } from 'react';
 import menuItems from './menuItems';
 import { useNavigate } from 'react-router-dom';
-import { Actions } from './actions';
+
 import store from '../store/store';
 import { useSelector } from 'react-redux';
+import {
+  navMenu,
+  firstDropDown,
+  secondDropDown,
+  thirdDropDown,
+} from '../actions/actionsTypes';
+import {
+  FirstDropDown,
+  SecondDropDown,
+  ThirdDropDown,
+  NavMenu,
+} from './navActions';
 
 export default function Navbar() {
   const navigate = useNavigate();
   const dropdownRef = useRef(null);
-  const {
-    activeNavMenu,
-    activeFirstDropDown,
-    activeSecondDropDown,
-    activeThirdDropDown,
-  } = useSelector((state) => state);
+  const { activeNavMenu, activeFirstDropDown, activeSecondDropDown } =
+    useSelector((state) => state.navbar);
 
   const handleNavMenu = (menu_name) => {
-    store.dispatch({ type: Actions.navMenu, payload: menu_name });
+    store.dispatch(NavMenu(menu_name));
   };
 
   const handleFirstDropDown = (firstDropDownName) => {
-    store.dispatch({ type: Actions.firstDropDown, payload: firstDropDownName });
+    store.dispatch(FirstDropDown(firstDropDownName));
   };
 
   const handleSecondDropDown = (secondDropDownName) => {
-    store.dispatch({
-      type: Actions.secondDropDown,
-      payload: secondDropDownName,
-    });
+    store.dispatch(SecondDropDown(secondDropDownName));
   };
 
   const handleNavigateURL = (thirdDropDownName) => {
@@ -36,16 +41,16 @@ export default function Navbar() {
       'remote-access': '/vpn/remote-access/list',
     };
     if (paths[thirdDropDownName]) navigate(paths[thirdDropDownName]);
-    store.dispatch({ type: Actions.thirdDropDown, payload: thirdDropDownName });
+    store.dispatch(ThirdDropDown(thirdDropDownName));
   };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        store.dispatch({ type: Actions.navMenu, payload: null });
-        store.dispatch({ type: Actions.firstDropDown, payload: null });
-        store.dispatch({ type: Actions.secondDropDown, payload: null });
-        store.dispatch({ type: Actions.thirdDropDown, payload: null });
+        store.dispatch({ type: navMenu, payload: null });
+        store.dispatch({ type: firstDropDown, payload: null });
+        store.dispatch({ type: secondDropDown, payload: null });
+        store.dispatch({ type: thirdDropDown, payload: null });
       }
     };
 

@@ -1,4 +1,9 @@
-import { Actions } from './actions';
+import {
+  navMenu,
+  firstDropDown,
+  secondDropDown,
+  thirdDropDown,
+} from '../actions/actionsTypes';
 
 const initialState = {
   activeNavMenu: null,
@@ -9,7 +14,7 @@ const initialState = {
 
 export default function Navreducer(state = initialState, action) {
   switch (action.type) {
-    case Actions.navMenu:
+    case navMenu:
       return {
         ...state,
         activeNavMenu:
@@ -18,7 +23,7 @@ export default function Navreducer(state = initialState, action) {
         activeSecondDropDown: null,
         activeThirdDropDown: null,
       };
-    case Actions.firstDropDown:
+    case firstDropDown:
       return {
         ...state,
         activeFirstDropDown:
@@ -26,14 +31,14 @@ export default function Navreducer(state = initialState, action) {
         activeSecondDropDown: null,
         activeThirdDropDown: null,
       };
-    case Actions.secondDropDown:
+    case secondDropDown:
       return {
         ...state,
         activeSecondDropDown:
           state.activeSecondDropDown === action.payload ? null : action.payload,
         activeThirdDropDown: null,
       };
-    case Actions.thirdDropDown:
+    case thirdDropDown:
       return {
         ...state,
         activeThirdDropDown:
