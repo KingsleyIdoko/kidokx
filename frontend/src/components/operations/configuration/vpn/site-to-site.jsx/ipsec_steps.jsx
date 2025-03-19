@@ -6,12 +6,12 @@ function IpsecSteps({ webpage, onhandleSelection }) {
   const location = useLocation();
 
   const ipsecSelection = [
-    { name: 'IKE Proposal', path: '/vpn/config/site-to-site/ikeproposal' },
-    { name: 'IKE Policy', path: '/vpn/config/site-to-site/ikepolicy' },
-    { name: 'IKE Gateway', path: '/vpn/config/site-to-site/ikegateway' },
-    { name: 'IPsec Proposal', path: '/vpn/config/site-to-site/ipsecproposal' },
-    { name: 'IPsec Policy', path: '/vpn/config/site-to-site/ipsecpolicy' },
-    { name: 'IPsec VPN', path: '/vpn/config/site-to-site/ipsecvpn' },
+    { name: 'IKE Proposal', path: '/vpn/site-to-site/config/ikeproposal' },
+    { name: 'IKE Policy', path: '/vpn/site-to-site/config/ikepolicy' },
+    { name: 'IKE Gateway', path: '/vpn/site-to-site/config/ikegateway' },
+    { name: 'IPsec Proposal', path: '/vpn/site-to-site/config/ipsecproposal' },
+    { name: 'IPsec Policy', path: '/vpn/site-to-site/config/ipsecpolicy' },
+    { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
   ];
 
   // Helper to determine active state (handles both main and preview paths)

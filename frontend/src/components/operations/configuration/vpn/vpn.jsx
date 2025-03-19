@@ -12,60 +12,71 @@ import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import { SearchDevice } from '../../../inventory/searchdevice';
+import { useSelector, useDispatch } from 'react-redux';
+import { APIDATA } from './vpnActions.jsx/actionTypes';
 
 function VPN() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
   const [webPage, setWebPage] = useState('IKE Proposal');
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState('CLI');
   const [ipsecPath, setIpsecPath] = useState('');
   const [clickedPreview, setClickedPreview] = useState(false);
-  const [apiData, setApiData] = useState('');
   const [selectedDevice, setSelectedDevice] = useState('');
+  const { apiData } = useSelector((state) => state.vpn);
 
   // IPsec navigation steps
-  const ipsecSelection = [
-    { name: 'IKE Proposal', path: '/vpn/site-to-site/config/ikeproposal' },
-    { name: 'IKE Policy', path: '/vpn/site-to-site/config/ikepolicy' },
-    { name: 'IKE Gateway', path: '/vpn/site-to-site/config/ikegateway' },
-    { name: 'IPsec Proposal', path: '/vpn/site-to-site/config/ipsecproposal' },
-    { name: 'IPsec Policy', path: '/vpn/site-to-site/config/ipsecpolicy' },
-    { name: 'IPsec VPN', path: '/vpn/site-to-site/config/ipsecvpn' },
-  ];
+  const ipsecSelection = () => {
+    const isPreview = location.pathname.includes('/preview/');
+    const basePath = `/vpn/site-to-site/${isPreview ? 'preview' : 'config'}`;
+    return [
+      { name: 'IKE Proposal', path: `${basePath}/ikeproposal` },
+      { name: 'IKE Policy', path: `${basePath}/ikepolicy` },
+      { name: 'IKE Gateway', path: `${basePath}/ikegateway` },
+      { name: 'IPsec Proposal', path: `${basePath}/ipsecproposal` },
+      { name: 'IPsec Policy', path: `${basePath}/ipsecpolicy` },
+      { name: 'IPsec VPN', path: `${basePath}/ipsecvpn` },
+    ];
+  };
+
+  const handlePreviewBtn = () => {
+    const currentPath = location.pathname.split('/').pop();
+    const isCurrentlyPreview = location.pathname.includes('/preview/');
+    const nextBasePath = isCurrentlyPreview
+      ? '/vpn/site-to-site/config'
+      : '/vpn/site-to-site/config/preview';
+    navigate(`${nextBasePath}/${currentPath}`);
+    setClickedPreview((prev) => !prev);
+  };
+
   useEffect(() => {
     const currentPath = location.pathname;
-    const currentIndex = ipsecSelection.findIndex(
+    const selection = ipsecSelection();
+
+    const currentIndex = selection.findIndex(
       (item) => item.path === currentPath,
     );
 
     if (currentIndex !== -1) {
-      setWebPage(ipsecSelection[currentIndex].name);
-      setNextPage(currentIndex < ipsecSelection.length - 1);
+      setWebPage(selection[currentIndex].name);
+      setNextPage(currentIndex < selection.length - 1);
       setPrevPage(currentIndex > 0);
     }
-  }, [location, ipsecSelection]);
+  }, [location]);
 
   function onConfigChange(api_data) {
-    setApiData((prevApiData) => {
-      const updated = { ...prevApiData, ...api_data, device: selectedDevice };
-      console.log(updated);
-      return updated;
-    });
+    const updated_apiData = {
+      ...api_data,
+      device: selectedDevice,
+    };
+    dispatch({ type: APIDATA, payload: updated_apiData });
   }
 
-  const handlePreviewBtn = () => {
-    const currentPath = location.pathname.split('/').pop();
-    if (!clickedPreview) {
-      navigate(`/vpn/site-to-site/config/preview/${currentPath}`);
-    } else {
-      navigate(`/vpn/site-to-site/config/${currentPath}`);
-    }
-    setClickedPreview((prev) => !prev);
-  };
-
   const handleSelection = (ipsecName, ipsecPath, ipsecSelection) => {
+    const currentPath = location.pathname.split('/').pop();
     const selected = ipsecSelection.find((item) => item.name === ipsecName);
     if (selected?.path) {
       setIpsecPath(ipsecPath);
@@ -134,43 +145,29 @@ function VPN() {
             <div className="w-[50rem] rounded-lg">
               <Routes>
                 <Route
-                  path="/site-to-site/ikeproposal"
+                  path="/ikeproposal"
                   element={
-                    <IkeProposalConfig
-                      onConfigChange={onConfigChange}
-                      selectedDevice={selectedDevice}
-                    />
+                    <IkeProposalConfig onConfigChange={onConfigChange} />
                   }
                 />
                 <Route
-                  path="/site-to-site/preview/:ipsecType"
+                  path="/preview/:ipsecType"
                   element={
                     <PagePreview
                       selectedFormat={selectedFormat}
                       ipsecPath={ipsecPath}
+                      apiData={apiData}
                     />
                   }
                 />
+                <Route path="/ikepolicy" element={<IkePolicyConfig />} />
+                <Route path="/ikegateway" element={<IkeGatewayConfig />} />
                 <Route
-                  path="/site-to-site/ikepolicy"
-                  element={<IkePolicyConfig />}
-                />
-                <Route
-                  path="/site-to-site/ikegateway"
-                  element={<IkeGatewayConfig />}
-                />
-                <Route
-                  path="/site-to-site/ipsecproposal"
+                  path="/ipsecproposal"
                   element={<IPsecProposalConfig />}
                 />
-                <Route
-                  path="/site-to-site/ipsecpolicy"
-                  element={<IPsecPolicyConfig />}
-                />
-                <Route
-                  path="/site-to-site/ipsecvpn"
-                  element={<IPsecVPNConfig />}
-                />
+                <Route path="/ipsecpolicy" element={<IPsecPolicyConfig />} />
+                <Route path="/ipsecvpn" element={<IPsecVPNConfig />} />
                 <Route path="/remote-access" element={<RaVPN />} />
               </Routes>
             </div>

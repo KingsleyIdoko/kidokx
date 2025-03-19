@@ -14,7 +14,7 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HopePage />} />
-          <Route path="/vpn/config/*" element={<VPN />} />
+          <Route path="/vpn/site-to-site/config/*" element={<VPN />} />
           <Route path="/vpn/site-to-site/list/*" element={<S2sVPNList />} />
         </Routes>
       </div>

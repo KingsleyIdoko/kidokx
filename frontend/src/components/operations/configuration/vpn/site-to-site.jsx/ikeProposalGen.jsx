@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
+import { useSelector, useDispatch } from 'react-redux';
+import { SELECTEDOPTIONS, UPDATEDOPTIONS } from '../vpnActions.jsx/actionTypes';
 
-function IkeProposalConfig({ onConfigChange, selectedDevice }) {
+function IkeProposalConfig({ onConfigChange }) {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
-  const [selectedOptions, setSelectedOptions] = useState({ proposalName: '' });
+  const { selectedOptions } = useSelector((store) => store.vpn);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (ipsecChoicesData) {
@@ -14,15 +17,17 @@ function IkeProposalConfig({ onConfigChange, selectedDevice }) {
         },
         {},
       );
-
-      setSelectedOptions((prev) => ({ ...prev, ...initialOptions }));
+      dispatch({
+        type: SELECTEDOPTIONS,
+        payload: initialOptions,
+      });
     }
-  }, [ipsecChoicesData]);
+  }, [ipsecChoicesData, dispatch]);
 
   const handleChange = (key, value) => {
     const updatedOptions = { ...selectedOptions, [key]: value };
-    setSelectedOptions(updatedOptions);
-    onConfigChange(updatedOptions); // Update parent explicitly after each change
+    dispatch({ type: UPDATEDOPTIONS, payload: updatedOptions });
+    onConfigChange(updatedOptions);
   };
 
   if (loading)

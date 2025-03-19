@@ -1,23 +1,35 @@
-import { useState } from 'react';
 import Dropdown from '../../../../../utilities/dropdown/dropdown';
 import { Paginate } from '../../../../../utilities/pagination/paginate';
 import { Pagination } from '../../../../../utilities/pagination/pagination';
 import ipsecData from './ipsecListItems';
 import { useNavigate } from 'react-router';
-
-// Import FontAwesome if not already in your project
 import '@fortawesome/fontawesome-free/css/all.min.css';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import {
+  FILTEREDIPSECDATA,
+  PAGESIZE,
+  CURRENTPAGE,
+} from '../vpnActions.jsx/actionTypes';
 
 export default function S2sVPNList() {
-  const itemsCount = ipsecData.length;
-  const [pageSize, setPageSize] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [FilteredIPsecData, setFilteredIPsecData] = useState(ipsecData);
-  const PaginateData = Paginate(FilteredIPsecData, currentPage, pageSize);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const itemsCount = ipsecData.length;
+
+  const { currentPage, pageSize, FilteredIPsecData } = useSelector(
+    (state) => state.vpn,
+  );
+
+  const PaginateData = Paginate(FilteredIPsecData, currentPage, pageSize);
+  useEffect(() => {
+    dispatch({ type: FILTEREDIPSECDATA, payload: ipsecData });
+    dispatch({ type: PAGESIZE, payload: 10 });
+  }, [dispatch]);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    dispatch({ type: CURRENTPAGE, payload: page });
   };
 
   const handleEditVPN = (id) => {
@@ -32,7 +44,7 @@ export default function S2sVPNList() {
     <div className="overflow-x-auto bg-sky-50">
       <div className="w-[110rem] grid grid-cols-7 gap-4 border-t-2 border-b-2 py-2 p-6">
         <button
-          onClick={() => navigate('/vpn/config/site-to-site/ikeproposal')}
+          onClick={() => navigate('/vpn/site-to-site/config/ikeproposal')}
           className="bg-green-600 rounded text-lg text-white py-2 px-6 mb-2 hover:opacity-70"
         >
           create new
@@ -41,12 +53,12 @@ export default function S2sVPNList() {
           name="VPN-Type"
           selection={['Site-to-Site', 'Remote-Access-VPN']}
         />
-        <Dropdown
+        {/* <Dropdown
           name="Site"
           selection={['ams-01', 'ams-02', 'fra-01', 'lon-01']}
           ipsecData={ipsecData}
-          setFilteredIPsecData={setFilteredIPsecData}
-        />
+          setFilteredIPsecData={dispatch}
+        /> */}
         <Dropdown
           name="Device"
           selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
@@ -59,13 +71,13 @@ export default function S2sVPNList() {
           name="Device-Type"
           selection={['SRX', 'ASA', 'FortiGate', 'FirePower']}
         />
-
-        <Dropdown
+        {/* <Dropdown
           name="Top"
           selection={[5, 10, 15, 20, 30]}
-          setPageSize={setPageSize}
-        />
+          setPageSize={pageSize}
+        /> */}
       </div>
+
       <table className="max-w-full max-h-screen w-full h-auto overflow-auto">
         <thead>
           <tr className="bg-gray-100 text-gray-700 capitalize text-sm">
@@ -127,6 +139,7 @@ export default function S2sVPNList() {
           })}
         </tbody>
       </table>
+
       <div>
         <Pagination
           itemsCount={itemsCount}
