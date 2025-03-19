@@ -12,8 +12,8 @@ import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import { SearchDevice } from '../../../inventory/searchdevice';
-import { useSelector, useDispatch } from 'react-redux';
-import { APIDATA } from './vpnActions.jsx/actionTypes';
+import { useDispatch } from 'react-redux';
+import { IKEPROPOSALDATA, UPDATEDOPTIONS } from './vpnActions.jsx/actionTypes';
 
 function VPN() {
   const navigate = useNavigate();
@@ -26,7 +26,6 @@ function VPN() {
   const [ipsecPath, setIpsecPath] = useState('');
   const [clickedPreview, setClickedPreview] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState('');
-  const { apiData } = useSelector((state) => state.vpn);
 
   // IPsec navigation steps
   const ipsecSelection = () => {
@@ -42,14 +41,22 @@ function VPN() {
     ];
   };
 
-  const handlePreviewBtn = () => {
+  const handlePreviewBtn = (api_data) => {
     const currentPath = location.pathname.split('/').pop();
     const isCurrentlyPreview = location.pathname.includes('/preview/');
     const nextBasePath = isCurrentlyPreview
       ? '/vpn/site-to-site/config'
       : '/vpn/site-to-site/config/preview';
+
     navigate(`${nextBasePath}/${currentPath}`);
+
     setClickedPreview((prev) => !prev);
+
+    const updatedOptions = {
+      ...api_data,
+      device: selectedDevice,
+    };
+    dispatch({ type: UPDATEDOPTIONS, payload: updatedOptions });
   };
 
   useEffect(() => {
@@ -66,14 +73,6 @@ function VPN() {
       setPrevPage(currentIndex > 0);
     }
   }, [location]);
-
-  function onConfigChange(api_data) {
-    const updated_apiData = {
-      ...api_data,
-      device: selectedDevice,
-    };
-    dispatch({ type: APIDATA, payload: updated_apiData });
-  }
 
   const handleSelection = (ipsecName, ipsecPath, ipsecSelection) => {
     const currentPath = location.pathname.split('/').pop();
@@ -144,19 +143,13 @@ function VPN() {
             {/* Routes for Site-to-Site and Remote Access VPN */}
             <div className="w-[50rem] rounded-lg">
               <Routes>
-                <Route
-                  path="/ikeproposal"
-                  element={
-                    <IkeProposalConfig onConfigChange={onConfigChange} />
-                  }
-                />
+                <Route path="/ikeproposal" element={<IkeProposalConfig />} />
                 <Route
                   path="/preview/:ipsecType"
                   element={
                     <PagePreview
                       selectedFormat={selectedFormat}
                       ipsecPath={ipsecPath}
-                      apiData={apiData}
                     />
                   }
                 />

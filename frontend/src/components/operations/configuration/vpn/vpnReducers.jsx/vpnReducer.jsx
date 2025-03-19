@@ -4,7 +4,12 @@ import {
   PAGESIZE,
   SELECTEDOPTIONS,
   UPDATEDOPTIONS,
-  APIDATA,
+  IKEPROPOSALDATA,
+  IKEPOLICYDATA,
+  IKEGATEWAYDATA,
+  IPSECPROPOSALDATA,
+  IPSECPOLICYDATA,
+  IPSECVPNDATA,
 } from '../vpnActions.jsx/actionTypes';
 
 const initialState = {
@@ -12,7 +17,12 @@ const initialState = {
   currentPage: 1,
   FilteredIPsecData: [],
   selectedOptions: { proposalName: '' },
-  apiData: {},
+  ikeProposalData: {},
+  ikePolicyData: {},
+  ikeGatewayData: {},
+  ipsecProposalData: {},
+  ipsecPolicyData: {},
+  ipsecVpnData: {},
 };
 
 export default function VpnReducer(state = initialState, action) {
@@ -44,20 +54,56 @@ export default function VpnReducer(state = initialState, action) {
         },
       };
 
-    case UPDATEDOPTIONS:
+    case IKEPROPOSALDATA:
       return {
         ...state,
-        selectedOptions: {
-          ...state.selectedOptions,
+        ikeProposalData: {
+          ...state.ikeProposalData,
           ...action.payload,
         },
       };
 
-    case APIDATA:
+    case IKEPOLICYDATA:
       return {
         ...state,
-        apiData: {
-          ...state.apiData,
+        ikePolicyData: {
+          ...state.ikePolicyData,
+          ...action.payload,
+        },
+      };
+
+    case IKEGATEWAYDATA:
+      return {
+        ...state,
+        ikeGatewayData: {
+          ...state.ikeGatewayData,
+          ...action.payload,
+        },
+      };
+
+    case IPSECPROPOSALDATA:
+      return {
+        ...state,
+        ipsecProposalData: {
+          ...state.ipsecProposalData,
+          ...action.payload,
+        },
+      };
+
+    case IPSECPOLICYDATA:
+      return {
+        ...state,
+        ipsecPolicyData: {
+          ...state.ipsecPolicyData,
+          ...action.payload,
+        },
+      };
+
+    case IPSECVPNDATA:
+      return {
+        ...state,
+        ipsecVpnData: {
+          ...state.ipsecVpnData,
           ...action.payload,
         },
       };

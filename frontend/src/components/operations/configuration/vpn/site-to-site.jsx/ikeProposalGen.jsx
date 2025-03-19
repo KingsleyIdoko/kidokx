@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-import { SELECTEDOPTIONS, UPDATEDOPTIONS } from '../vpnActions.jsx/actionTypes';
+import { SELECTEDOPTIONS } from '../vpnActions.jsx/actionTypes';
 
-function IkeProposalConfig({ onConfigChange }) {
+function IkeProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
   const { selectedOptions } = useSelector((store) => store.vpn);
   const dispatch = useDispatch();
@@ -19,15 +19,23 @@ function IkeProposalConfig({ onConfigChange }) {
       );
       dispatch({
         type: SELECTEDOPTIONS,
-        payload: initialOptions,
+        payload: {
+          proposalName: '',
+          ...initialOptions,
+        },
       });
     }
   }, [ipsecChoicesData, dispatch]);
 
   const handleChange = (key, value) => {
-    const updatedOptions = { ...selectedOptions, [key]: value };
-    dispatch({ type: UPDATEDOPTIONS, payload: updatedOptions });
-    onConfigChange(updatedOptions);
+    const updatedForm = {
+      ...selectedOptions,
+      [key]: value,
+    };
+    dispatch({
+      type: SELECTEDOPTIONS,
+      payload: updatedForm,
+    });
   };
 
   if (loading)
@@ -104,7 +112,7 @@ function IkeProposalConfig({ onConfigChange }) {
           type="text"
           placeholder="Enter Name"
           className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-          value={selectedOptions.proposalName}
+          value={selectedOptions.proposalName || ''}
           onChange={(e) => handleChange('proposalName', e.target.value)}
         />
 

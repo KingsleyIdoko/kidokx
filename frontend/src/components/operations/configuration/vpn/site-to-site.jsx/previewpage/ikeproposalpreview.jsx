@@ -1,19 +1,16 @@
 export function ikeProposalPreview({
   selectedFormat = 'cli',
-  proposal_name,
-  group,
-  auth_mth,
-  auth_algo,
-  encrypt_algo,
-  lifetime,
+  selectedOptions,
 }) {
-  // Ensure variables have default values
-  const safeName = proposal_name || 'proposal-1';
-  const safeGroup = group || 'group14';
-  const safeAuthMth = auth_mth || 'pre-shared-keys';
-  const safeAuthAlgo = auth_algo || 'sha-256';
-  const safeEncryptAlgo = encrypt_algo || 'aes-128-cbc';
-  const safeLifetime = lifetime || 28800;
+  console.log(selectedOptions);
+
+  const safeName = selectedOptions.proposalName || 'proposal-1';
+  const safeGroup = selectedOptions.dh_group || 'group14';
+  const safeAuthMth =
+    selectedOptions.authentication_method || 'pre-shared-keys';
+  const safeAuthAlgo = selectedOptions.authentication_protocol || 'sha-256';
+  const safeEncryptAlgo = selectedOptions.encryption_protocol || 'aes-128-cbc';
+  const safeLifetime = selectedOptions.lifetime_seconds || 28800;
 
   // Styled variables with inline HTML
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
