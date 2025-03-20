@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { IKEPOLICYDATA } from '../vpnActions.jsx/actionTypes'; // Optional if you have it defined.
+import { IKEPOLICYDATA } from '../vpnActions.jsx/actionTypes';
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
-  const { ikePolicyData } = useSelector((state) => state.vpn);
-  console.log(ikePolicyData);
+  const { ikePolicyData = {} } = useSelector((state) => state.vpn);
   const [ikeProposalNames, setIkeProposalNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -81,7 +80,6 @@ export default function IkePolicyConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <div className="flex items-center justify-between">
-        {/* Labels Section (Left Column) */}
         <div className="w-[24rem] flex flex-col space-y-4">
           {ikePolicyLabels.map((label_name, index) => (
             <button
@@ -94,21 +92,18 @@ export default function IkePolicyConfig() {
           ))}
         </div>
 
-        {/* Input Fields (Right Column) */}
         <div className="w-[20rem] flex flex-col space-y-5">
-          {/* IKE Policy Name Input */}
           <input
             type="text"
             placeholder="Enter Name"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.policyName}
+            value={ikePolicyData.policyName || ''}
             onChange={(e) => handleChanges('policyName', e.target.value)}
           />
 
-          {/* IKE Mode Selection */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.ike_mode}
+            value={ikePolicyData.ike_mode || ''}
             onChange={(e) => handleChanges('ike_mode', e.target.value)}
           >
             <option value="">Select Mode</option>
@@ -116,10 +111,9 @@ export default function IkePolicyConfig() {
             <option value="aggressive">Aggressive</option>
           </select>
 
-          {/* IKE Proposal Selection */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.proposalName}
+            value={ikePolicyData.proposalName || ''}
             onChange={(e) => handleChanges('proposalName', e.target.value)}
           >
             <option value="">Select a Proposal</option>
@@ -130,10 +124,9 @@ export default function IkePolicyConfig() {
             ))}
           </select>
 
-          {/* Authentication Method Selection */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.authentication_method}
+            value={ikePolicyData.authentication_method || ''}
             onChange={(e) =>
               handleChanges('authentication_method', e.target.value)
             }

@@ -1,14 +1,8 @@
-export function ikePolicyPreview({
-  selectedFormat = 'cli',
-  policy_name,
-  proposal_name,
-  mode,
-  policyPasswd,
-}) {
-  const safeName = policy_name || 'ike-policy-1';
-  const safeProposalName = proposal_name || 'proposal-1';
-  const safeMode = mode || 'main';
-  const safePolicyPasswd = policyPasswd || 'cisco123';
+export function ikePolicyPreview({ selectedFormat = 'cli', ikePolicyData }) {
+  const safeName = ikePolicyData.policyName || 'ike-policy-1';
+  const safeProposalName = ikePolicyData.proposalName || 'proposal-1';
+  const safeMode = ikePolicyData.ike_mode || 'main';
+  const safePolicyPasswd = ikePolicyData.authentication_method || 'cisco123'; // Assuming this is the password
 
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
   const styledMode = `<span class="text-blue-400 font-bold">${safeMode}</span>`;
@@ -31,11 +25,11 @@ set security ike policy ${styledName} pre-shared-key ascii-text ${styledPasswd}
             "ike": {
                 "policy": [
                     {
-                        "name": "${styledName}",
-                        "mode": "${styledMode}",
-                        "proposals": ["${styledProposal}"],
+                        "name": "${safeName}",
+                        "mode": "${safeMode}",
+                        "proposals": ["${safeProposalName}"],
                         "pre-shared-key": {
-                            "ascii-text": "${styledPasswd}"
+                            "ascii-text": "${safePolicyPasswd}"
                         }
                     }
                 ]
@@ -51,11 +45,11 @@ set security ike policy ${styledName} pre-shared-key ascii-text ${styledPasswd}
     &lt;security&gt;
         &lt;ike&gt;
             &lt;policy&gt;
-                &lt;name&gt;${styledName}&lt;/name&gt;
-                &lt;mode&gt;${styledMode}&lt;/mode&gt;
-                &lt;proposals&gt;${styledProposal}&lt;/proposals&gt;
+                &lt;name&gt;${safeName}&lt;/name&gt;
+                &lt;mode&gt;${safeMode}&lt;/mode&gt;
+                &lt;proposals&gt;${safeProposalName}&lt;/proposals&gt;
                 &lt;pre-shared-key&gt;
-                    &lt;ascii-text&gt;${styledPasswd}&lt;/ascii-text&gt;
+                    &lt;ascii-text&gt;${safePolicyPasswd}&lt;/ascii-text&gt;
                 &lt;/pre-shared-key&gt;
             &lt;/policy&gt;
         &lt;/ike&gt;

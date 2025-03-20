@@ -1,26 +1,28 @@
 import { useEffect } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-import { SELECTEDOPTIONS } from '../vpnActions.jsx/actionTypes';
+import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
 
 function IkeProposalConfig() {
-  const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
-  const { selectedOptions } = useSelector((store) => store.vpn);
+  const { ikeProposalRawData, ipsecChoicesData, error, loading } =
+    useIpsecData();
+  const { ikeProposalData } = useSelector((store) => store.vpn);
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (ipsecChoicesData) {
       const initialOptions = Object.keys(ipsecChoicesData).reduce(
         (acc, key) => {
-          acc[key] = ipsecChoicesData[key]?.[0]?.[0] || '';
+          acc[key] = ''; // Initialize with an empty string to prompt user selection
           return acc;
         },
         {},
       );
+
       dispatch({
-        type: SELECTEDOPTIONS,
+        type: IKEPROPOSALDATA,
         payload: {
-          proposalName: '',
+          proposalName: '', // Explicitly initialize proposalName as empty
           ...initialOptions,
         },
       });
@@ -29,11 +31,12 @@ function IkeProposalConfig() {
 
   const handleChange = (key, value) => {
     const updatedForm = {
-      ...selectedOptions,
+      ...ikeProposalData,
       [key]: value,
     };
+
     dispatch({
-      type: SELECTEDOPTIONS,
+      type: IKEPROPOSALDATA,
       payload: updatedForm,
     });
   };
@@ -60,12 +63,13 @@ function IkeProposalConfig() {
             d="M4 12a8 8 0 018-8v8H4z"
           />
         </svg>
+        <p className="mt-2 text-gray-600">Fetching data...</p>
       </div>
     );
 
   if (error) return <p className="text-red-500">{error.join(', ')}</p>;
 
-  if (!ikeProposalData || !ipsecChoicesData) {
+  if (!ipsecChoicesData)
     return (
       <div className="flex flex-col items-center justify-center h-40">
         <svg
@@ -90,10 +94,9 @@ function IkeProposalConfig() {
         <p className="mt-2 text-gray-600">Fetching data...</p>
       </div>
     );
-  }
 
   const filteredIsecData = Object.keys(ipsecChoicesData)
-    .filter((category) => category !== 'authentication_method')
+    .filter((category) => category !== 'authentication_method') // Exclude if not needed
     .reduce((acc, key) => {
       acc[key] = ipsecChoicesData[key];
       return acc;
@@ -102,6 +105,7 @@ function IkeProposalConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form className="grid grid-cols-2 gap-x-10 gap-y-4 items-center">
+        {/* Proposal Name Input */}
         <button
           type="button"
           className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
@@ -110,12 +114,13 @@ function IkeProposalConfig() {
         </button>
         <input
           type="text"
-          placeholder="Enter Name"
+          placeholder="Enter Proposal Name"
           className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-          value={selectedOptions.proposalName || ''}
+          value={ikeProposalData.proposalName || ''}
           onChange={(e) => handleChange('proposalName', e.target.value)}
         />
 
+        {/* Dynamically Generated Select Inputs */}
         {Object.keys(filteredIsecData).map((category) => (
           <div
             key={`${category}-wrapper`}
@@ -125,15 +130,16 @@ function IkeProposalConfig() {
               type="button"
               className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
             >
-              {String(category).replace(/_/g, ' ')}
+              {category.replace(/_/g, ' ')}
             </button>
             <select
               className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-              value={selectedOptions[category] || ''}
+              value={ikeProposalData[category] || ''}
               onChange={(e) => handleChange(category, e.target.value)}
             >
+              <option value="">Select {category.replace(/_/g, ' ')}</option>
               {filteredIsecData[category].map((option, index) =>
-                option[0] !== 'Pre-Shared Key' ? (
+                option?.[0] !== 'Pre-Shared Key' ? (
                   <option
                     key={`${category}-${option[0]}-${index}`}
                     value={option[0]}
