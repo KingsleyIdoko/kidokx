@@ -5,7 +5,9 @@ import { IKEPOLICYDATA } from '../vpnActions.jsx/actionTypes';
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
-  const { ikePolicyData = {} } = useSelector((state) => state.vpn);
+  const { ikePolicyData = {}, selectedDevice } = useSelector(
+    (state) => state.vpn,
+  );
   const [ikeProposalNames, setIkeProposalNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -42,8 +44,10 @@ export default function IkePolicyConfig() {
   const handleChanges = (field, value) => {
     const updatedData = {
       ...ikePolicyData,
+      device: selectedDevice,
       [field]: value,
     };
+    console.log(updatedData);
     dispatch({ type: IKEPOLICYDATA, payload: updatedData });
   };
 

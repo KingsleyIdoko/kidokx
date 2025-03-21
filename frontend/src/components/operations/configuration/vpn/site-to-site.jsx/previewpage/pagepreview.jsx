@@ -17,11 +17,9 @@ function PagePreview({ selectedFormat = 'cli' }) {
     ipsecProposalData,
     ipsecPolicyData,
     ipsecVpnData,
-    selectedOptions,
   } = useSelector((state) => state.vpn);
-
   let formats;
-
+  console.log(ipsecProposalData);
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [ipsecType]);
@@ -30,7 +28,7 @@ function PagePreview({ selectedFormat = 'cli' }) {
     case 'ikeproposal':
       formats = ikeProposalPreview({
         selectedFormat,
-        selectedOptions,
+        ikeProposalData,
       });
       break;
     case 'ikepolicy':

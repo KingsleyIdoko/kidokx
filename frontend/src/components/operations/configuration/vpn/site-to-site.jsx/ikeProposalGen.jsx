@@ -1,19 +1,24 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
 import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
 
 function IkeProposalConfig() {
-  const { ikeProposalRawData, ipsecChoicesData, error, loading } =
-    useIpsecData();
-  const { ikeProposalData } = useSelector((store) => store.vpn);
+  const hasInitialized = useRef(false);
+
+  const { ipsecChoicesData, error, loading } = useIpsecData();
+
+  const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (ipsecChoicesData) {
+    if (ipsecChoicesData && !hasInitialized.current) {
+      hasInitialized.current = true;
+
       const initialOptions = Object.keys(ipsecChoicesData).reduce(
         (acc, key) => {
-          acc[key] = ''; // Initialize with an empty string to prompt user selection
+          acc[key] = '';
           return acc;
         },
         {},
@@ -22,17 +27,19 @@ function IkeProposalConfig() {
       dispatch({
         type: IKEPROPOSALDATA,
         payload: {
-          proposalName: '', // Explicitly initialize proposalName as empty
+          proposalName: '',
           ...initialOptions,
+          device: selectedDevice,
         },
       });
     }
-  }, [ipsecChoicesData, dispatch]);
+  }, [ipsecChoicesData, dispatch, selectedDevice]);
 
   const handleChange = (key, value) => {
     const updatedForm = {
       ...ikeProposalData,
       [key]: value,
+      device: selectedDevice, // Maintain device association
     };
 
     dispatch({
@@ -41,7 +48,7 @@ function IkeProposalConfig() {
     });
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
         <svg
@@ -66,10 +73,13 @@ function IkeProposalConfig() {
         <p className="mt-2 text-gray-600">Fetching data...</p>
       </div>
     );
+  }
 
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) {
+    return <p className="text-red-500">{error.join(', ')}</p>;
+  }
 
-  if (!ipsecChoicesData)
+  if (!ipsecChoicesData) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
         <svg
@@ -94,9 +104,10 @@ function IkeProposalConfig() {
         <p className="mt-2 text-gray-600">Fetching data...</p>
       </div>
     );
+  }
 
   const filteredIsecData = Object.keys(ipsecChoicesData)
-    .filter((category) => category !== 'authentication_method') // Exclude if not needed
+    .filter((category) => category !== 'authentication_method') // Optional exclusion
     .reduce((acc, key) => {
       acc[key] = ipsecChoicesData[key];
       return acc;

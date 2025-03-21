@@ -2,8 +2,7 @@ import {
   FILTEREDIPSECDATA,
   CURRENTPAGE,
   PAGESIZE,
-  SELECTEDOPTIONS,
-  UPDATEDOPTIONS,
+  SELECTEDDEVICE,
   IKEPROPOSALDATA,
   IKEPOLICYDATA,
   IKEGATEWAYDATA,
@@ -15,8 +14,8 @@ import {
 const initialState = {
   pageSize: 10,
   currentPage: 1,
-  FilteredIPsecData: [],
-  selectedOptions: { proposalName: '' },
+  filteredIPsecData: [],
+  selectedDevice: {},
   ikeProposalData: {},
   ikePolicyData: {},
   ikeGatewayData: {},
@@ -30,7 +29,7 @@ export default function VpnReducer(state = initialState, action) {
     case FILTEREDIPSECDATA:
       return {
         ...state,
-        FilteredIPsecData: action.payload,
+        filteredIPsecData: action.payload,
       };
 
     case CURRENTPAGE:
@@ -45,13 +44,10 @@ export default function VpnReducer(state = initialState, action) {
         pageSize: action.payload,
       };
 
-    case SELECTEDOPTIONS:
+    case SELECTEDDEVICE:
       return {
         ...state,
-        selectedOptions: {
-          ...state.selectedOptions,
-          ...action.payload,
-        },
+        selectedDevice: action.payload,
       };
 
     case IKEPROPOSALDATA:

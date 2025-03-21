@@ -6,10 +6,10 @@ export function ipsecPolicyPreview({
   proposal_set,
 }) {
   // Ensure variables have default values
-  const safeName = policy_name || 'ipsec-policy-1';
-  const safeProposals = proposals || 'ipsec-proposal-1';
-  const safePfs = perfect_forward_secrecy || 'group14';
-  const safeProposalSet = proposal_set || 'basic';
+  const safeName = policy_name || 'no-value';
+  const safeProposals = proposals || 'no-value';
+  const safePfs = perfect_forward_secrecy || 'no-value';
+  const safeProposalSet = proposal_set || 'no-value';
 
   // Styled variables with inline HTML
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;

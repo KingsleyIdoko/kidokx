@@ -1,26 +1,17 @@
-export function ikeGatewayPreview({
-  selectedFormat = 'cli',
-  gateway_name,
-  ike_policy,
-  address,
-  external_interface,
-  local_address,
-  version,
-}) {
-  // Ensure variables have default values
-  const safeName = gateway_name || 'gateway-1';
-  const safeIkePolicy = ike_policy || 'ike_policy-1';
-  const safeAddress = address || '192.168.1.10';
-  const safeExternalInterface = external_interface || 'reth1';
-  const safeLocalAddress = local_address || '192.168.1.30';
-  const safeVersion = version || 'v1-only';
+export function ikeGatewayPreview({ selectedFormat = 'cli', ikeGatewayData }) {
+  const safeName = ikeGatewayData.policyName || 'empty';
+  const safeIkePolicy = ikeGatewayData.ike_policy || 'empty';
+  const safeAddress = ikeGatewayData.remote_address || 'empty';
+  const safeExternalInterface = ikeGatewayData.external_interface || 'empty';
+  const safeVersion = ikeGatewayData.ike_version || 'empty';
+  const safePasswd = ikeGatewayData.psk_passwd || 'empty';
 
   // Styled variables with inline HTML
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
   const styledIkePolicy = `<span class="text-yellow-400 font-bold">${safeIkePolicy}</span>`;
   const styledAddress = `<span class="text-blue-400 font-bold">${safeAddress}</span>`;
   const styledExternalInterface = `<span class="text-purple-400 font-bold">${safeExternalInterface}</span>`;
-  const styledLocalAddress = `<span class="text-red-400 font-bold">${safeLocalAddress}</span>`;
+  const styledLocalAddress = `<span class="text-red-400 font-bold">${safePasswd}</span>`;
   const styledVersion = `<span class="text-cyan-400 font-bold">${safeVersion}</span>`;
 
   const formats = {

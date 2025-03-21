@@ -1,9 +1,18 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { SELECTEDDEVICE } from '../operations/configuration/vpn/vpnActions.jsx/actionTypes';
 
-export function SearchDevice({ selectedDevice, setSelectedDevice }) {
+export function SearchDevice() {
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState(null);
+
+  const dispatch = useDispatch();
+  const { selectedDevice } = useSelector((state) => state.vpn);
+
+  const handleSelectedDevice = (device) => {
+    dispatch({ type: SELECTEDDEVICE, payload: device });
+  };
 
   useEffect(() => {
     const getDevice = async () => {
@@ -30,7 +39,7 @@ export function SearchDevice({ selectedDevice, setSelectedDevice }) {
       <select
         className="w-full py-3 px-3 border focus:outline-none"
         value={selectedDevice || ''}
-        onChange={(e) => setSelectedDevice(e.target.value)}
+        onChange={(e) => handleSelectedDevice(e.target.value)}
       >
         <option value="">Select Device</option>
         {devices.map((device, index) => (

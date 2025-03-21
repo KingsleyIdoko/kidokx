@@ -1,8 +1,8 @@
 export function ikePolicyPreview({ selectedFormat = 'cli', ikePolicyData }) {
-  const safeName = ikePolicyData.policyName || 'ike-policy-1';
-  const safeProposalName = ikePolicyData.proposalName || 'proposal-1';
-  const safeMode = ikePolicyData.ike_mode || 'main';
-  const safePolicyPasswd = ikePolicyData.authentication_method || 'cisco123'; // Assuming this is the password
+  const safeName = ikePolicyData.policyName || 'empty';
+  const safeProposalName = ikePolicyData.proposalName || 'empty';
+  const safeMode = ikePolicyData.ike_mode || 'empty';
+  const safePolicyPasswd = ikePolicyData.authentication_method || 'empty'; // Assuming this is the password
 
   const styledName = `<span class="text-green-400 font-bold">${safeName}</span>`;
   const styledMode = `<span class="text-blue-400 font-bold">${safeMode}</span>`;

@@ -7,7 +7,6 @@ function IPsecPolicyConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
 
   const [selectedOptions, setSelectedOptions] = useState({ proposalName: '' });
-  const [selectedFormat, setSelectedFormat] = useState('json');
 
   useEffect(() => {
     if (ipsecChoicesData) {

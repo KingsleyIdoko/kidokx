@@ -1,50 +1,33 @@
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { IKEGATEWAYDATA } from '../vpnActions.jsx/actionTypes';
 import axios from 'axios';
-import IpsecSteps from './ipsec_steps';
-import { Link } from 'react-router-dom';
-/**
- * IkeGatewayConfig Component
- * --------------------------
- * This component configures an IKE Gateway for Juniper VPN.
- * Users can input:
- * - Remote Address
- * - External Interface
- * - IKE Policy Selection (Fetched from API)
- * - IKE Version Selection
- * - Pre-Shared Key Input
- *
- * Data is fetched dynamically from the backend.
- */
+
 function IkeGatewayConfig() {
-  // State to manage user selections
+  const dispatch = useDispatch();
+  const { selectedDevice } = useSelector((state) => state.vpn);
   const [selectedOptions, setSelectedOptions] = useState({
     policyName: '',
-    ike_mode: '',
-    authentication_method: '',
+    remote_address: '',
+    external_interface: '',
+    ike_policy: '',
     ike_version: '',
+    psk_passwd: '',
   });
-
-  // Field labels for the left column
   const ikeGatewayParams = [
+    'Gateway Name',
     'Remote Address',
     'External Interface',
     'IKE Policy',
-    'Version',
+    'IKE Version',
     'Pre-Shared Key',
   ];
 
-  // Available IKE versions
-  const ikeVersions = ['v1-only', 'v2-only', 'ikev1-ikev2'];
-
-  // State for output format selection (JSON, XML, CLI)
-  const [selectedFormat, setSelectedFormat] = useState('json');
-
-  // API data states
-  const [ikePolicyNames, setIkePolicyNames] = useState(null);
+  const ikeVersions = ['v1-only', 'v2-only'];
+  const [ikePolicyNames, setIkePolicyNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  /** Fetch available IKE Policies from the API */
   const fetchIkePolicyNames = async () => {
     setLoading(true);
     let errorMessages = [];
@@ -63,13 +46,19 @@ function IkeGatewayConfig() {
     }
   };
 
-  // Fetch IKE Policy names when the component mounts
   useEffect(() => {
     fetchIkePolicyNames();
   }, []);
 
-  // Handle API loading state
-  if (loading)
+  useEffect(() => {
+    const updateOptions = {
+      ...selectedOptions,
+      device: selectedDevice,
+    };
+    dispatch({ type: IKEGATEWAYDATA, payload: updateOptions });
+  }, [selectedOptions, dispatch, selectedDevice]);
+
+  if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
         <svg
@@ -94,115 +83,122 @@ function IkeGatewayConfig() {
         <p className="mt-2 text-gray-600">Fetching data...</p>
       </div>
     );
+  }
 
-  // Handle API error state
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) {
+    return <p className="text-red-500">{error.join(', ')}</p>;
+  }
 
-  // Handle empty API response
-  if (!ikePolicyNames)
+  if (!ikePolicyNames || ikePolicyNames.length === 0) {
     return <p className="text-gray-500">No IKE Policies available</p>;
+  }
 
   return (
-    <>
-      {/* Main Container */}
-      <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
-        <div className="flex mx-auto">
-          {/* Labels Section (Left Column) */}
-          <div className="w-[24rem] flex flex-col space-y-4">
-            {ikeGatewayParams.map((label, index) => (
-              <button
-                key={index}
-                className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
-              >
-                {label}
-              </button>
+    <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
+      <div className="flex mx-auto">
+        <div className="w-[24rem] flex flex-col space-y-4">
+          {ikeGatewayParams.map((label, index) => (
+            <div
+              key={index}
+              className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+            >
+              {label}
+            </div>
+          ))}
+        </div>
+
+        <div className="w-[20rem] flex flex-col space-y-5">
+          <input
+            type="text"
+            placeholder="Enter Gateway Name"
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.policyName}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                policyName: e.target.value,
+              }))
+            }
+          />
+
+          <input
+            type="text"
+            placeholder="Enter Remote Address"
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.remote_address}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                remote_address: e.target.value,
+              }))
+            }
+          />
+
+          <select
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.external_interface}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                external_interface: e.target.value,
+              }))
+            }
+          >
+            <option value="">Select Interface</option>
+            <option value="ge-0/0/0">ge-0/0/0</option>
+          </select>
+
+          <select
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.ike_policy}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                ike_policy: e.target.value,
+              }))
+            }
+          >
+            <option value="">Select Ike Policy</option>
+            {ikePolicyNames.map((policy, index) => (
+              <option key={index} value={policy}>
+                {policy}
+              </option>
             ))}
-          </div>
+          </select>
 
-          {/* Input Fields (Right Column) */}
-          <div className="w-[20rem] flex flex-col space-y-5">
-            {/* Policy Name Input */}
-            <input
-              type="text"
-              placeholder="Enter Policy Name"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.policyName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  policyName: e.target.value,
-                }))
-              }
-            />
+          <select
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.ike_version}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                ike_version: e.target.value,
+              }))
+            }
+          >
+            <option value="">Select Ike Version</option>
+            {ikeVersions.map((version, index) => (
+              <option key={index} value={version}>
+                {version}
+              </option>
+            ))}
+          </select>
 
-            {/* External Interface Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.ike_mode}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  ike_mode: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Interface</option>
-              <option value="ge-0/0/0">ge-0/0/0</option>
-            </select>
-
-            {/* IKE Policy Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.policyName}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  policyName: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select a Policy</option>
-              {ikePolicyNames.map((policy, index) => (
-                <option key={index} value={policy}>
-                  {policy}
-                </option>
-              ))}
-            </select>
-
-            {/* IKE Version Selection */}
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.ike_version}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  ike_version: e.target.value,
-                }))
-              }
-            >
-              <option value="">Select Version</option>
-              {ikeVersions.map((version, index) => (
-                <option key={index} value={version}>
-                  {version}
-                </option>
-              ))}
-            </select>
-            <input
-              type="text"
-              placeholder="Enter Ascii Password"
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions.psk_passwd}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  psk_passwd: e.target.value,
-                }))
-              }
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Enter Pre-Shared Key"
+            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
+            value={selectedOptions.psk_passwd}
+            onChange={(e) =>
+              setSelectedOptions((prev) => ({
+                ...prev,
+                psk_passwd: e.target.value,
+              }))
+            }
+          />
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

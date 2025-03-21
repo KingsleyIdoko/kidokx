@@ -13,7 +13,7 @@ import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import { SearchDevice } from '../../../inventory/searchdevice';
 import { useDispatch } from 'react-redux';
-import { IKEPROPOSALDATA, UPDATEDOPTIONS } from './vpnActions.jsx/actionTypes';
+import { SELECTEDDEVICE } from './vpnActions.jsx/actionTypes';
 
 function VPN() {
   const navigate = useNavigate();
@@ -25,7 +25,6 @@ function VPN() {
   const [selectedFormat, setSelectedFormat] = useState('CLI');
   const [ipsecPath, setIpsecPath] = useState('');
   const [clickedPreview, setClickedPreview] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState('');
 
   // IPsec navigation steps
   const ipsecSelection = () => {
@@ -41,7 +40,7 @@ function VPN() {
     ];
   };
 
-  const handlePreviewBtn = (api_data) => {
+  const handlePreviewBtn = () => {
     const currentPath = location.pathname.split('/').pop();
     const isCurrentlyPreview = location.pathname.includes('/preview/');
     const nextBasePath = isCurrentlyPreview
@@ -51,12 +50,6 @@ function VPN() {
     navigate(`${nextBasePath}/${currentPath}`);
 
     setClickedPreview((prev) => !prev);
-
-    const updatedOptions = {
-      ...api_data,
-      device: selectedDevice,
-    };
-    dispatch({ type: UPDATEDOPTIONS, payload: updatedOptions });
   };
 
   useEffect(() => {
@@ -115,10 +108,7 @@ function VPN() {
         {/* Main container for the VPN configuration steps */}
         <div className="w-[68rem] h-[48rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative rounded-xl">
           <div className="w-[64rem] pt-6">
-            <SearchDevice
-              setSelectedDevice={setSelectedDevice}
-              selectedDevice={selectedDevice}
-            />
+            <SearchDevice />
           </div>
           <div className="w-[64rem] pt-6">
             <NavigationBar
@@ -144,6 +134,12 @@ function VPN() {
             <div className="w-[50rem] rounded-lg">
               <Routes>
                 <Route path="/ikeproposal" element={<IkeProposalConfig />} />
+                <Route path="/ikepolicy" element={<IkePolicyConfig />} />
+                <Route path="/ikegateway" element={<IkeGatewayConfig />} />
+
+                <Route path="/ipsecpolicy" element={<IPsecPolicyConfig />} />
+                <Route path="/ipsecvpn" element={<IPsecVPNConfig />} />
+                <Route path="/remote-access" element={<RaVPN />} />
                 <Route
                   path="/preview/:ipsecType"
                   element={
@@ -153,15 +149,10 @@ function VPN() {
                     />
                   }
                 />
-                <Route path="/ikepolicy" element={<IkePolicyConfig />} />
-                <Route path="/ikegateway" element={<IkeGatewayConfig />} />
                 <Route
                   path="/ipsecproposal"
                   element={<IPsecProposalConfig />}
                 />
-                <Route path="/ipsecpolicy" element={<IPsecPolicyConfig />} />
-                <Route path="/ipsecvpn" element={<IPsecVPNConfig />} />
-                <Route path="/remote-access" element={<RaVPN />} />
               </Routes>
             </div>
           </div>
