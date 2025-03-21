@@ -5,15 +5,16 @@ import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
 
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
-
   const { ipsecChoicesData, error, loading } = useIpsecData();
-
   const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
-
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (ipsecChoicesData && !hasInitialized.current) {
+    if (
+      ipsecChoicesData &&
+      !hasInitialized.current &&
+      (!ikeProposalData || Object.keys(ikeProposalData).length === 0)
+    ) {
       hasInitialized.current = true;
 
       const initialOptions = Object.keys(ipsecChoicesData).reduce(
@@ -33,13 +34,13 @@ function IkeProposalConfig() {
         },
       });
     }
-  }, [ipsecChoicesData, dispatch, selectedDevice]);
+  }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
   const handleChange = (key, value) => {
     const updatedForm = {
       ...ikeProposalData,
       [key]: value,
-      device: selectedDevice, // Maintain device association
+      device: selectedDevice,
     };
 
     dispatch({
@@ -51,63 +52,23 @@ function IkeProposalConfig() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
+        {/* Spinner */}
       </div>
     );
   }
 
-  if (error) {
-    return <p className="text-red-500">{error.join(', ')}</p>;
-  }
+  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
 
   if (!ipsecChoicesData) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
+        {/* Spinner */}
       </div>
     );
   }
 
   const filteredIsecData = Object.keys(ipsecChoicesData)
-    .filter((category) => category !== 'authentication_method') // Optional exclusion
+    .filter((category) => category !== 'authentication_method')
     .reduce((acc, key) => {
       acc[key] = ipsecChoicesData[key];
       return acc;
@@ -116,7 +77,6 @@ function IkeProposalConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form className="grid grid-cols-2 gap-x-10 gap-y-4 items-center">
-        {/* Proposal Name Input */}
         <button
           type="button"
           className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
@@ -131,7 +91,6 @@ function IkeProposalConfig() {
           onChange={(e) => handleChange('proposalName', e.target.value)}
         />
 
-        {/* Dynamically Generated Select Inputs */}
         {Object.keys(filteredIsecData).map((category) => (
           <div
             key={`${category}-wrapper`}
