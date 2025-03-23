@@ -4,8 +4,9 @@ import { Route, Routes } from 'react-router-dom';
 import Navbar from './components/header/navbar';
 import VPN from './components/operations/configuration/vpn/vpn';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import S2sVPNList from './components/operations/configuration/vpn/site-to-site.jsx/s2svpnlist';
+import SiteToSiteList from './components/operations/configuration/vpn/site-to-site.jsx/SiteToSiteVPNList';
 import HopePage from './components/homepage/homepage';
+import VpnConfigList from './components/operations/configuration/vpn/site-to-site.jsx/vpnConfigList/vpnconfiglist';
 
 function App() {
   return (
@@ -15,7 +16,14 @@ function App() {
         <Routes>
           <Route path="/" element={<HopePage />} />
           <Route path="/vpn/site-to-site/config/*" element={<VPN />} />
-          <Route path="/vpn/site-to-site/list/*" element={<S2sVPNList />} />
+          <Route
+            path="/vpn/site-to-site/sessions/list/*"
+            element={<SiteToSiteList />}
+          />
+          <Route
+            path="/vpn/site-to-site/list/config/*"
+            element={<VpnConfigList />}
+          />
         </Routes>
       </div>
     </Provider>

@@ -9,7 +9,7 @@ import {
   IPSECPROPOSALDATA,
   IPSECPOLICYDATA,
   IPSECVPNDATA,
-} from '../vpnActions.jsx/actionTypes';
+} from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
   pageSize: 10,

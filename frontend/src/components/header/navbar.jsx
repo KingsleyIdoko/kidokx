@@ -37,7 +37,7 @@ export default function Navbar() {
 
   const handleNavigateURL = (thirdDropDownName) => {
     const paths = {
-      'site-to-site': '/vpn/site-to-site/list',
+      'site-to-site': '/vpn/site-to-site/sessions/list',
       'remote-access': '/vpn/remote-access/list',
     };
     if (paths[thirdDropDownName]) navigate(paths[thirdDropDownName]);

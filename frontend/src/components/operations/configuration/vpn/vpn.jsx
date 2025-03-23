@@ -12,13 +12,11 @@ import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import { SearchDevice } from '../../../inventory/searchdevice';
-import { useDispatch } from 'react-redux';
-import { SELECTEDDEVICE } from './vpnActions.jsx/actionTypes';
 
 function VPN() {
   const navigate = useNavigate();
   const location = useLocation();
-  const dispatch = useDispatch();
+
   const [webPage, setWebPage] = useState('IKE Proposal');
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
@@ -136,10 +134,10 @@ function VPN() {
                 <Route path="/ikeproposal" element={<IkeProposalConfig />} />
                 <Route path="/ikepolicy" element={<IkePolicyConfig />} />
                 <Route path="/ikegateway" element={<IkeGatewayConfig />} />
-
                 <Route path="/ipsecpolicy" element={<IPsecPolicyConfig />} />
                 <Route path="/ipsecvpn" element={<IPsecVPNConfig />} />
                 <Route path="/remote-access" element={<RaVPN />} />
+
                 <Route
                   path="/preview/:ipsecType"
                   element={

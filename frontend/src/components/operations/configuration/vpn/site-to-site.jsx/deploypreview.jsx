@@ -1,9 +1,16 @@
+import { useNavigate, useLocation } from 'react-router-dom';
 function DeployPreview({
   onPreviewBtn,
   onSelectedFormat,
   setSelectedFormat,
   onPreview,
 }) {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const handleSubmitBtn = () => {
+    const currentPath = location.pathname.split('/').pop();
+    currentPath && navigate(`/vpn/site-to-site/list/${currentPath}`);
+  };
   return (
     <div className="flex items-center justify-between">
       {/* Preview Button */}
@@ -22,7 +29,6 @@ function DeployPreview({
               onPreview ? '' : 'hidden'
             }`}
           >
-            {/* Format label and select input */}
             <label
               htmlFor="format"
               className="capitalize text-black bg-gray-100 rounded-lg py-2 px-6 hover:opacity-70"
@@ -49,7 +55,11 @@ function DeployPreview({
         </div>
         <div className="flex items-center justify-between gap-5 ">
           {' '}
-          <button className="w-full capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70">
+          <button
+            type="submit"
+            className="w-full capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
+            onClick={handleSubmitBtn}
+          >
             save
           </button>
           {/* Deploy Button */}
