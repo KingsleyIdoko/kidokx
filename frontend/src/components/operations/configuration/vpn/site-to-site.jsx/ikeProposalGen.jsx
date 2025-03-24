@@ -5,17 +5,22 @@ import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
 import { useForm } from 'react-hook-form';
 
 function IkeProposalConfig() {
-  const {
-    register,
-    trigger,
-    getValues,
-    formState: { Error },
-  } = useForm({ mode: 'onChange' });
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
   const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
   const dispatch = useDispatch();
 
+  const {
+    register,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    mode: 'onChange',
+    defaultValues: ikeProposalData,
+  });
+
+  // Initialize form values from Redux on load
   useEffect(() => {
     if (
       ipsecChoicesData &&
@@ -43,40 +48,27 @@ function IkeProposalConfig() {
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
-  const handleChange = async () => {
-    const isValid = await trigger(['proposalName']);
-
-    if (isValid) {
-      const proposalName = getValues('proposalName'); // get current value from form
-      const updatedForm = {
-        ...ikeProposalData,
-        proposalName,
-      };
-
+  // Watch for form changes and dispatch automatically
+  useEffect(() => {
+    const subscription = watch((formData) => {
       dispatch({
         type: IKEPROPOSALDATA,
-        payload: updatedForm,
+        payload: { ...ikeProposalData, ...formData, device: selectedDevice },
       });
-    }
-  };
+    });
 
-  if (loading) {
+    return () => subscription.unsubscribe();
+  }, [watch, dispatch, ikeProposalData, selectedDevice]);
+
+  if (loading || !ipsecChoicesData) {
     return (
       <div className="flex flex-col items-center justify-center h-40">
-        {/* Spinner */}
+        <p>Loading...</p>
       </div>
     );
   }
 
   if (error) return <p className="text-red-500">{error.join(', ')}</p>;
-
-  if (!ipsecChoicesData) {
-    return (
-      <div className="flex flex-col items-center justify-center h-40">
-        {/* Spinner */}
-      </div>
-    );
-  }
 
   const filteredIsecData = Object.keys(ipsecChoicesData)
     .filter((category) => category !== 'authentication_method')
@@ -88,19 +80,34 @@ function IkeProposalConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form className="grid grid-cols-2 gap-x-10 gap-y-4 items-center">
-        <button
-          type="button"
-          className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
-        >
-          IKE Proposal Name
-        </button>
-        <input
-          {...register('proposalName', { required: true })}
-          type="text"
-          placeholder="Enter Proposal Name"
-          className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-        />
+        {/* Proposal Name */}
+        <div className="col-span-2 grid grid-cols-2 gap-x-10 items-center">
+          <button
+            type="button"
+            className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
+          >
+            IKE Proposal Name
+          </button>
+          <div>
+            <input
+              {...register('proposalName', {
+                required: 'Proposal Name is required',
+              })}
+              type="text"
+              placeholder="Enter Proposal Name"
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
+                errors.proposalName ? 'border-red-500' : ''
+              }`}
+            />
+            {errors.proposalName && (
+              <span className="text-red-500 text-sm">
+                {errors.proposalName.message}
+              </span>
+            )}
+          </div>
+        </div>
 
+        {/* Dynamically Rendered Dropdowns */}
         {Object.keys(filteredIsecData).map((category) => (
           <div
             key={`${category}-wrapper`}
@@ -112,23 +119,29 @@ function IkeProposalConfig() {
             >
               {category.replace(/_/g, ' ')}
             </button>
-            <select
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-              value={ikeProposalData[category] || ''}
-              onChange={(e) => handleChange(category, e.target.value)}
-            >
-              <option value="">Select {category.replace(/_/g, ' ')}</option>
-              {filteredIsecData[category].map((option, index) =>
-                option?.[0] !== 'Pre-Shared Key' ? (
-                  <option
-                    key={`${category}-${option[0]}-${index}`}
-                    value={option[0]}
-                  >
-                    {option[1]}
-                  </option>
-                ) : null,
+            <div>
+              <select
+                {...register(category, { required: true })}
+                className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
+                  errors[category] ? 'border-red-500' : ''
+                }`}
+              >
+                <option value="">Select {category.replace(/_/g, ' ')}</option>
+                {filteredIsecData[category].map((option, index) =>
+                  option?.[0] !== 'Pre-Shared Key' ? (
+                    <option
+                      key={`${category}-${option[0]}-${index}`}
+                      value={option[0]}
+                    >
+                      {option[1]}
+                    </option>
+                  ) : null,
+                )}
+              </select>
+              {errors[category] && (
+                <span className="text-red-500 text-sm">Required</span>
               )}
-            </select>
+            </div>
           </div>
         ))}
       </form>
