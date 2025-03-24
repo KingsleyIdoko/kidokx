@@ -12,8 +12,8 @@ function IkeProposalConfig() {
 
   const {
     register,
-    watch,
-    setValue,
+    trigger,
+    getValues,
     formState: { errors },
   } = useForm({
     mode: 'onChange',
@@ -48,17 +48,26 @@ function IkeProposalConfig() {
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
-  // Watch for form changes and dispatch automatically
-  useEffect(() => {
-    const subscription = watch((formData) => {
+  const filteredIsecData = Object.keys(ipsecChoicesData || {})
+    .filter((category) => category !== 'authentication_method')
+    .reduce((acc, key) => {
+      acc[key] = ipsecChoicesData[key];
+      return acc;
+    }, {});
+
+  const handleFormChange = async () => {
+    const fieldsToValidate = ['proposalName', ...Object.keys(filteredIsecData)];
+    const isValid = await trigger(fieldsToValidate);
+
+    if (isValid) {
+      const formData = getValues();
+      console.log(formData);
       dispatch({
         type: IKEPROPOSALDATA,
         payload: { ...ikeProposalData, ...formData, device: selectedDevice },
       });
-    });
-
-    return () => subscription.unsubscribe();
-  }, [watch, dispatch, ikeProposalData, selectedDevice]);
+    }
+  };
 
   if (loading || !ipsecChoicesData) {
     return (
@@ -69,13 +78,6 @@ function IkeProposalConfig() {
   }
 
   if (error) return <p className="text-red-500">{error.join(', ')}</p>;
-
-  const filteredIsecData = Object.keys(ipsecChoicesData)
-    .filter((category) => category !== 'authentication_method')
-    .reduce((acc, key) => {
-      acc[key] = ipsecChoicesData[key];
-      return acc;
-    }, {});
 
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
@@ -98,6 +100,7 @@ function IkeProposalConfig() {
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
                 errors.proposalName ? 'border-red-500' : ''
               }`}
+              onChange={handleFormChange}
             />
             {errors.proposalName && (
               <span className="text-red-500 text-sm">
@@ -121,10 +124,11 @@ function IkeProposalConfig() {
             </button>
             <div>
               <select
-                {...register(category, { required: true })}
+                {...register(category, { required: 'This field is required' })}
                 className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
                   errors[category] ? 'border-red-500' : ''
                 }`}
+                onChange={handleFormChange}
               >
                 <option value="">Select {category.replace(/_/g, ' ')}</option>
                 {filteredIsecData[category].map((option, index) =>
@@ -139,7 +143,9 @@ function IkeProposalConfig() {
                 )}
               </select>
               {errors[category] && (
-                <span className="text-red-500 text-sm">Required</span>
+                <span className="text-red-500 text-sm">
+                  {errors[category].message}
+                </span>
               )}
             </div>
           </div>
