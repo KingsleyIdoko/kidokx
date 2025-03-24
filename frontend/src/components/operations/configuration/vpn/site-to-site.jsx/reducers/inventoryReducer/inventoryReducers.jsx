@@ -1,7 +1,11 @@
-import { DEVICEINVENTORIES } from '../../../vpnActions.jsx/actionTypes';
+import {
+  DEVICEINVENTORIES,
+  SELECTEDDEVICE,
+} from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
   inventories: [],
+  selectedDevcie: null,
 };
 
 export default function InventoryReducer(state = initialState, action) {
@@ -10,6 +14,11 @@ export default function InventoryReducer(state = initialState, action) {
       return {
         ...state,
         inventories: action.payload,
+      };
+    case SELECTEDDEVICE:
+      return {
+        ...state,
+        selectedDevcie: action.payload,
       };
 
     default:

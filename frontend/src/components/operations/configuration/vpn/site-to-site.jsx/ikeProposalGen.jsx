@@ -2,8 +2,15 @@ import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
 import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
+import { useForm } from 'react-hook-form';
 
 function IkeProposalConfig() {
+  const {
+    register,
+    trigger,
+    getValues,
+    formState: { Error },
+  } = useForm({ mode: 'onChange' });
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
   const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
@@ -36,17 +43,21 @@ function IkeProposalConfig() {
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
-  const handleChange = (key, value) => {
-    const updatedForm = {
-      ...ikeProposalData,
-      [key]: value,
-      device: selectedDevice,
-    };
+  const handleChange = async () => {
+    const isValid = await trigger(['proposalName']);
 
-    dispatch({
-      type: IKEPROPOSALDATA,
-      payload: updatedForm,
-    });
+    if (isValid) {
+      const proposalName = getValues('proposalName'); // get current value from form
+      const updatedForm = {
+        ...ikeProposalData,
+        proposalName,
+      };
+
+      dispatch({
+        type: IKEPROPOSALDATA,
+        payload: updatedForm,
+      });
+    }
   };
 
   if (loading) {
@@ -84,11 +95,10 @@ function IkeProposalConfig() {
           IKE Proposal Name
         </button>
         <input
+          {...register('proposalName', { required: true })}
           type="text"
           placeholder="Enter Proposal Name"
           className="px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full"
-          value={ikeProposalData.proposalName || ''}
-          onChange={(e) => handleChange('proposalName', e.target.value)}
         />
 
         {Object.keys(filteredIsecData).map((category) => (

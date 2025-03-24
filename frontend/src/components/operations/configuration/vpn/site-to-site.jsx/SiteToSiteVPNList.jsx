@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { DEVICEINVENTORIES } from '../vpnActions.jsx/actionTypes';
+import {
+  DEVICEINVENTORIES,
+  SELECTEDDEVICE,
+} from '../vpnActions.jsx/actionTypes';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
@@ -26,6 +29,7 @@ export default function SiteToSiteList() {
     }
     const config = getValues('config').toLowerCase();
     navigate(`/vpn/site-to-site/config/${config}`);
+    dispatch({ type: SELECTEDDEVICE, payload: getValues('device') });
   };
 
   useEffect(() => {
@@ -40,7 +44,6 @@ export default function SiteToSiteList() {
           ...device,
           name: device.name.toLowerCase(),
         }));
-        console.log(lowerCaseData);
         if (isMounted) {
           dispatch({ type: DEVICEINVENTORIES, payload: lowerCaseData });
         }
@@ -52,16 +55,38 @@ export default function SiteToSiteList() {
       }
     };
 
-    fetchDeviceList(); // ✅ Invoke the function here
+    fetchDeviceList();
 
     return () => {
-      isMounted = false; // ✅ Cleanup to prevent setting state after unmount
+      isMounted = false;
     };
   }, [dispatch]);
 
   return (
-    <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-8 shadow-md mt-10">
+    <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-4 shadow-md mt-10">
       {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      <div className="flex space-x-12 mx-auto mb-1 items-center justify-center ">
+        <span className="w-60 h-6 px-2 text-xs"></span>
+        <span className="w-60 h-6 px-2 text-xs">
+          {' '}
+          {errors.device && (
+            <span className="text-red-500 text-sm mb-1">
+              Must Select Device
+            </span>
+          )}
+        </span>
+        <span className="w-60 h-6 px-2 text-xs">
+          {' '}
+          {errors.config && (
+            <span className="text-red-500 text-sm mb-1">
+              Must Select Config
+            </span>
+          )}
+        </span>
+        <span className="w-60 h-6 px-2 text-xs"></span>
+        <span className="w-60 h-6 px-2 text-xs"></span>
+      </div>
 
       <div className="flex space-x-6 mb-8 border-b-2 pb-4 items-center justify-between ">
         {/* Add New Button */}
@@ -75,9 +100,6 @@ export default function SiteToSiteList() {
 
         {/* Device Dropdown */}
         <div className="flex flex-col w-60">
-          {/* {errors.device && (
-            <span className="text-red-500 text-sm mb-1">Required</span>
-          )} */}
           <select
             {...register('device', { required: true })}
             className={`h-12 border px-4 rounded-lg focus:outline-none ${
@@ -86,7 +108,7 @@ export default function SiteToSiteList() {
           >
             <option value="">Select Device</option>
             {inventories.map((device) => (
-              <option key={device.id} value={device.id}>
+              <option key={device.id} value={device.name}>
                 {device.name}
               </option>
             ))}
@@ -95,9 +117,6 @@ export default function SiteToSiteList() {
 
         {/* Config Dropdown */}
         <div className="flex flex-col w-60">
-          {/* {errors.config && (
-            <span className="text-red-500 text-sm mb-1">Required</span>
-          )} */}
           <select
             {...register('config', { required: true })}
             className={`h-12 capitalize border px-4 rounded-lg focus:outline-none ${
