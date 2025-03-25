@@ -6,8 +6,16 @@ import {
   DEVICEINVENTORIES,
   SELECTEDDEVICE,
 } from '../../vpnActions.jsx/actionTypes';
+import { useIpsecData } from '../api/ikeProposalItems';
 
 export default function VpnConfigList() {
+  const {
+    ikeProposalData: backendIkeProposalData,
+    ipsecChoicesData,
+    error: apierror,
+    loading,
+  } = useIpsecData();
+
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
   const { inventories = [], selectedDevice } = useSelector(
@@ -42,26 +50,20 @@ export default function VpnConfigList() {
     };
   }, [dispatch]);
 
-  useEffect(() => {
-    const postData = async () => {
-      console.log(ikeProposalData);
-      try {
-        if (!ikeProposalData || Object.keys(ikeProposalData).length === 0)
-          return;
+  const handleCreateProposal = async () => {
+    try {
+      if (!ikeProposalData || Object.keys(ikeProposalData).length === 0) return;
 
-        const response = await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
-          ikeProposalData,
-        );
+      const response = await axios.post(
+        'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
+        ikeProposalData,
+      );
 
-        console.log('IKE Proposal posted successfully:', response.data);
-      } catch (err) {
-        console.error('Error posting IKE proposal data:', err.message);
-      }
-    };
-
-    postData();
-  }, [ikeProposalData]);
+      console.log('IKE Proposal posted successfully:', response.data);
+    } catch (err) {
+      console.error('Error posting IKE proposal data:', err.message);
+    }
+  };
 
   const handleDeviceChange = (e) => {
     dispatch({ type: SELECTEDDEVICE, payload: e.target.value });
@@ -122,21 +124,17 @@ export default function VpnConfigList() {
             <tr>
               <th className="py-3 px-6 border-b">#</th>
               <th className="py-3 px-6 border-b">Device Name</th>
-              <th className="py-3 px-6 border-b">Site</th>
-              <th className="py-3 px-6 border-b">VPN Type</th>
-              <th className="py-3 px-6 border-b">Status</th>
+              <th className="py-3 px-6 border-b">Proposal Name</th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            <tr className="hover:bg-gray-50">
-              <td className="py-3 px-6 border-b">1</td>
-              <td className="py-3 px-6 border-b">Device A</td>
-              <td className="py-3 px-6 border-b">Site 1</td>
-              <td className="py-3 px-6 border-b">Site-to-Site</td>
-              <td className="py-3 px-6 border-b text-green-500 font-semibold">
-                Up
-              </td>
-            </tr>
+            {backendIkeProposalData?.map((proposal, index) => (
+              <tr key={proposal.id || index} className="hover:bg-gray-50">
+                <td className="py-3 px-6 border-b">{index + 1}</td>
+                <td className="py-3 px-6 border-b">{proposal.device}</td>
+                <td className="py-3 px-6 border-b">{proposal.proposalname}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>

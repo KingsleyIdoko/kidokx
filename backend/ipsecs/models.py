@@ -40,7 +40,7 @@ class ipsecConfiguationItems:
 
 class IkeProposal(models.Model):
     proposalname = models.CharField(max_length=100, unique=True)
-    device_id = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices
     )
