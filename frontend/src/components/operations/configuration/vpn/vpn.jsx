@@ -104,7 +104,7 @@ function VPN() {
     <>
       <div className="min-h-screen bg-sky-100 flex justify-center mx-auto py-12 rounded-xl">
         {/* Main container for the VPN configuration steps */}
-        <div className="w-[68rem] h-[48rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative rounded-xl">
+        <div className="w-[80rem] h-[48rem] flex flex-col bg-white space-y-6 shadow-xl items-center relative rounded-xl">
           <div className="w-[64rem] pt-6">
             <SearchDevice />
           </div>

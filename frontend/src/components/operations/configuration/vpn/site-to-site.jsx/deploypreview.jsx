@@ -1,19 +1,39 @@
+import { useDispatch, useSelector } from 'react-redux';
+import { VALIDATEIKEPROPOSAL } from '../vpnActions.jsx/actionTypes';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
+
 function DeployPreview({
   onPreviewBtn,
   onSelectedFormat,
   setSelectedFormat,
   onPreview,
 }) {
-  const location = useLocation();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const handleSubmitBtn = () => {
-    const currentPath = location.pathname.split('/').pop();
-    currentPath && navigate(`/vpn/site-to-site/list/${currentPath}`);
+  const location = useLocation();
+  const { validatedData } = useSelector((state) => state.inventories);
+
+  const handleSaveClick = () => {
+    dispatch({ type: VALIDATEIKEPROPOSAL, payload: true });
   };
+
+  const handleDeployClick = () => {
+    dispatch({ type: VALIDATEIKEPROPOSAL, payload: true });
+  };
+
+  useEffect(() => {
+    if (validatedData && validatedData.valid) {
+      const pathSegments = location.pathname.split('/').filter(Boolean);
+      const currentPath = pathSegments[pathSegments.length - 1];
+      if (currentPath) navigate(`/vpn/site-to-site/list/config/${currentPath}`);
+    } else if (validatedData && validatedData.valid === false) {
+      console.log('Validation failed. Fix errors before proceeding.');
+    }
+  }, [validatedData, navigate, location]);
+
   return (
     <div className="flex items-center justify-between">
-      {/* Preview Button */}
       <button
         className={`capitalize font-semibold mr-20 text-white ${
           onPreview ? 'bg-sky-400 opacity-50' : 'bg-sky-400'
@@ -54,21 +74,24 @@ function DeployPreview({
           </div>
         </div>
         <div className="flex items-center justify-between gap-5 ">
-          {' '}
           <button
-            type="submit"
+            type="button"
             className="w-full capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
-            onClick={handleSubmitBtn}
+            onClick={handleSaveClick}
           >
-            save
+            Save
           </button>
-          {/* Deploy Button */}
-          <button className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70">
-            deploy
+          <button
+            type="button"
+            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
+            onClick={handleDeployClick}
+          >
+            Deploy
           </button>
         </div>
       </div>
     </div>
   );
 }
+
 export default DeployPreview;

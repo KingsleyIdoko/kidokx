@@ -1,26 +1,23 @@
 import {
   DEVICEINVENTORIES,
   SELECTEDDEVICE,
+  VALIDATEIKEPROPOSAL,
 } from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
   inventories: [],
-  selectedDevcie: null,
+  selectedDevice: null,
+  validatedData: null,
 };
 
 export default function InventoryReducer(state = initialState, action) {
   switch (action.type) {
     case DEVICEINVENTORIES:
-      return {
-        ...state,
-        inventories: action.payload,
-      };
+      return { ...state, inventories: action.payload };
     case SELECTEDDEVICE:
-      return {
-        ...state,
-        selectedDevcie: action.payload,
-      };
-
+      return { ...state, selectedDevice: action.payload };
+    case VALIDATEIKEPROPOSAL:
+      return { ...state, validatedData: action.payload };
     default:
       return state;
   }

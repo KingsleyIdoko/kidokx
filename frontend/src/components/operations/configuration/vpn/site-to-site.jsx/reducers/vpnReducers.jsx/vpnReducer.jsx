@@ -9,6 +9,7 @@ import {
   IPSECPROPOSALDATA,
   IPSECPOLICYDATA,
   IPSECVPNDATA,
+  CONFIGTYPE,
 } from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
@@ -22,6 +23,7 @@ const initialState = {
   ipsecProposalData: {},
   ipsecPolicyData: {},
   ipsecVpnData: {},
+  configtype: {},
 };
 
 export default function VpnReducer(state = initialState, action) {
@@ -102,6 +104,11 @@ export default function VpnReducer(state = initialState, action) {
           ...state.ipsecVpnData,
           ...action.payload,
         },
+      };
+    case CONFIGTYPE:
+      return {
+        ...state,
+        configtype: action.payload,
       };
 
     default:

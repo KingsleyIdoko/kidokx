@@ -1,16 +1,27 @@
+import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 
-async function postIkeProposalData(json_data) {
-  try {
-    const response = await axios.post(
-      'http://127.0.0.1:8000/api/ipsec/ikeproposal/create',
-      json_data,
-    );
-    return { data: response.data, error: null };
-  } catch (err) {
-    console.error('Error posting IKE proposal data:', err);
-    return { data: null, error: err.message };
-  }
-}
+export default function AutoPostIkeProposal() {
+  const { ikeProposalData } = useSelector((state) => state.vpn);
 
-export { postIkeProposalData };
+  useEffect(() => {
+    const postData = async () => {
+      try {
+        if (!ikeProposalData || Object.keys(ikeProposalData).length === 0)
+          return;
+        const response = await axios.post(
+          'http://127.0.0.1:8000/api/ipsec/ikeproposal/create',
+          ikeProposalData,
+        );
+        console.log('IKE Proposal posted successfully:', response.data);
+      } catch (err) {
+        console.error('Error posting IKE proposal data:', err.message);
+      }
+    };
+
+    postData();
+  }, [ikeProposalData]); // Triggers when ikeProposalData changes
+
+  return null; // No UI needed
+}

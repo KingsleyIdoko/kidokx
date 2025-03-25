@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   DEVICEINVENTORIES,
   SELECTEDDEVICE,
+  CONFIGTYPE,
 } from '../vpnActions.jsx/actionTypes';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -14,6 +15,7 @@ export default function SiteToSiteList() {
   const [error, setError] = useState(null);
 
   const { inventories = [] } = useSelector((state) => state.inventories || {});
+  const { configtype = [] } = useSelector((state) => state.vpn || {});
 
   const {
     register,
@@ -28,8 +30,10 @@ export default function SiteToSiteList() {
       return;
     }
     const config = getValues('config').toLowerCase();
-    navigate(`/vpn/site-to-site/config/${config}`);
+    const updateURL = `/vpn/site-to-site/config/${config}/`;
+    navigate(updateURL);
     dispatch({ type: SELECTEDDEVICE, payload: getValues('device') });
+    dispatch({ type: CONFIGTYPE, payload: config });
   };
 
   useEffect(() => {
@@ -168,6 +172,7 @@ export default function SiteToSiteList() {
           </thead>
           <tbody className="text-gray-700">
             <tr className="hover:bg-gray-50">
+              {}
               <td className="py-3 px-6 border-b">1</td>
               <td className="py-3 px-6 border-b">Device A</td>
               <td className="py-3 px-6 border-b">Site 1</td>

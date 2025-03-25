@@ -2,17 +2,17 @@ from rest_framework import serializers
 from ipsecs.models import ipsecConfiguationItems
 
 class ConfigurationChoicesSerializer(serializers.Serializer):
-    authentication_protocol = serializers.SerializerMethodField()
-    encryption_protocol = serializers.SerializerMethodField()
+    authentication_algorithm = serializers.SerializerMethodField()
+    encryption_algorithm = serializers.SerializerMethodField()
     encapsulation_protocol = serializers.SerializerMethodField()
     dh_group = serializers.SerializerMethodField()
     authentication_method = serializers.SerializerMethodField()
 
-    def get_authentication_protocol(self, obj):
+    def get_authentication_algorithm(self, obj):
         """Returns authentication algorithm choices"""
         return ipsecConfiguationItems.AuthAlgorithm.choices  
 
-    def get_encryption_protocol(self, obj):
+    def get_encryption_algorithm(self, obj):
         """Returns encryption algorithm choices"""
         return ipsecConfiguationItems.EncryptionAlgorithm.choices  
 

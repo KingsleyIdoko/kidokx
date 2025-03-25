@@ -1,13 +1,17 @@
 import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-import { IKEPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
+import {
+  IKEPROPOSALDATA,
+  VALIDATEIKEPROPOSAL,
+} from '../vpnActions.jsx/actionTypes';
 import { useForm } from 'react-hook-form';
 
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
   const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
+  const { validatedData } = useSelector((state) => state.inventories);
   const dispatch = useDispatch();
 
   const {
@@ -20,7 +24,6 @@ function IkeProposalConfig() {
     defaultValues: ikeProposalData,
   });
 
-  // Initialize form values from Redux on load
   useEffect(() => {
     if (
       ipsecChoicesData &&
@@ -29,18 +32,17 @@ function IkeProposalConfig() {
     ) {
       hasInitialized.current = true;
 
-      const initialOptions = Object.keys(ipsecChoicesData).reduce(
-        (acc, key) => {
+      const initialOptions = Object.keys(ipsecChoicesData)
+        .filter((key) => key !== 'authentication_method')
+        .reduce((acc, key) => {
           acc[key] = '';
           return acc;
-        },
-        {},
-      );
+        }, {});
 
       dispatch({
         type: IKEPROPOSALDATA,
         payload: {
-          proposalName: '',
+          proposalname: '',
           ...initialOptions,
           device: selectedDevice,
         },
@@ -48,26 +50,42 @@ function IkeProposalConfig() {
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
-  const filteredIsecData = Object.keys(ipsecChoicesData || {})
-    .filter((category) => category !== 'authentication_method')
-    .reduce((acc, key) => {
-      acc[key] = ipsecChoicesData[key];
-      return acc;
-    }, {});
+  useEffect(() => {
+    const validateAndSubmit = async () => {
+      const fieldsToValidate = Object.keys(ikeProposalData || {});
 
-  const handleFormChange = async () => {
-    const fieldsToValidate = ['proposalName', ...Object.keys(filteredIsecData)];
-    const isValid = await trigger(fieldsToValidate);
+      const isValid = await trigger(fieldsToValidate);
 
-    if (isValid) {
-      const formData = getValues();
-      console.log(formData);
-      dispatch({
-        type: IKEPROPOSALDATA,
-        payload: { ...ikeProposalData, ...formData, device: selectedDevice },
-      });
+      if (isValid) {
+        const formData = getValues();
+
+        dispatch({
+          type: IKEPROPOSALDATA,
+          payload: { ...ikeProposalData, ...formData, device: selectedDevice },
+        });
+        dispatch({
+          type: VALIDATEIKEPROPOSAL,
+          payload: { valid: true, data: formData },
+        });
+      } else {
+        dispatch({
+          type: VALIDATEIKEPROPOSAL,
+          payload: { valid: false },
+        });
+      }
+    };
+
+    if (validatedData === true) {
+      validateAndSubmit();
     }
-  };
+  }, [
+    validatedData,
+    trigger,
+    getValues,
+    dispatch,
+    ikeProposalData,
+    selectedDevice,
+  ]);
 
   if (loading || !ipsecChoicesData) {
     return (
@@ -82,7 +100,6 @@ function IkeProposalConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form className="grid grid-cols-2 gap-x-10 gap-y-4 items-center">
-        {/* Proposal Name */}
         <div className="col-span-2 grid grid-cols-2 gap-x-10 items-center">
           <button
             type="button"
@@ -92,64 +109,65 @@ function IkeProposalConfig() {
           </button>
           <div>
             <input
-              {...register('proposalName', {
+              {...register('proposalname', {
                 required: 'Proposal Name is required',
               })}
               type="text"
               placeholder="Enter Proposal Name"
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
-                errors.proposalName ? 'border-red-500' : ''
+                errors.proposalname ? 'border-red-500' : ''
               }`}
-              onChange={handleFormChange}
             />
-            {errors.proposalName && (
+            {errors.proposalname && (
               <span className="text-red-500 text-sm">
-                {errors.proposalName.message}
+                {errors.proposalname.message}
               </span>
             )}
           </div>
         </div>
 
-        {/* Dynamically Rendered Dropdowns */}
-        {Object.keys(filteredIsecData).map((category) => (
-          <div
-            key={`${category}-wrapper`}
-            className="col-span-2 grid grid-cols-2 gap-x-10 items-center"
-          >
-            <button
-              type="button"
-              className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
+        {Object.keys(ikeProposalData || {})
+          .filter((key) => key !== 'proposalname' && key !== 'device')
+          .map((category) => (
+            <div
+              key={`${category}-wrapper`}
+              className="col-span-2 grid grid-cols-2 gap-x-10 items-center"
             >
-              {category.replace(/_/g, ' ')}
-            </button>
-            <div>
-              <select
-                {...register(category, { required: 'This field is required' })}
-                className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
-                  errors[category] ? 'border-red-500' : ''
-                }`}
-                onChange={handleFormChange}
+              <button
+                type="button"
+                className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
               >
-                <option value="">Select {category.replace(/_/g, ' ')}</option>
-                {filteredIsecData[category].map((option, index) =>
-                  option?.[0] !== 'Pre-Shared Key' ? (
-                    <option
-                      key={`${category}-${option[0]}-${index}`}
-                      value={option[0]}
-                    >
-                      {option[1]}
-                    </option>
-                  ) : null,
+                {category.replace(/_/g, ' ')}
+              </button>
+              <div>
+                <select
+                  {...register(category, {
+                    required: 'This field is required',
+                  })}
+                  className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
+                    errors[category] ? 'border-red-500' : ''
+                  }`}
+                >
+                  <option value="">Select {category.replace(/_/g, ' ')}</option>
+                  {ipsecChoicesData[category].map((option, index) =>
+                    option?.[0] !== 'Pre-Shared Key' ? (
+                      <option
+                        key={`${category}-${option[0]}-${index}`}
+                        value={option[0]}
+                      >
+                        {option[1]}
+                      </option>
+                    ) : null,
+                  )}
+                </select>
+                {errors[category] && (
+                  <span className="text-red-500 text-sm">
+                    {errors[category].message}
+                  </span>
                 )}
-              </select>
-              {errors[category] && (
-                <span className="text-red-500 text-sm">
-                  {errors[category].message}
-                </span>
-              )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
       </form>
     </div>
   );
