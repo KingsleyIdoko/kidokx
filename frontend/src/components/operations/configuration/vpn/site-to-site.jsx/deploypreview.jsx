@@ -1,5 +1,8 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { VALIDATEIKEPROPOSAL } from '../vpnActions.jsx/actionTypes';
+import {
+  SAVECONFIGURATION,
+  DEPLOYCONFIGURATION,
+} from '../vpnActions.jsx/actionTypes';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -12,14 +15,14 @@ function DeployPreview({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { validatedData } = useSelector((state) => state.inventories);
+  const { validatedData } = useSelector((state) => state.vpn);
 
   const handleSaveClick = () => {
-    dispatch({ type: VALIDATEIKEPROPOSAL, payload: true });
+    dispatch({ type: SAVECONFIGURATION, payload: true });
   };
 
   const handleDeployClick = () => {
-    dispatch({ type: VALIDATEIKEPROPOSAL, payload: true });
+    dispatch({ type: DEPLOYCONFIGURATION, payload: true });
   };
 
   useEffect(() => {
