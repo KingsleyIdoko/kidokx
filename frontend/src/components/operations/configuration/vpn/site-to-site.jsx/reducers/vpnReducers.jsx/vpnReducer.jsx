@@ -12,7 +12,7 @@ import {
   CONFIGTYPE,
   DEPLOYCONFIGURATION,
   SAVECONFIGURATION,
-  VALIDATEIKEPROPOSAL,
+  VALIDATEDDATA,
 } from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
@@ -26,8 +26,8 @@ const initialState = {
   ipsecProposalData: {},
   ipsecPolicyData: {},
   ipsecVpnData: {},
-  configtype: {},
-  validatedData: null,
+  configtype: null,
+  validatedData: false,
   saveconfiguration: false,
   deployconfiguration: false,
 };
@@ -116,7 +116,7 @@ export default function VpnReducer(state = initialState, action) {
         ...state,
         configtype: action.payload,
       };
-    case VALIDATEIKEPROPOSAL:
+    case VALIDATEDDATA:
       return { ...state, validatedData: action.payload };
     case SAVECONFIGURATION:
       return { ...state, saveconfiguration: action.payload };

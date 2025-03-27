@@ -1,17 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  IKEPROPOSALDATA,
-  VALIDATEIKEPROPOSAL,
-} from '../vpnActions.jsx/actionTypes';
+import { IKEPROPOSALDATA, VALIDATEDDATA } from '../vpnActions.jsx/actionTypes';
 import { useForm } from 'react-hook-form';
+import axios from 'axios';
 
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
-  const { ikeProposalData, selectedDevice } = useSelector((store) => store.vpn);
-  const { validatedData } = useSelector((state) => state.inventories);
+  const { ikeProposalData, selectedDevice, saveconfiguration, configtype } =
+    useSelector((store) => store.vpn);
   const dispatch = useDispatch();
 
   const {
@@ -51,41 +49,49 @@ function IkeProposalConfig() {
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
   useEffect(() => {
-    const validateAndSubmit = async () => {
-      const fieldsToValidate = Object.keys(ikeProposalData || {});
+    const validateAndPost = async () => {
+      const fields = Object.keys(ikeProposalData || {});
+      const isValid = await trigger(fields);
 
-      const isValid = await trigger(fieldsToValidate);
-
-      if (isValid) {
-        const formData = getValues();
-
+      if (!isValid) {
         dispatch({
-          type: IKEPROPOSALDATA,
-          payload: { ...ikeProposalData, ...formData, device: selectedDevice },
+          type: VALIDATEDDATA,
+          payload: { valid: false },
         });
+        return;
+      }
+
+      const formData = getValues();
+      const finalPayload = {
+        ...ikeProposalData,
+        ...formData,
+        device: selectedDevice,
+      };
+
+      try {
+        await axios.post(
+          'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
+          finalPayload,
+        );
+
+        dispatch({ type: IKEPROPOSALDATA, payload: finalPayload });
+
         dispatch({
-          type: VALIDATEIKEPROPOSAL,
-          payload: { valid: true, data: formData },
+          type: VALIDATEDDATA,
+          payload: { valid: true },
         });
-      } else {
+      } catch (err) {
+        console.error('Post failed:', err.message);
         dispatch({
-          type: VALIDATEIKEPROPOSAL,
+          type: VALIDATEDDATA,
           payload: { valid: false },
         });
       }
     };
-
-    if (validatedData === true) {
-      validateAndSubmit();
+    if (saveconfiguration && configtype === 'ikeproposal') {
+      validateAndPost();
     }
-  }, [
-    validatedData,
-    trigger,
-    getValues,
-    dispatch,
-    ikeProposalData,
-    selectedDevice,
-  ]);
+  }, [saveconfiguration]);
 
   if (loading || !ipsecChoicesData) {
     return (

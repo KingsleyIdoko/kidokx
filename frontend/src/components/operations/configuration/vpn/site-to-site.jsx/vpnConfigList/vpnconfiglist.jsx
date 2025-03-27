@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   CONFIGTYPE,
@@ -11,22 +12,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function VpnConfigList() {
-  const {
-    ikeProposalData: backendIkeProposalData,
-    ipsecChoicesData,
-    error: apierror,
-    loading,
-  } = useIpsecData();
+  const { ikeProposalData: backendIkeProposalData } = useIpsecData();
+  const [ikeProposalData, setIkeProposalData] = useState([]);
 
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
+
   const { inventories = [], selectedDevice } = useSelector(
     (state) => state.inventories || {},
   );
   const { configtype } = useSelector((state) => state.vpn || {});
-  const { ikeProposalData, saveconfiguration } = useSelector(
-    (state) => state.vpn || {},
-  );
+
+  useEffect(() => {
+    if (backendIkeProposalData) {
+      setIkeProposalData(backendIkeProposalData);
+    }
+  }, [backendIkeProposalData]);
 
   useEffect(() => {
     let isMounted = true;
@@ -54,30 +55,6 @@ export default function VpnConfigList() {
     };
   }, [dispatch]);
 
-  useEffect(() => {
-    const handleCreateProposal = async () => {
-      try {
-        if (
-          !ikeProposalData ||
-          Object.keys(ikeProposalData).length === 0 ||
-          !saveconfiguration
-        )
-          return;
-
-        const response = await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
-          ikeProposalData,
-        );
-
-        console.log('IKE Proposal posted successfully:', response.data);
-      } catch (err) {
-        console.error('Error posting IKE proposal data:', err.message);
-      }
-    };
-
-    handleCreateProposal();
-  }, [ikeProposalData, saveconfiguration]);
-
   const handleEdit = (id) => {
     console.log(`Edit proposal with ID: ${id}`);
     // Implement modal or form logic here
@@ -85,11 +62,14 @@ export default function VpnConfigList() {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(
+      const response = await axios.delete(
         `http://127.0.0.1:8000/api/ipsec/ikeproposal/${id}/delete/`,
       );
-      console.log(`Deleted proposal with ID: ${id}`);
-      // Optionally refresh list here
+      if (response.status === 204 || response.status === 200) {
+        setIkeProposalData((prevData) =>
+          prevData.filter((proposal) => proposal.id !== id),
+        );
+      }
     } catch (err) {
       console.error('Error deleting proposal:', err.message);
     }
@@ -148,10 +128,7 @@ export default function VpnConfigList() {
         </select>
       </div>
 
-      <button
-        // onClick={handleCreateProposal}
-        className="mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-      >
+      <button className="mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
         Create IKE Proposal
       </button>
 
@@ -166,22 +143,21 @@ export default function VpnConfigList() {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {backendIkeProposalData?.map((proposal, index) => (
-              <tr key={proposal.id || index} className="hover:bg-gray-50">
-                <td className="py-3 px-6 border-b">{index + 1}</td>
+            {ikeProposalData.map((proposal) => (
+              <tr key={proposal.id} className="hover:bg-gray-50">
+                <td className="py-3 px-6 border-b">{proposal.id}</td>
                 <td className="py-3 px-6 border-b">
                   <button
                     onClick={() => handleEdit(proposal.id)}
-                    className=" hover:underline focus:outline-none"
+                    className="hover:underline"
                   >
                     {proposal.device}
                   </button>
                 </td>
-
                 <td className="py-3 px-6 border-b">
                   <button
                     onClick={() => handleEdit(proposal.id)}
-                    className=" hover:underline focus:outline-none"
+                    className="hover:underline"
                   >
                     {proposal.proposalname}
                   </button>
@@ -189,16 +165,10 @@ export default function VpnConfigList() {
                 <td className="py-3 px-6 border-b">
                   <div className="flex space-x-6 justify-center items-center">
                     <button onClick={() => handleEdit(proposal.id)}>
-                      <FontAwesomeIcon
-                        icon={faEdit}
-                        // className="text-blue-600 hover:text-blue-800"
-                      />
+                      <FontAwesomeIcon icon={faEdit} />
                     </button>
                     <button onClick={() => handleDelete(proposal.id)}>
-                      <FontAwesomeIcon
-                        icon={faTrash}
-                        // className="text-red-600 hover:text-red-800"
-                      />
+                      <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </div>
                 </td>

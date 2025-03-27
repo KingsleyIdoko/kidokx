@@ -19,21 +19,29 @@ function DeployPreview({
 
   const handleSaveClick = () => {
     dispatch({ type: SAVECONFIGURATION, payload: true });
+    setTimeout(
+      () => dispatch({ type: SAVECONFIGURATION, payload: false }),
+      200,
+    );
   };
 
   const handleDeployClick = () => {
     dispatch({ type: DEPLOYCONFIGURATION, payload: true });
+    setTimeout(
+      () => dispatch({ type: SAVECONFIGURATION, payload: false }),
+      200,
+    );
   };
 
   useEffect(() => {
     if (validatedData && validatedData.valid) {
       const pathSegments = location.pathname.split('/').filter(Boolean);
       const currentPath = pathSegments[pathSegments.length - 1];
-      if (currentPath) navigate(`/vpn/site-to-site/list/config/${currentPath}`);
-    } else if (validatedData && validatedData.valid === false) {
-      console.log('Validation failed. Fix errors before proceeding.');
+      if (currentPath) {
+        navigate(`/vpn/site-to-site/list/config/${currentPath}`);
+      }
     }
-  }, [validatedData, navigate, location]);
+  }, [validatedData]);
 
   return (
     <div className="flex items-center justify-between">

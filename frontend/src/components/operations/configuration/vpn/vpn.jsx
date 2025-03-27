@@ -12,11 +12,12 @@ import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import { SearchDevice } from '../../../inventory/searchdevice';
+import { useSelector } from 'react-redux';
 
 function VPN() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { configtype } = useSelector((state) => state.vpn);
   const [webPage, setWebPage] = useState('IKE Proposal');
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
@@ -65,9 +66,8 @@ function VPN() {
     }
   }, [location]);
 
-  const handleSelection = (ipsecName, ipsecPath, ipsecSelection) => {
-    const currentPath = location.pathname.split('/').pop();
-    const selected = ipsecSelection.find((item) => item.name === ipsecName);
+  const handleSelection = (configtype, ipsecPath, ipsecSelection) => {
+    const selected = ipsecSelection.find((item) => item.name === configtype);
     if (selected?.path) {
       setIpsecPath(ipsecPath);
       navigate(selected.path);

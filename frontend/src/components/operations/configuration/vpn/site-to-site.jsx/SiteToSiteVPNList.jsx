@@ -15,7 +15,6 @@ export default function SiteToSiteList() {
   const [error, setError] = useState(null);
 
   const { inventories = [] } = useSelector((state) => state.inventories || {});
-  const { configtype = [] } = useSelector((state) => state.vpn || {});
 
   const {
     register,
@@ -30,8 +29,7 @@ export default function SiteToSiteList() {
       return;
     }
     const config = getValues('config').toLowerCase();
-    const updateURL = `/vpn/site-to-site/config/${config}/`;
-    navigate(updateURL);
+    navigate(`/vpn/site-to-site/config/${config}/`);
     dispatch({ type: SELECTEDDEVICE, payload: getValues('device') });
     dispatch({ type: CONFIGTYPE, payload: config });
   };

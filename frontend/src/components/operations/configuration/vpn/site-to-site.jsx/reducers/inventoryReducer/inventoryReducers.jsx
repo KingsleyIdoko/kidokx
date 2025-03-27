@@ -1,7 +1,6 @@
 import {
   DEVICEINVENTORIES,
   SELECTEDDEVICE,
-  VALIDATEIKEPROPOSAL,
 } from '../../../vpnActions.jsx/actionTypes';
 
 const initialState = {
