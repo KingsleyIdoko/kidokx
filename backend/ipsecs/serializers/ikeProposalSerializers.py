@@ -6,6 +6,7 @@ class IkeProposalSerializer(serializers.ModelSerializer):
     class Meta:
         model = IkeProposal
         fields = [
+            'id',
             'proposalname',
             'device',
             'authentication_algorithm',

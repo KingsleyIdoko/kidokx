@@ -32,6 +32,7 @@ DEVICE_SCOPE = [
 
 class Device(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    site = models.CharField(max_length=10, default='ams')
     device_type = models.CharField(max_length=50, choices=DEVICE_TYPES, default='Router') 
     vendor_name = models.CharField(max_length=50, choices=VENDOR_TYPES, default='cisco')  
     scope = models.CharField(max_length=50, choices=DEVICE_SCOPE, default='Core')  # Fixed default value  

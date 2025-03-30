@@ -3,6 +3,8 @@ from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from ipsecs.models import IpsecPolicy
 from ipsecs.serializers.ipsecPolicySerializers import IpsecPolicySerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
 class IkeProposalListView(ListAPIView):
     queryset = IpsecPolicy.objects.all()
@@ -34,3 +36,9 @@ class IkeProposalDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
 ipsecpolicy_delete_view = IkeProposalDestroyView.as_view()
+
+class IpsecPollicyNamesView(APIView):
+    def get(self, request):
+        ipsecpolicynames = IpsecPolicy.objects.values_list('policyname', flat=True)
+        return Response(ipsecpolicynames )  
+ipsecpolicy_names_view = IpsecPollicyNamesView.as_view()

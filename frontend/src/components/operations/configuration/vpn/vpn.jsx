@@ -11,7 +11,7 @@ import NavigationBar from './site-to-site.jsx/navigation';
 import DeployPreview from './site-to-site.jsx/deploypreview';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
-import { SearchDevice } from '../../../inventory/searchdevice';
+import SearchDevice from '../../../inventory/searchdevice';
 import { useSelector } from 'react-redux';
 
 function VPN() {
@@ -131,12 +131,12 @@ function VPN() {
             {/* Routes for Site-to-Site and Remote Access VPN */}
             <div className="w-[50rem] rounded-lg">
               <Routes>
-                <Route path="/ikeproposal" element={<IkeProposalConfig />} />
-                <Route path="/ikepolicy" element={<IkePolicyConfig />} />
-                <Route path="/ikegateway" element={<IkeGatewayConfig />} />
-                <Route path="/ipsecpolicy" element={<IPsecPolicyConfig />} />
-                <Route path="/ipsecvpn" element={<IPsecVPNConfig />} />
-                <Route path="/remote-access" element={<RaVPN />} />
+                <Route path="/ikeproposal/" element={<IkeProposalConfig />} />
+                <Route path="/ikepolicy/" element={<IkePolicyConfig />} />
+                <Route path="/ikegateway/" element={<IkeGatewayConfig />} />
+                <Route path="/ipsecpolicy/" element={<IPsecPolicyConfig />} />
+                <Route path="/ipsecvpn/" element={<IPsecVPNConfig />} />
+                <Route path="/remote-access/" element={<RaVPN />} />
 
                 <Route
                   path="/preview/:ipsecType"

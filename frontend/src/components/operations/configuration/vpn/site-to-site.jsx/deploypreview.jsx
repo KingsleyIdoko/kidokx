@@ -1,8 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  SAVECONFIGURATION,
-  DEPLOYCONFIGURATION,
-} from '../vpnActions.jsx/actionTypes';
+import { SAVECONFIGURATION } from '../vpnActions.jsx/actionTypes';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
@@ -15,33 +12,19 @@ function DeployPreview({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { validatedData } = useSelector((state) => state.vpn);
 
   const handleSaveClick = () => {
     dispatch({ type: SAVECONFIGURATION, payload: true });
-    setTimeout(
-      () => dispatch({ type: SAVECONFIGURATION, payload: false }),
-      200,
-    );
-  };
-
-  const handleDeployClick = () => {
-    dispatch({ type: DEPLOYCONFIGURATION, payload: true });
-    setTimeout(
-      () => dispatch({ type: SAVECONFIGURATION, payload: false }),
-      200,
-    );
-  };
-
-  useEffect(() => {
-    if (validatedData && validatedData.valid) {
-      const pathSegments = location.pathname.split('/').filter(Boolean);
-      const currentPath = pathSegments[pathSegments.length - 1];
-      if (currentPath) {
-        navigate(`/vpn/site-to-site/list/config/${currentPath}`);
-      }
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const currentPath = pathSegments[pathSegments.length - 1];
+    if (currentPath) {
+      navigate(`/vpn/site-to-site/list/config/${currentPath}`);
+      setTimeout(
+        () => dispatch({ type: SAVECONFIGURATION, payload: false }),
+        200,
+      );
     }
-  }, [validatedData]);
+  };
 
   return (
     <div className="flex items-center justify-between">
@@ -91,13 +74,6 @@ function DeployPreview({
             onClick={handleSaveClick}
           >
             Save
-          </button>
-          <button
-            type="button"
-            className="capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
-            onClick={handleDeployClick}
-          >
-            Deploy
           </button>
         </div>
       </div>

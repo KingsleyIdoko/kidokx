@@ -105,30 +105,34 @@ function IkeProposalConfig() {
 
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
-      <form className="grid grid-cols-2 gap-x-10 gap-y-4 items-center">
-        <div className="col-span-2 grid grid-cols-2 gap-x-10 items-center">
-          <button
-            type="button"
-            className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
-          >
-            IKE Proposal Name
-          </button>
-          <div>
+      <form className="grid grid-cols-2 space-y-4 gap-x-10 gap-y-4 items-center">
+        <div className="col-span-2  grid grid-cols-2 gap-x-10 items-center">
+          <div className="h-[3rem]">
+            <button
+              type="button"
+              className="  px-4 py-3 bg-gray-100 text-black text-left border rounded-lg focus:outline-none w-full"
+            >
+              IKE Proposal Name
+            </button>
+          </div>
+          <div className="h-[3rem] flex flex-col justify-between">
             <input
               {...register('proposalname', {
                 required: 'Proposal Name is required',
               })}
               type="text"
               placeholder="Enter Proposal Name"
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
-                errors.proposalname ? 'border-red-500' : ''
+              className={` px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
+                errors.proposalname ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            {errors.proposalname && (
-              <span className="text-red-500 text-sm">
-                {errors.proposalname.message}
-              </span>
-            )}
+            <div>
+              {errors.proposalname ? (
+                <p className="text-xs text-red-500 font-medium flex items-center">
+                  {errors.proposalname.message}
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -145,13 +149,13 @@ function IkeProposalConfig() {
               >
                 {category.replace(/_/g, ' ')}
               </button>
-              <div>
+              <div className="flex flex-col  justify-between">
                 <select
                   {...register(category, {
-                    required: 'This field is required',
+                    required: `${category} is required`,
                   })}
-                  className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
-                    errors[category] ? 'border-red-500' : ''
+                  className={`text-black font-normal text-left bg-gray-100 px-4 py-4 border rounded-lg ${
+                    errors[category] ? 'border-red-500' : 'border-gray-300'
                   }`}
                 >
                   <option value="">Select {category.replace(/_/g, ' ')}</option>
@@ -166,11 +170,15 @@ function IkeProposalConfig() {
                     ) : null,
                   )}
                 </select>
-                {errors[category] && (
-                  <span className="text-red-500 text-sm">
-                    {errors[category].message}
-                  </span>
-                )}
+                <div>
+                  <div className="h-2">
+                    {errors[category] ? (
+                      <p className="text-xs text-red-500 font-medium flex items-center">
+                        {errors[category].message}
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
               </div>
             </div>
           ))}

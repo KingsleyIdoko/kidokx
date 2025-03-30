@@ -40,6 +40,6 @@ ikepolicy_delete_view = IkePolicyDestroyView.as_view()
 
 class IkePolicylListNames(APIView):
     def get(self, request):
-        names = IkePolicy.objects.values_list('name', flat=True)
+        names = IkePolicy.objects.values_list('policyname', flat=True)
         return Response(names)  
-ikepolicy_list_view = IkePolicylListNames.as_view()
+ikepolicy_names_view = IkePolicylListNames.as_view()

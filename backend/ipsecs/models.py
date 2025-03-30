@@ -61,7 +61,7 @@ class IkeProposal(models.Model):
 
 
 class IkePolicy(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    policyname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     proposals = models.ManyToManyField(IkeProposal)
     authentication_method = models.CharField(
@@ -71,11 +71,11 @@ class IkePolicy(models.Model):
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.name
+        return self.policyname
 
 
 class IkeGateway(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    gatewayname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     remote_address = models.GenericIPAddressField()
     local_interface = models.CharField(max_length=50)
@@ -102,7 +102,7 @@ class IpsecProposal(models.Model):
 
 
 class IpsecPolicy(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    policyname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     proposals = models.ManyToManyField(IpsecProposal)
     pfs_group = models.CharField(

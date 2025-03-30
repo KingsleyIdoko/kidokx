@@ -25,13 +25,16 @@ export default function SiteToSiteList() {
 
   const handleUrlPath = async () => {
     const isValid = await trigger(['device', 'config']);
-    if (!isValid) {
-      return;
-    }
-    const config = getValues('config').toLowerCase();
-    navigate(`/vpn/site-to-site/config/${config}/`);
-    dispatch({ type: SELECTEDDEVICE, payload: getValues('device') });
+    if (!isValid) return;
+
+    const config = getValues('config')?.toLowerCase();
+    const device = getValues('device');
+
+    if (!config) return;
+    dispatch({ type: SELECTEDDEVICE, payload: device });
     dispatch({ type: CONFIGTYPE, payload: config });
+    const targetPath = `/vpn/site-to-site/config/${config}/`;
+    navigate(targetPath);
   };
 
   useEffect(() => {
@@ -68,43 +71,24 @@ export default function SiteToSiteList() {
     <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-4 shadow-md mt-10">
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
-      <div className="flex space-x-12 mx-auto mb-1 items-center justify-center ">
-        <span className="w-60 h-6 px-2 text-xs"></span>
-        <span className="w-60 h-6 px-2 text-xs">
-          {' '}
-          {errors.device && (
-            <span className="text-red-500 text-sm mb-1">
-              Must Select Device
-            </span>
-          )}
-        </span>
-        <span className="w-60 h-6 px-2 text-xs">
-          {' '}
-          {errors.config && (
-            <span className="text-red-500 text-sm mb-1">
-              Must Select Config
-            </span>
-          )}
-        </span>
-        <span className="w-60 h-6 px-2 text-xs"></span>
-        <span className="w-60 h-6 px-2 text-xs"></span>
-      </div>
-
-      <div className="flex space-x-6 mb-8 border-b-2 pb-4 items-center justify-between ">
+      <div className="flex space-x-6 mb-8 border-b-2 py-2 items-center justify-between">
         {/* Add New Button */}
-        <button
-          type="button"
-          onClick={handleUrlPath}
-          className="w-60 h-12 capitalize border px-4 rounded-lg bg-green-700 text-white hover:opacity-70 focus:outline-none"
-        >
-          Add New
-        </button>
+        <div className="w-full ">
+          <button
+            type="button"
+            onClick={handleUrlPath}
+            className="w-60 h-12 capitalize border px-4 rounded-lg bg-green-700 text-white hover:opacity-70 focus:outline-none"
+          >
+            Add New
+          </button>
+          <div className="h-6"></div>
+        </div>
 
         {/* Device Dropdown */}
-        <div className="flex flex-col w-60">
+        <div className="w-full flex flex-col">
           <select
-            {...register('device', { required: true })}
-            className={`h-12 border px-4 rounded-lg focus:outline-none ${
+            {...register('device', { required: 'select device' })}
+            className={`border px-4 rounded-lg h-12 focus:outline-none ${
               errors.device ? 'border-b-2 border-red-500' : ''
             }`}
           >
@@ -115,13 +99,20 @@ export default function SiteToSiteList() {
               </option>
             ))}
           </select>
+          <div className="h-6">
+            {errors.device && (
+              <p className="text-xs pl-3 text-red-500 font-medium flex items-center mt-2">
+                {errors.device.message}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Config Dropdown */}
-        <div className="flex flex-col w-60">
+        <div className="w-full flex flex-col">
           <select
-            {...register('config', { required: true })}
-            className={`h-12 capitalize border px-4 rounded-lg focus:outline-none ${
+            {...register('config', { required: 'select configtype' })}
+            className={`w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none ${
               errors.config ? 'border-b-2 border-red-500' : ''
             }`}
           >
@@ -133,27 +124,40 @@ export default function SiteToSiteList() {
             <option value="ipsecpolicy">IPSec Policies</option>
             <option value="ipsecvpn">IPSec VPNs</option>
           </select>
+          <div className="h-6">
+            {errors.config && (
+              <p className="text-xs pl-3 text-red-500 font-medium flex items-center mt-2">
+                {errors.config.message}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Site Dropdown */}
-        <select
-          {...register('site')}
-          className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
-        >
-          <option value="">Select Site</option>
-          <option value="site1">Site 1</option>
-          <option value="site2">Site 2</option>
-        </select>
+        <div className="w-full flex flex-col">
+          <select
+            {...register('site')}
+            className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
+          >
+            <option value="">Select Site</option>
+            <option value="site1">Site 1</option>
+            <option value="site2">Site 2</option>
+          </select>
+          <div className="h-6"></div>
+        </div>
 
         {/* VPN Type Dropdown */}
-        <select
-          {...register('vpnType')}
-          className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
-        >
-          <option value="">Select VPN Type</option>
-          <option value="site-to-site">Site-to-Site</option>
-          <option value="remote-access">Remote Access</option>
-        </select>
+        <div className="w-full flex flex-col">
+          <select
+            {...register('vpnType')}
+            className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
+          >
+            <option value="">Select VPN Type</option>
+            <option value="site-to-site">Site-to-Site</option>
+            <option value="remote-access">Remote Access</option>
+          </select>
+          <div className="h-6"></div>
+        </div>
       </div>
 
       {/* VPN List Table */}
@@ -170,7 +174,6 @@ export default function SiteToSiteList() {
           </thead>
           <tbody className="text-gray-700">
             <tr className="hover:bg-gray-50">
-              {}
               <td className="py-3 px-6 border-b">1</td>
               <td className="py-3 px-6 border-b">Device A</td>
               <td className="py-3 px-6 border-b">Site 1</td>

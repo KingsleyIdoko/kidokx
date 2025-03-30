@@ -11,15 +11,15 @@ class IkeProposalAdmin(admin.ModelAdmin):
 
 @admin.register(IkePolicy)
 class IkePolicyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'name', 'authentication_method')
-    search_fields = ('name', 'authentication_method')
+    list_display = ('id', 'device', 'policyname', 'authentication_method')
+    search_fields = ('policyname', 'authentication_method')
     list_filter = ('authentication_method',)
 
 
 @admin.register(IkeGateway)
 class IkeGatewayAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'name', 'remote_address', 'local_interface', 'external_interface')
-    search_fields = ('name', 'remote_address', 'local_interface', 'external_interface')
+    list_display = ('id', 'device', 'gatewayname', 'remote_address', 'local_interface', 'external_interface')
+    search_fields = ('gatewayname', 'remote_address', 'local_interface', 'external_interface')
 
 
 @admin.register(IpsecProposal)
@@ -31,8 +31,8 @@ class IpsecProposalAdmin(admin.ModelAdmin):
 
 @admin.register(IpsecPolicy)
 class IpsecPolicyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'name', 'pfs_group')
-    search_fields = ('name',)
+    list_display = ('id', 'device', 'policyname', 'pfs_group')
+    search_fields = ('policyname',)
     list_filter = ('pfs_group',)
 
 

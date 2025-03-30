@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 function NavigationBar({
   previousPath,
@@ -9,6 +10,7 @@ function NavigationBar({
   prevPage,
   pageTitle,
 }) {
+  const { configtype } = useSelector((state) => state.vpn);
   const navigate = useNavigate();
 
   const handlePreviousClick = () => {
@@ -34,7 +36,7 @@ function NavigationBar({
       </button>
 
       <h2 className="text-lg font-semibold text-center flex-1 capitalize">
-        {`Juniper ${pageTitle} Configuration`}
+        {`Juniper ${configtype} Configuration`}
       </h2>
 
       {/* Next Button */}

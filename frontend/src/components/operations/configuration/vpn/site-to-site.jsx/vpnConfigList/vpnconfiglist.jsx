@@ -14,7 +14,8 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 export default function VpnConfigList() {
   const { ikeProposalData: backendIkeProposalData } = useIpsecData();
   const [ikeProposalData, setIkeProposalData] = useState([]);
-
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
 
@@ -55,10 +56,7 @@ export default function VpnConfigList() {
     };
   }, [dispatch]);
 
-  const handleEdit = (id) => {
-    console.log(`Edit proposal with ID: ${id}`);
-    // Implement modal or form logic here
-  };
+  const handleEdit = (id) => {};
 
   const handleDelete = async (id) => {
     try {
@@ -73,6 +71,10 @@ export default function VpnConfigList() {
     } catch (err) {
       console.error('Error deleting proposal:', err.message);
     }
+  };
+
+  const handleCreateBtn = (configtype) => {
+    navigate(`/vpn/site-to-site/config/${configtype}/`);
   };
 
   const handleDeviceChange = (e) => {
@@ -128,8 +130,11 @@ export default function VpnConfigList() {
         </select>
       </div>
 
-      <button className="mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-        Create IKE Proposal
+      <button
+        className=" w-[12rem] mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        onClick={handleCreateBtn}
+      >
+        {`Create ${configtype ? configtype : 'Ike Proposal'}`}
       </button>
 
       <div className="overflow-x-auto">
@@ -143,37 +148,39 @@ export default function VpnConfigList() {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {ikeProposalData.map((proposal) => (
-              <tr key={proposal.id} className="hover:bg-gray-50">
-                <td className="py-3 px-6 border-b">{proposal.id}</td>
-                <td className="py-3 px-6 border-b">
-                  <button
-                    onClick={() => handleEdit(proposal.id)}
-                    className="hover:underline"
-                  >
-                    {proposal.device}
-                  </button>
-                </td>
-                <td className="py-3 px-6 border-b">
-                  <button
-                    onClick={() => handleEdit(proposal.id)}
-                    className="hover:underline"
-                  >
-                    {proposal.proposalname}
-                  </button>
-                </td>
-                <td className="py-3 px-6 border-b">
-                  <div className="flex space-x-6 justify-center items-center">
-                    <button onClick={() => handleEdit(proposal.id)}>
-                      <FontAwesomeIcon icon={faEdit} />
+            {ikeProposalData
+              .sort((a, b) => b.id - a.id)
+              .map((proposal) => (
+                <tr key={proposal.id} className="hover:bg-gray-50">
+                  <td className="py-3 px-6 border-b">{proposal.id}</td>
+                  <td className="py-3 px-6 border-b">
+                    <button
+                      onClick={() => handleEdit(proposal.id)}
+                      className="hover:underline"
+                    >
+                      {proposal.device}
                     </button>
-                    <button onClick={() => handleDelete(proposal.id)}>
-                      <FontAwesomeIcon icon={faTrash} />
+                  </td>
+                  <td className="py-3 px-6 border-b">
+                    <button
+                      onClick={() => handleEdit(proposal.id)}
+                      className="hover:underline"
+                    >
+                      {proposal.proposalname}
                     </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="py-3 px-6 border-b">
+                    <div className="flex space-x-6 justify-center items-center">
+                      <button onClick={() => handleEdit(proposal.id)}>
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button onClick={() => handleDelete(proposal.id)}>
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

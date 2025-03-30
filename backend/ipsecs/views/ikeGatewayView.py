@@ -1,10 +1,9 @@
-
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from ipsecs.models import IkeGateway
+from ipsecs.serializers.ikeGatewaySerializers import IkeGatewaySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from ipsecs.serializers.ikeGatewaySerializers import IkeGatewaySerializer
 
 class IkeGatewayListView(ListAPIView):
     queryset = IkeGateway.objects.all()
@@ -36,3 +35,11 @@ class IkeGatewayDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
 ikegateway_delete_view = IkeGatewayDestroyView.as_view()
+
+
+class IkeGatewayNamesView(APIView):
+    def get(self, request):
+        ikegatewaynames = IkeGateway.objects.values_list('gatewayname', flat=True)
+        return Response(ikegatewaynames )  
+ikegateway_names_view = IkeGatewayNamesView.as_view()
+

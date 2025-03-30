@@ -15,14 +15,14 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HopePage />} />
+          <Route
+            path="/vpn/site-to-site/list/config/*"
+            element={<VpnConfigList />}
+          />
           <Route path="/vpn/site-to-site/config/*" element={<VPN />} />
           <Route
             path="/vpn/site-to-site/sessions/list/*"
             element={<SiteToSiteList />}
-          />
-          <Route
-            path="/vpn/site-to-site/list/config/*"
-            element={<VpnConfigList />}
           />
         </Routes>
       </div>

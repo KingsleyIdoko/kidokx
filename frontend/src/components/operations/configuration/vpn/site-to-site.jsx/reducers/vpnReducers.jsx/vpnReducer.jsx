@@ -52,12 +52,6 @@ export default function VpnReducer(state = initialState, action) {
         pageSize: action.payload,
       };
 
-    case SELECTEDDEVICE:
-      return {
-        ...state,
-        selectedDevice: action.payload,
-      };
-
     case IKEPROPOSALDATA:
       return {
         ...state,

@@ -15,6 +15,10 @@ class IkeProposalCreateView(CreateAPIView):
     queryset = IkeProposal.objects.all()
     serializer_class = IkeProposalSerializer
 
+    def perform_create(self, serializer):
+        print("Creating IKE Proposal:", serializer.validated_data)
+        serializer.save()
+
 ikeproposal_create_view = IkeProposalCreateView.as_view()
 
 class IkeProposalDetailView(RetrieveAPIView):
@@ -40,6 +44,6 @@ ikeproposal_delete_view = IkeProposalDestroyView.as_view()
 
 class IkeProposalListNames(APIView):
     def get(self, request):
-        names = IkeProposal.objects.values_list('name', flat=True)
+        names = IkeProposal.objects.values_list('proposalname', flat=True)
         return Response(names)  
 ikeproposal_names_view = IkeProposalListNames.as_view()
