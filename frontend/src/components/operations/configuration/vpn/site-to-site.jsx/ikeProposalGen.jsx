@@ -1,15 +1,21 @@
 import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-import { IKEPROPOSALDATA, VALIDATEDDATA } from '../vpnActions.jsx/actionTypes';
+
+import {
+  IKEPROPOSALDATA,
+  VALIDATEDDATA,
+} from '../../../../store/reducers/vpnReducer';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
-  const { ikeProposalData, selectedDevice, saveconfiguration, configtype } =
-    useSelector((store) => store.vpn);
+  const { ikeProposalData, saveconfiguration, configtype } = useSelector(
+    (store) => store.vpn,
+  );
+  const { selectedDevice } = useSelector((store) => store.vpn);
   const dispatch = useDispatch();
 
   const {
@@ -67,13 +73,13 @@ function IkeProposalConfig() {
         ...formData,
         device: selectedDevice,
       };
-
+      console.log(finalPayload);
       try {
         await axios.post(
           'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
           finalPayload,
         );
-
+        console.log('posting successful');
         dispatch({ type: IKEPROPOSALDATA, payload: finalPayload });
 
         dispatch({

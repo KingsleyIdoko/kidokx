@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux';
-import { IPSECPROPOSALDATA } from '../vpnActions.jsx/actionTypes';
+import { IPSECPROPOSALDATA } from '../../../../store/reducers/vpnReducer';
 
 function IPsecProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();

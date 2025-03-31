@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { CONFIGTYPE } from '../vpnActions.jsx/actionTypes';
+import { CONFIGTYPE } from '../../../../store/reducers/vpnReducer';
 
 function IpsecSteps({ onhandleSelection }) {
   const navigate = useNavigate();

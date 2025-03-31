@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import Navreducer from '../header/navReducer';
-import VpnReducer from '../operations/configuration/vpn/site-to-site.jsx/reducers/vpnReducers.jsx/vpnReducer';
-import InventoryReducer from '../operations/configuration/vpn/site-to-site.jsx/reducers/inventoryReducer/inventoryReducers';
+import VpnReducer from './reducers/vpnReducer';
+import InventoryReducer from './reducers/inventoryReducers';
 
 const store = configureStore({
   reducer: {

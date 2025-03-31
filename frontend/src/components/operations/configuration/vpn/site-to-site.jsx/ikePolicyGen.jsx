@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { IKEPOLICYDATA } from '../vpnActions.jsx/actionTypes';
+import { IKEPOLICYDATA } from '../../../../store/reducers/vpnReducer';
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();

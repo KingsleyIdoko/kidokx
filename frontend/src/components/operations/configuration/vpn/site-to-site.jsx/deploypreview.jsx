@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { SAVECONFIGURATION } from '../vpnActions.jsx/actionTypes';
+import { SAVECONFIGURATION } from '../../../../store/reducers/vpnReducer';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 

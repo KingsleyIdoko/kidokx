@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios'; // Assuming API calls for gateway and policy lists
 import { useDispatch, useSelector } from 'react-redux';
-import { IPSECVPNDATA } from '../vpnActions.jsx/actionTypes';
+import { IPSECVPNDATA } from '../../../../store/reducers/vpnReducer';
 
 function IPsecVPNConfig() {
   const dispatch = useDispatch();

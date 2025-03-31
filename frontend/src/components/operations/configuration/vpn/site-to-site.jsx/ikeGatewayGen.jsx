@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { IKEGATEWAYDATA } from '../vpnActions.jsx/actionTypes';
+import { IKEGATEWAYDATA } from '../../../../store/reducers/vpnReducer';
 import axios from 'axios';
 
 function IkeGatewayConfig() {

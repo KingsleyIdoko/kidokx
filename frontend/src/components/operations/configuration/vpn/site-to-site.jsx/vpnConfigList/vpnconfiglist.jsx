@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import { CONFIGTYPE } from '../../../../../store/reducers/vpnReducer';
 import {
-  CONFIGTYPE,
-  DEVICEINVENTORIES,
   SELECTEDDEVICE,
-} from '../../vpnActions.jsx/actionTypes';
+  DEVICEINVENTORIES,
+} from '../../../../../store/reducers/inventoryReducers';
 import { useIpsecData } from '../api/ikeProposalItems';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';

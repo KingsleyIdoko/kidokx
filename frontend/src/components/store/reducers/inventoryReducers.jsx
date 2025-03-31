@@ -1,7 +1,5 @@
-import {
-  DEVICEINVENTORIES,
-  SELECTEDDEVICE,
-} from '../../../vpnActions.jsx/actionTypes';
+export const SELECTEDDEVICE = 'SELECTEDDEVICE';
+export const DEVICEINVENTORIES = 'DEVICEINVENTORIES';
 
 const initialState = {
   inventories: [],

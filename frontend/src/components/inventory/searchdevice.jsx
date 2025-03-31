@@ -2,10 +2,8 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import {
-  SELECTEDDEVICE,
-  CONFIGTYPE,
-} from '../operations/configuration/vpn/vpnActions.jsx/actionTypes';
+import { SELECTEDDEVICE } from '../store/reducers/vpnReducer';
+import { CONFIGTYPE } from '../store/reducers/vpnReducer';
 import { useForm } from 'react-hook-form';
 
 export function SearchDevice() {

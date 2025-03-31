@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { IPSECPOLICYDATA } from '../vpnActions.jsx/actionTypes';
+import { IPSECPOLICYDATA } from '../../../../store/reducers/vpnReducer';
 
 export default function IpsecPolicyConfig() {
   const dispatch = useDispatch();

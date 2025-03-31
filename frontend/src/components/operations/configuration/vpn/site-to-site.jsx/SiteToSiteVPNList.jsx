@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
+import { DEVICEINVENTORIES } from '../../../../store/reducers/inventoryReducers';
 import {
-  DEVICEINVENTORIES,
   SELECTEDDEVICE,
   CONFIGTYPE,
-} from '../vpnActions.jsx/actionTypes';
+} from '../../../../store/reducers/vpnReducer';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
@@ -21,6 +21,7 @@ export default function SiteToSiteList() {
     trigger,
     getValues,
     formState: { errors },
+    sss,
   } = useForm({ mode: 'onChange' });
 
   const handleUrlPath = async () => {
