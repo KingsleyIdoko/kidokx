@@ -8,7 +8,7 @@ import IPsecProposalConfig from './site-to-site.jsx/ipsecProposalGen';
 import IPsecPolicyConfig from './site-to-site.jsx/ipsecPolicyGen';
 import IPsecVPNConfig from './site-to-site.jsx/ipsecVpnGen';
 import NavigationBar from './site-to-site.jsx/navigation';
-import DeployPreview from './site-to-site.jsx/deploypreview';
+import SaveConfig from './site-to-site.jsx/saveconfig';
 import IpsecSteps from './site-to-site.jsx/ipsec_steps';
 import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
 import SearchDevice from '../../../inventory/searchdevice';
@@ -155,7 +155,7 @@ function VPN() {
             </div>
           </div>
           <div className="w-[64rem] pb-10">
-            <DeployPreview
+            <SaveConfig
               onPreviewBtn={handlePreviewBtn}
               onSelectedFormat={selectedFormat}
               setSelectedFormat={setSelectedFormat}

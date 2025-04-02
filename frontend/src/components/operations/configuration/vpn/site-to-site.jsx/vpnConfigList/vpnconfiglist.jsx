@@ -4,8 +4,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { CONFIGTYPE } from '../../../../../store/reducers/vpnReducer';
 import {
-  SELECTEDDEVICE,
-  DEVICEINVENTORIES,
+  setDeviceInventories,
+  setSelectedDevice,
 } from '../../../../../store/reducers/inventoryReducers';
 import { useIpsecData } from '../api/ikeProposalItems';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -39,7 +39,7 @@ export default function VpnConfigList() {
           'http://127.0.0.1:8000/api/inventories/devices/',
         );
         if (isMounted) {
-          dispatch({ type: DEVICEINVENTORIES, payload: res.data });
+          dispatch(setDeviceInventories(res.data));
         }
       } catch (err) {
         if (isMounted) {
@@ -78,7 +78,7 @@ export default function VpnConfigList() {
   };
 
   const handleDeviceChange = (e) => {
-    dispatch({ type: SELECTEDDEVICE, payload: e.target.value });
+    dispatch(setSelectedDevice(e.target.value));
   };
 
   const handleConfigTypeChange = (e) => {

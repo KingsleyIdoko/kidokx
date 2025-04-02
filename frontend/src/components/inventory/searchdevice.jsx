@@ -2,9 +2,9 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { SELECTEDDEVICE } from '../store/reducers/vpnReducer';
-import { CONFIGTYPE } from '../store/reducers/vpnReducer';
+import { setSelectedDevice } from '../store/reducers/inventoryReducers';
 import { useForm } from 'react-hook-form';
+import { setConfigType } from '../store/reducers/vpnReducer';
 
 export function SearchDevice() {
   const { configtype, saveconfiguration } = useSelector((state) => state.vpn);
@@ -70,8 +70,8 @@ export function SearchDevice() {
   useEffect(() => {
     if (watchConfig && watchDevice) {
       const config = watchConfig.toLowerCase();
-      dispatch({ type: CONFIGTYPE, payload: config });
-      dispatch({ type: SELECTEDDEVICE, payload: watchDevice });
+      dispatch(setConfigType(config));
+      dispatch(setSelectedDevice(watchDevice));
       navigate(`/vpn/site-to-site/config/${config}/`);
     }
   }, [watchConfig, watchDevice]);

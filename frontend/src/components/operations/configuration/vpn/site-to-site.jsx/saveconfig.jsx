@@ -1,9 +1,9 @@
 import { useDispatch, useSelector } from 'react-redux';
-import { SAVECONFIGURATION } from '../../../../store/reducers/vpnReducer';
+import { setSaveConfiguration } from '../../../../store/reducers/vpnReducer';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 
-function DeployPreview({
+export default function SaveConfig({
   onPreviewBtn,
   onSelectedFormat,
   setSelectedFormat,
@@ -13,16 +13,13 @@ function DeployPreview({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleSaveClick = () => {
-    dispatch({ type: SAVECONFIGURATION, payload: true });
+  const handleSaveBtn = () => {
+    dispatch(setSaveConfiguration(true));
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const currentPath = pathSegments[pathSegments.length - 1];
     if (currentPath) {
       navigate(`/vpn/site-to-site/list/config/${currentPath}`);
-      setTimeout(
-        () => dispatch({ type: SAVECONFIGURATION, payload: false }),
-        200,
-      );
+      setTimeout(() => dispatch(setSaveConfiguration(false)), 200);
     }
   };
 
@@ -71,7 +68,7 @@ function DeployPreview({
           <button
             type="button"
             className="w-full capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
-            onClick={handleSaveClick}
+            onClick={handleSaveBtn}
           >
             Save
           </button>
@@ -80,5 +77,3 @@ function DeployPreview({
     </div>
   );
 }
-
-export default DeployPreview;

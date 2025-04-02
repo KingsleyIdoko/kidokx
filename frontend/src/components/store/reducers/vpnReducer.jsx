@@ -3,7 +3,6 @@ export const CURRENTPAGE = 'CURRENTPAGE';
 export const FILTEREDIPSECDATA = 'FILTEREDIPSECDATA';
 export const SELECTEDOPTIONS = 'SELECTEDOPTIONS';
 export const SELECTEDDEVICE = 'SELECTEDDEVICE';
-export const IKEPROPOSALDATA = 'IKEPROPOSALDATA';
 export const IKEPOLICYDATA = 'IKEPOLICYDATA';
 export const IKEGATEWAYDATA = 'IKEGATEWAYDATA';
 export const IPSECPROPOSALDATA = 'IPSECPROPOSALDATA';
@@ -12,9 +11,21 @@ export const IPSECVPNDATA = 'IPSECVPNDATA';
 export const DEVICEINVENTORIES = 'DEVICEINVENTORIES';
 export const VALIDATEIKEPROPOSAL = 'VALIDATEIKEPROPOSAL';
 export const CONFIGTYPE = 'CONFIGTYPE';
-export const SAVECONFIGURATION = 'SAVECONFIGURATION';
 export const DEPLOYCONFIGURATION = 'DEPLOYCONFIGURATION';
 export const VALIDATEDDATA = 'VALIDATEDDATA';
+
+import { createAction, isActionCreator } from '@reduxjs/toolkit';
+
+// Action Creators
+
+export const setConfigType = (config) => ({
+  type: CONFIGTYPE,
+  payload: config,
+});
+
+export const setIkeProposalData = createAction('IKEPROPOSALDATA');
+export const setSaveConfiguration = createAction('SAVECONFIGURATION');
+export const setValidated = createAction('VALIDATEDDATA');
 
 const initialState = {
   pageSize: 10,
@@ -27,7 +38,7 @@ const initialState = {
   ipsecProposalData: {},
   ipsecPolicyData: {},
   ipsecVpnData: {},
-  configtype: null,
+  configtype: 'ikeproposal',
   validatedData: false,
   saveconfiguration: false,
   deployconfiguration: false,
@@ -53,7 +64,7 @@ export default function VpnReducer(state = initialState, action) {
         pageSize: action.payload,
       };
 
-    case IKEPROPOSALDATA:
+    case setIkeProposalData.type:
       return {
         ...state,
         ikeProposalData: {
@@ -111,9 +122,9 @@ export default function VpnReducer(state = initialState, action) {
         ...state,
         configtype: action.payload,
       };
-    case VALIDATEDDATA:
+    case setValidated.type:
       return { ...state, validatedData: action.payload };
-    case SAVECONFIGURATION:
+    case setSaveConfiguration:
       return { ...state, saveconfiguration: action.payload };
     case DEPLOYCONFIGURATION:
       return { ...state, deployconfiguration: action.payload };

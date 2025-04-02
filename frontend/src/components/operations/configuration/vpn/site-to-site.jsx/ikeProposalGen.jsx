@@ -1,10 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
-
 import {
-  IKEPROPOSALDATA,
-  VALIDATEDDATA,
+  setIkeProposalData,
+  setValidated,
 } from '../../../../store/reducers/vpnReducer';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
@@ -36,21 +35,13 @@ function IkeProposalConfig() {
     ) {
       hasInitialized.current = true;
 
-      const initialOptions = Object.keys(ipsecChoicesData)
-        .filter((key) => key !== 'authentication_method')
-        .reduce((acc, key) => {
-          acc[key] = '';
-          return acc;
-        }, {});
-
-      dispatch({
-        type: IKEPROPOSALDATA,
-        payload: {
-          proposalname: '',
-          ...initialOptions,
-          device: selectedDevice,
-        },
-      });
+      const { authentication_method, ...restChoices } = ipsecChoicesData;
+      const initialOptions = Object.keys(restChoices).reduce(
+        (acc, key) => ({ ...acc, [key]: '' }),
+        {},
+      );
+      bulkPayload = { proposalname: '', ...initialOptions, ...selectedDevice };
+      dispatch(setIkeProposalData(bulkPayload));
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
 
@@ -60,10 +51,7 @@ function IkeProposalConfig() {
       const isValid = await trigger(fields);
 
       if (!isValid) {
-        dispatch({
-          type: VALIDATEDDATA,
-          payload: { valid: false },
-        });
+        dispatch(setValidated(false));
         return;
       }
 
@@ -73,25 +61,16 @@ function IkeProposalConfig() {
         ...formData,
         device: selectedDevice,
       };
-      console.log(finalPayload);
       try {
         await axios.post(
           'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
           finalPayload,
         );
-        console.log('posting successful');
-        dispatch({ type: IKEPROPOSALDATA, payload: finalPayload });
-
-        dispatch({
-          type: VALIDATEDDATA,
-          payload: { valid: true },
-        });
+        dispatch(setIkeProposalData(finalPayload));
+        dispatch(setValidated(false));
       } catch (err) {
         console.error('Post failed:', err.message);
-        dispatch({
-          type: VALIDATEDDATA,
-          payload: { valid: false },
-        });
+        dispatch(setValidated(false));
       }
     };
     if (saveconfiguration && configtype === 'ikeproposal') {

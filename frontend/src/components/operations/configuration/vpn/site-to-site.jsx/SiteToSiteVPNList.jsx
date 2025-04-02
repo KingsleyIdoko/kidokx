@@ -1,11 +1,9 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { DEVICEINVENTORIES } from '../../../../store/reducers/inventoryReducers';
-import {
-  SELECTEDDEVICE,
-  CONFIGTYPE,
-} from '../../../../store/reducers/vpnReducer';
+import { setConfigType } from '../../../../store/reducers/vpnReducer';
+import { setDeviceInventories } from '../../../../store/reducers/inventoryReducers';
+import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 
@@ -32,8 +30,8 @@ export default function SiteToSiteList() {
     const device = getValues('device');
 
     if (!config) return;
-    dispatch({ type: SELECTEDDEVICE, payload: device });
-    dispatch({ type: CONFIGTYPE, payload: config });
+    dispatch(setSelectedDevice(device));
+    dispatch(setConfigType(config));
     const targetPath = `/vpn/site-to-site/config/${config}/`;
     navigate(targetPath);
   };
@@ -51,7 +49,7 @@ export default function SiteToSiteList() {
           name: device.name.toLowerCase(),
         }));
         if (isMounted) {
-          dispatch({ type: DEVICEINVENTORIES, payload: lowerCaseData });
+          dispatch(setDeviceInventories(lowerCaseData));
         }
       } catch (err) {
         if (isMounted) {
