@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useIpsecData } from './api/ikeProposalItems';
 import { useSelector, useDispatch } from 'react-redux';
 import {
+  setConfigType,
   setIkeProposalData,
   setValidated,
 } from '../../../../store/reducers/vpnReducer';
@@ -11,10 +12,9 @@ import axios from 'axios';
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
-  const { ikeProposalData, saveconfiguration, configtype } = useSelector(
-    (store) => store.vpn,
-  );
-  const { selectedDevice } = useSelector((store) => store.vpn);
+  const { ikeProposalData, saveconfiguration, configtype, editeddata } =
+    useSelector((store) => store.vpn);
+  const { selectedDevice } = useSelector((store) => store.inventories);
   const dispatch = useDispatch();
 
   const {
@@ -24,8 +24,14 @@ function IkeProposalConfig() {
     formState: { errors },
   } = useForm({
     mode: 'onChange',
-    defaultValues: ikeProposalData,
+    defaultValues: editeddata?.id ? editeddata : ikeProposalData,
   });
+
+  useEffect(() => {
+    if (editeddata?.id) {
+      dispatch(setIkeProposalData({ ...editeddata }));
+    }
+  }, [editeddata, dispatch]);
 
   useEffect(() => {
     if (
@@ -34,13 +40,16 @@ function IkeProposalConfig() {
       (!ikeProposalData || Object.keys(ikeProposalData).length === 0)
     ) {
       hasInitialized.current = true;
-
       const { authentication_method, ...restChoices } = ipsecChoicesData;
       const initialOptions = Object.keys(restChoices).reduce(
         (acc, key) => ({ ...acc, [key]: '' }),
         {},
       );
-      bulkPayload = { proposalname: '', ...initialOptions, ...selectedDevice };
+      const bulkPayload = {
+        proposalname: '',
+        ...initialOptions,
+        ...selectedDevice,
+      };
       dispatch(setIkeProposalData(bulkPayload));
     }
   }, [ipsecChoicesData, ikeProposalData, dispatch, selectedDevice]);
@@ -49,12 +58,10 @@ function IkeProposalConfig() {
     const validateAndPost = async () => {
       const fields = Object.keys(ikeProposalData || {});
       const isValid = await trigger(fields);
-
       if (!isValid) {
         dispatch(setValidated(false));
         return;
       }
-
       const formData = getValues();
       const finalPayload = {
         ...ikeProposalData,
@@ -67,7 +74,8 @@ function IkeProposalConfig() {
           finalPayload,
         );
         dispatch(setIkeProposalData(finalPayload));
-        dispatch(setValidated(false));
+        dispatch(setConfigType(configtype));
+        dispatch(setValidated(true));
       } catch (err) {
         console.error('Post failed:', err.message);
         dispatch(setValidated(false));
@@ -91,11 +99,11 @@ function IkeProposalConfig() {
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form className="grid grid-cols-2 space-y-4 gap-x-10 gap-y-4 items-center">
-        <div className="col-span-2  grid grid-cols-2 gap-x-10 items-center">
+        <div className="col-span-2 grid grid-cols-2 gap-x-10 items-center">
           <div className="h-[3rem]">
             <button
               type="button"
-              className="  px-4 py-3 bg-gray-100 text-black text-left border rounded-lg focus:outline-none w-full"
+              className="px-4 py-3 bg-gray-100 text-black text-left border rounded-lg focus:outline-none w-full"
             >
               IKE Proposal Name
             </button>
@@ -107,22 +115,25 @@ function IkeProposalConfig() {
               })}
               type="text"
               placeholder="Enter Proposal Name"
-              className={` px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
                 errors.proposalname ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            <div>
-              {errors.proposalname ? (
-                <p className="text-xs text-red-500 font-medium flex items-center">
-                  {errors.proposalname.message}
-                </p>
-              ) : null}
-            </div>
+            {errors.proposalname && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.proposalname.message}
+              </p>
+            )}
           </div>
         </div>
 
         {Object.keys(ikeProposalData || {})
-          .filter((key) => key !== 'proposalname' && key !== 'device')
+          .filter(
+            (key) =>
+              key !== 'proposalname' &&
+              key !== 'device' &&
+              ipsecChoicesData?.[key] !== undefined,
+          )
           .map((category) => (
             <div
               key={`${category}-wrapper`}
@@ -134,7 +145,7 @@ function IkeProposalConfig() {
               >
                 {category.replace(/_/g, ' ')}
               </button>
-              <div className="flex flex-col  justify-between">
+              <div className="flex flex-col justify-between">
                 <select
                   {...register(category, {
                     required: `${category} is required`,
@@ -144,7 +155,7 @@ function IkeProposalConfig() {
                   }`}
                 >
                   <option value="">Select {category.replace(/_/g, ' ')}</option>
-                  {ipsecChoicesData[category].map((option, index) =>
+                  {(ipsecChoicesData[category] || []).map((option, index) =>
                     option?.[0] !== 'Pre-Shared Key' ? (
                       <option
                         key={`${category}-${option[0]}-${index}`}
@@ -155,15 +166,11 @@ function IkeProposalConfig() {
                     ) : null,
                   )}
                 </select>
-                <div>
-                  <div className="h-2">
-                    {errors[category] ? (
-                      <p className="text-xs text-red-500 font-medium flex items-center">
-                        {errors[category].message}
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
+                {errors[category] && (
+                  <p className="text-xs text-red-500 font-medium flex items-center">
+                    {errors[category].message}
+                  </p>
+                )}
               </div>
             </div>
           ))}

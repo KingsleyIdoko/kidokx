@@ -14,7 +14,6 @@ export function SearchDevice() {
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  console.log(saveconfiguration);
   const {
     register,
     trigger,

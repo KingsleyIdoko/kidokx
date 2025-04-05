@@ -131,13 +131,6 @@ function VPN() {
             {/* Routes for Site-to-Site and Remote Access VPN */}
             <div className="w-[50rem] rounded-lg">
               <Routes>
-                <Route path="/ikeproposal/" element={<IkeProposalConfig />} />
-                <Route path="/ikepolicy/" element={<IkePolicyConfig />} />
-                <Route path="/ikegateway/" element={<IkeGatewayConfig />} />
-                <Route path="/ipsecpolicy/" element={<IPsecPolicyConfig />} />
-                <Route path="/ipsecvpn/" element={<IPsecVPNConfig />} />
-                <Route path="/remote-access/" element={<RaVPN />} />
-
                 <Route
                   path="/preview/:ipsecType"
                   element={
@@ -147,6 +140,35 @@ function VPN() {
                     />
                   }
                 />
+
+                <Route
+                  path="/ikeproposal/edit/:id/"
+                  element={<IkeProposalConfig />}
+                />
+                <Route
+                  path="/ikepolicy/edit/:id/"
+                  element={<IkePolicyConfig />}
+                />
+                <Route
+                  path="/ikegateway/edit/:id/"
+                  element={<IkeGatewayConfig />}
+                />
+                <Route
+                  path="/ipsecpolicy/edit/:id/"
+                  element={<IPsecPolicyConfig />}
+                />
+                <Route
+                  path="/ipsecvpn/edit/:id/"
+                  element={<IPsecVPNConfig />}
+                />
+                <Route path="/remote-access/edit/:id/" element={<RaVPN />} />
+
+                <Route path="/ikeproposal/" element={<IkeProposalConfig />} />
+                <Route path="/ikepolicy/" element={<IkePolicyConfig />} />
+                <Route path="/ikegateway/" element={<IkeGatewayConfig />} />
+                <Route path="/ipsecpolicy/" element={<IPsecPolicyConfig />} />
+                <Route path="/ipsecvpn/" element={<IPsecVPNConfig />} />
+                <Route path="/remote-access/" element={<RaVPN />} />
                 <Route
                   path="/ipsecproposal"
                   element={<IPsecProposalConfig />}

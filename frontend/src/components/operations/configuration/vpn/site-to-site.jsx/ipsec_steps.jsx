@@ -45,7 +45,7 @@ function IpsecSteps({ onhandleSelection }) {
   return (
     <div>
       {/* Sidebar with IPsec Options */}
-      <div className="w-[16rem] flex flex-col py-6 px-6 items-left space-y-3 justify-left bg-white">
+      <div className="w-[16rem] flex flex-col py-6  items-left space-y-6 justify-left bg-white">
         {ipsecSelection.map((ipsec) => {
           return (
             <div

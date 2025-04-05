@@ -2,7 +2,7 @@ import { createAction } from '@reduxjs/toolkit';
 
 const initialState = {
   inventories: [],
-  selectedDevice: null,
+  selectedDevice: '',
 };
 
 export const setSelectedDevice = createAction('SELECTEDDEVICE');

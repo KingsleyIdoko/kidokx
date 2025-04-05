@@ -24,6 +24,7 @@ export const setConfigType = (config) => ({
 });
 
 export const setIkeProposalData = createAction('IKEPROPOSALDATA');
+export const setEditedData = createAction('EDITEDDATA');
 export const setSaveConfiguration = createAction('SAVECONFIGURATION');
 export const setValidated = createAction('VALIDATEDDATA');
 
@@ -42,6 +43,7 @@ const initialState = {
   validatedData: false,
   saveconfiguration: false,
   deployconfiguration: false,
+  editeddata: {},
 };
 
 export default function VpnReducer(state = initialState, action) {
@@ -124,11 +126,12 @@ export default function VpnReducer(state = initialState, action) {
       };
     case setValidated.type:
       return { ...state, validatedData: action.payload };
-    case setSaveConfiguration:
+    case setSaveConfiguration.type:
       return { ...state, saveconfiguration: action.payload };
     case DEPLOYCONFIGURATION:
       return { ...state, deployconfiguration: action.payload };
-
+    case setEditedData.type:
+      return { ...state, editeddata: action.payload };
     default:
       return state;
   }

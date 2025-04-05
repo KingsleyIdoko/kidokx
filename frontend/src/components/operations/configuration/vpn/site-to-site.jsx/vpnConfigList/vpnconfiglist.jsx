@@ -2,7 +2,11 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { CONFIGTYPE } from '../../../../../store/reducers/vpnReducer';
+import {
+  CONFIGTYPE,
+  setConfigType,
+  setEditedData,
+} from '../../../../../store/reducers/vpnReducer';
 import {
   setDeviceInventories,
   setSelectedDevice,
@@ -15,7 +19,6 @@ export default function VpnConfigList() {
   const { ikeProposalData: backendIkeProposalData } = useIpsecData();
   const [ikeProposalData, setIkeProposalData] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
 
@@ -56,7 +59,13 @@ export default function VpnConfigList() {
     };
   }, [dispatch]);
 
-  const handleEdit = (id) => {};
+  const handleEdit = (proposal) => {
+    console.log(proposal);
+    dispatch(setEditedData(proposal));
+    dispatch(setSelectedDevice(proposal.device));
+    dispatch(setConfigType(proposal.proposalname));
+    navigate(`/vpn/site-to-site/config/ikeproposal/edit/${proposal.id}/`);
+  };
 
   const handleDelete = async (id) => {
     try {
@@ -171,7 +180,7 @@ export default function VpnConfigList() {
                   </td>
                   <td className="py-3 px-6 border-b">
                     <div className="flex space-x-6 justify-center items-center">
-                      <button onClick={() => handleEdit(proposal.id)}>
+                      <button onClick={() => handleEdit(proposal)}>
                         <FontAwesomeIcon icon={faEdit} />
                       </button>
                       <button onClick={() => handleDelete(proposal.id)}>

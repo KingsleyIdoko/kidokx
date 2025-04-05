@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setConfigType } from '../../../../store/reducers/vpnReducer';
+import {
+  setConfigType,
+  setIkeProposalData,
+} from '../../../../store/reducers/vpnReducer';
 import { setDeviceInventories } from '../../../../store/reducers/inventoryReducers';
 import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +35,7 @@ export default function SiteToSiteList() {
     if (!config) return;
     dispatch(setSelectedDevice(device));
     dispatch(setConfigType(config));
+    dispatch(setIkeProposalData({}));
     const targetPath = `/vpn/site-to-site/config/${config}/`;
     navigate(targetPath);
   };
