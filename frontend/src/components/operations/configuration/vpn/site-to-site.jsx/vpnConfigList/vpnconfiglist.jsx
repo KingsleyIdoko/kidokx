@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   CONFIGTYPE,
@@ -63,7 +63,9 @@ export default function VpnConfigList() {
     console.log(proposal);
     dispatch(setEditedData(proposal));
     dispatch(setSelectedDevice(proposal.device));
-    dispatch(setConfigType(proposal.proposalname));
+    console.log(proposal.proposalname);
+    // dispatch(setConfigType(proposal.proposalname));
+
     navigate(`/vpn/site-to-site/config/ikeproposal/edit/${proposal.id}/`);
   };
 
