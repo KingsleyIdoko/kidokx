@@ -73,6 +73,7 @@ export default function VpnConfigList() {
     dispatch(setEditedData(proposal));
     dispatch(setSelectedDevice(proposal.device));
     dispatch(setEditing(true));
+    dispatch(setSaveConfiguration(false));
     navigate(`/vpn/site-to-site/config/ikeproposal/edit/${proposal.id}/`);
   };
 
@@ -97,6 +98,7 @@ export default function VpnConfigList() {
     dispatch(setValidated(false));
     dispatch(setSaveConfiguration(false));
     dispatch(setDeployconfiguration(false));
+    dispatch(setEditing(false));
     setPendingRedirect(true);
   };
 
@@ -209,9 +211,9 @@ export default function VpnConfigList() {
           <tbody className="text-gray-700">
             {updatedikeProposalData
               .sort((a, b) => b.id - a.id)
-              .map((proposal) => (
+              .map((proposal, index) => (
                 <tr key={proposal.id} className="hover:bg-gray-50">
-                  <td className="py-3 px-6 border-b">{proposal.id}</td>
+                  <td className="py-3 px-6 border-b">{index + 1}</td>
                   <td className="py-3 px-6 border-b">
                     <button>{proposal.device}</button>
                   </td>

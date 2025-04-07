@@ -1,14 +1,22 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setConfigType,
   setIkeProposalData,
-} from '../../../../store/reducers/vpnReducer';
-import { setDeviceInventories } from '../../../../store/reducers/inventoryReducers';
-import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+  setEditedData,
+  setSaveConfiguration,
+  setEditing,
+  setDeployconfiguration,
+  setValidated,
+} from "../../../../store/reducers/vpnReducer";
+import {
+  setDeviceInventories,
+  setSelectedDevice,
+} from "../../../../store/reducers/inventoryReducers";
+
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 export default function SiteToSiteList() {
   const navigate = useNavigate();
@@ -22,22 +30,30 @@ export default function SiteToSiteList() {
     trigger,
     getValues,
     formState: { errors },
-    sss,
-  } = useForm({ mode: 'onChange' });
+  } = useForm({ mode: "onChange" });
 
   const handleUrlPath = async () => {
-    const isValid = await trigger(['device', 'config']);
+    const isValid = await trigger(["device", "config"]);
     if (!isValid) return;
 
-    const config = getValues('config')?.toLowerCase();
-    const device = getValues('device');
-
+    const config = getValues("config")?.toLowerCase();
+    const device = getValues("device");
     if (!config) return;
+
+    // Reset all related state in one go
+    dispatch(setEditedData({}));
+    dispatch(setIkeProposalData({}));
+    dispatch(setValidated(false));
+    dispatch(setSaveConfiguration(false));
+    dispatch(setDeployconfiguration(false));
+    dispatch(setEditing(false));
+
+    // Set selected values
     dispatch(setSelectedDevice(device));
     dispatch(setConfigType(config));
-    dispatch(setIkeProposalData({}));
-    const targetPath = `/vpn/site-to-site/config/${config}/`;
-    navigate(targetPath);
+
+    // Navigate
+    navigate(`/vpn/site-to-site/config/${config}/`);
   };
 
   useEffect(() => {
@@ -46,7 +62,7 @@ export default function SiteToSiteList() {
     const fetchDeviceList = async () => {
       try {
         const res = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/devices/',
+          "http://127.0.0.1:8000/api/inventories/devices/"
         );
         const lowerCaseData = res.data.map((device) => ({
           ...device,
@@ -58,7 +74,7 @@ export default function SiteToSiteList() {
       } catch (err) {
         if (isMounted) {
           setError(err.message);
-          console.error('Error occurred:', err.message);
+          console.error("Error occurred:", err.message);
         }
       }
     };
@@ -90,9 +106,9 @@ export default function SiteToSiteList() {
         {/* Device Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register('device', { required: 'select device' })}
+            {...register("device", { required: "select device" })}
             className={`border px-4 rounded-lg h-12 focus:outline-none ${
-              errors.device ? 'border-b-2 border-red-500' : ''
+              errors.device ? "border-b-2 border-red-500" : ""
             }`}
           >
             <option value="">Select Device</option>
@@ -114,9 +130,9 @@ export default function SiteToSiteList() {
         {/* Config Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register('config', { required: 'select configtype' })}
+            {...register("config", { required: "select configtype" })}
             className={`w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none ${
-              errors.config ? 'border-b-2 border-red-500' : ''
+              errors.config ? "border-b-2 border-red-500" : ""
             }`}
           >
             <option value="">Select Config</option>
@@ -139,7 +155,7 @@ export default function SiteToSiteList() {
         {/* Site Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register('site')}
+            {...register("site")}
             className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
           >
             <option value="">Select Site</option>
@@ -152,7 +168,7 @@ export default function SiteToSiteList() {
         {/* VPN Type Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register('vpnType')}
+            {...register("vpnType")}
             className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
           >
             <option value="">Select VPN Type</option>

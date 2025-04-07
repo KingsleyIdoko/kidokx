@@ -5,16 +5,23 @@ import {
   setConfigType,
   setIkeProposalData,
   setValidated,
+  setEditing,
 } from "../../../../store/reducers/vpnReducer";
 
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 
 function IkeProposalConfig() {
   const hasInitialized = useRef(false);
   const { ipsecChoicesData, error, loading } = useIpsecData();
-  const { ikeProposalData, saveconfiguration, configtype, editeddata } =
-    useSelector((store) => store.vpn);
+  const {
+    ikeProposalData,
+    saveconfiguration,
+    configtype,
+    editeddata,
+    editingData,
+  } = useSelector((store) => store.vpn);
   const { selectedDevice } = useSelector((store) => store.inventories);
   const dispatch = useDispatch();
 
@@ -64,6 +71,7 @@ function IkeProposalConfig() {
         dispatch(setValidated(false));
         return;
       }
+
       const formData = getValues();
       const finalPayload = {
         ...ikeProposalData,
@@ -72,18 +80,29 @@ function IkeProposalConfig() {
       };
 
       try {
-        await axios.post(
-          "http://127.0.0.1:8000/api/ipsec/ikeproposal/create/",
-          finalPayload
-        );
+        if (!editingData) {
+          await axios.post(
+            "http://127.0.0.1:8000/api/ipsec/ikeproposal/create/",
+            finalPayload
+          );
+        } else {
+          await axios.put(
+            `http://127.0.0.1:8000/api/ipsec/ikeproposal/${editeddata?.id}/update/`,
+            finalPayload
+          );
+          dispatch(setEditing(false));
+        }
+
         dispatch(setIkeProposalData(finalPayload));
         dispatch(setConfigType(configtype));
+        dispatch(setSelectedDevice(selectedDevice));
         dispatch(setValidated(true));
       } catch (err) {
-        console.error("Post failed:", err.message);
+        console.error("Post/Put failed:", err.message);
         dispatch(setValidated(false));
       }
     };
+
     if (saveconfiguration && configtype === "ikeproposal") {
       validateAndPost();
     }
@@ -118,9 +137,15 @@ function IkeProposalConfig() {
               })}
               type="text"
               placeholder="Enter Proposal Name"
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none w-full ${
-                errors.proposalname ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`px-4 py-3 text-black border rounded-lg focus:outline-none w-full
+              ${errors.proposalname ? "border-red-500" : "border-gray-300"}
+                ${
+                  editingData
+                    ? "bg-gray-200 opacity-70 cursor-not-allowed"
+                    : "bg-gray-100"
+                }
+    `}
+              disabled={editingData}
             />
             {errors.proposalname && (
               <p className="text-xs text-red-500 font-medium flex items-center">

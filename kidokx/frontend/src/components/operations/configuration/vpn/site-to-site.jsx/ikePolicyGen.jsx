@@ -1,22 +1,22 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { IKEPOLICYDATA } from '../../../../store/reducers/vpnReducer';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { IKEPOLICYDATA } from "../../../../store/reducers/vpnReducer";
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
   const { ikePolicyData = {}, selectedDevice } = useSelector(
-    (state) => state.vpn,
+    (state) => state.vpn
   );
   const [ikeProposalNames, setIkeProposalNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const ikePolicyLabels = [
-    'IKE Policy Name',
-    'IKE Mode',
-    'IKE Proposal',
-    'Authentication Method',
+    "IKE Policy Name",
+    "IKE Mode",
+    "IKE Proposal",
+    "Authentication Method",
   ];
 
   const fetchIkeProposalNames = async () => {
@@ -25,12 +25,12 @@ export default function IkePolicyConfig() {
 
     try {
       const response = await axios.get(
-        'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
+        "http://127.0.0.1:8000/api/ipsec/ikeproposal/names/"
       );
       setIkeProposalNames(response.data);
     } catch (err) {
       errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error('Error fetching IKE Proposal data:', err);
+      console.error("Error fetching IKE Proposal data:", err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -77,7 +77,7 @@ export default function IkePolicyConfig() {
       </div>
     );
 
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) return <p className="text-red-500">{error.join(", ")}</p>;
   if (!ikeProposalNames)
     return <p className="text-gray-500">No IKE proposals available</p>;
 
@@ -101,14 +101,14 @@ export default function IkePolicyConfig() {
             type="text"
             placeholder="Enter Name"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.policyName || ''}
-            onChange={(e) => handleChanges('policyName', e.target.value)}
+            value={ikePolicyData.policyName || ""}
+            onChange={(e) => handleChanges("policyName", e.target.value)}
           />
 
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.ike_mode || ''}
-            onChange={(e) => handleChanges('ike_mode', e.target.value)}
+            value={ikePolicyData.ike_mode || ""}
+            onChange={(e) => handleChanges("ike_mode", e.target.value)}
           >
             <option value="">Select Mode</option>
             <option value="main">Main</option>
@@ -117,8 +117,8 @@ export default function IkePolicyConfig() {
 
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.proposalName || ''}
-            onChange={(e) => handleChanges('proposalName', e.target.value)}
+            value={ikePolicyData.proposalName || ""}
+            onChange={(e) => handleChanges("proposalName", e.target.value)}
           >
             <option value="">Select a Proposal</option>
             {ikeProposalNames.map((proposal, index) => (
@@ -130,9 +130,9 @@ export default function IkePolicyConfig() {
 
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.authentication_method || ''}
+            value={ikePolicyData.authentication_method || ""}
             onChange={(e) =>
-              handleChanges('authentication_method', e.target.value)
+              handleChanges("authentication_method", e.target.value)
             }
           >
             <option value="">Select Auth Method</option>

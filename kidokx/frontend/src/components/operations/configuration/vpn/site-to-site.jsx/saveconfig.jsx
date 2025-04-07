@@ -1,5 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
-import { setSaveConfiguration } from "../../../../store/reducers/vpnReducer";
+import {
+  setEditing,
+  setSaveConfiguration,
+} from "../../../../store/reducers/vpnReducer";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useMemo } from "react";
 
@@ -13,25 +16,25 @@ export default function SaveConfig({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { validatedData } = useSelector((state) => state.vpn);
+  const { validatedData, editingData } = useSelector((state) => state.vpn);
   const { isSelectedDevice } = useSelector((state) => state.inventories);
-  // console.log(validatedData, isSelectedDevice);
 
   const pathSegments = useMemo(
     () => location.pathname.split("/").filter(Boolean),
     [location]
   );
   const currentPath = pathSegments[pathSegments.length - 1];
+  console.log(validatedData, isSelectedDevice);
 
   const handleSaveBtn = () => {
     dispatch(setSaveConfiguration(true));
   };
 
   useEffect(() => {
-    if (validatedData && isSelectedDevice && currentPath) {
+    if (validatedData && isSelectedDevice && !editingData) {
       navigate(`/vpn/site-to-site/list/config/${currentPath}`);
     }
-  }, [validatedData, isSelectedDevice, currentPath, navigate]);
+  }, [validatedData, isSelectedDevice, currentPath, navigate, editingData]);
 
   return (
     <div className="flex items-center justify-between">

@@ -35,12 +35,14 @@ export function SearchDevice() {
       config: configtype || "",
     },
   });
+  const watchConfig = watch("config");
+  const watchDevice = watch("device");
 
   useEffect(() => {
     if (saveconfiguration) {
       const validateAndPost = async () => {
         const isValid = await trigger(["device", "config"]);
-        dispatch(setIsSelectedDevice(isValid));
+        dispatch(setIsSelectedDevice(watchDevice ? true : false));
       };
       validateAndPost();
     }
@@ -70,9 +72,6 @@ export function SearchDevice() {
       getDevice();
     }
   }, [inventories]);
-
-  const watchConfig = watch("config");
-  const watchDevice = watch("device");
 
   useEffect(() => {
     if (!isEditPath && watchConfig && watchDevice) {
