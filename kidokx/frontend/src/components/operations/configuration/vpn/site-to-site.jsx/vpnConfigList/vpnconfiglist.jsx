@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  CONFIGTYPE,
+  setConfigType,
   setEditedData,
   setValidated,
   setSaveConfiguration,
@@ -143,7 +143,7 @@ export default function VpnConfigList() {
   };
 
   const handleConfigTypeChange = (e) => {
-    dispatch({ type: CONFIGTYPE, payload: e.target.value });
+    dispatch(setConfigType(e.target.value));
   };
 
   return (

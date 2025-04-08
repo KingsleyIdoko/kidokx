@@ -1,3 +1,4 @@
+import { createAction } from "@reduxjs/toolkit";
 export const PAGESIZE = "PAGESIZE";
 export const CURRENTPAGE = "CURRENTPAGE";
 export const FILTEREDIPSECDATA = "FILTEREDIPSECDATA";
@@ -10,25 +11,16 @@ export const IPSECPOLICYDATA = "IPSECPOLICYDATA";
 export const IPSECVPNDATA = "IPSECVPNDATA";
 export const DEVICEINVENTORIES = "DEVICEINVENTORIES";
 export const VALIDATEIKEPROPOSAL = "VALIDATEIKEPROPOSAL";
-export const CONFIGTYPE = "CONFIGTYPE";
-export const DEPLOYCONFIGURATION = "DEPLOYCONFIGURATION";
-export const VALIDATEDDATA = "VALIDATEDDATA";
-
-import { createAction } from "@reduxjs/toolkit";
 
 // Action Creators
-
-export const setConfigType = (config) => ({
-  type: CONFIGTYPE,
-  payload: config,
-});
-
 export const setIkeProposalData = createAction("IKEPROPOSALDATA");
 export const setEditedData = createAction("EDITEDDATA");
 export const setSaveConfiguration = createAction("SAVECONFIGURATION");
 export const setValidated = createAction("VALIDATEDDATA");
 export const setDeployconfiguration = createAction("DEPLOYCONFIGURATION");
 export const setEditing = createAction("EDITING");
+export const setConfigType = createAction("CONFIGTYPE");
+export const setIkePolicyData = createAction("IKEPOLICYDATA");
 
 const initialState = {
   pageSize: 10,
@@ -57,13 +49,11 @@ export default function VpnReducer(state = initialState, action) {
         ...state,
         filteredIPsecData: action.payload,
       };
-
     case CURRENTPAGE:
       return {
         ...state,
         currentPage: action.payload,
       };
-
     case PAGESIZE:
       return {
         ...state,
@@ -75,16 +65,6 @@ export default function VpnReducer(state = initialState, action) {
         ...state,
         ikeProposalData: action.payload,
       };
-
-    case IKEPOLICYDATA:
-      return {
-        ...state,
-        ikePolicyData: {
-          ...state.ikePolicyData,
-          ...action.payload,
-        },
-      };
-
     case IKEGATEWAYDATA:
       return {
         ...state,
@@ -93,7 +73,6 @@ export default function VpnReducer(state = initialState, action) {
           ...action.payload,
         },
       };
-
     case IPSECPROPOSALDATA:
       return {
         ...state,
@@ -102,7 +81,6 @@ export default function VpnReducer(state = initialState, action) {
           ...action.payload,
         },
       };
-
     case IPSECPOLICYDATA:
       return {
         ...state,
@@ -111,7 +89,6 @@ export default function VpnReducer(state = initialState, action) {
           ...action.payload,
         },
       };
-
     case IPSECVPNDATA:
       return {
         ...state,
@@ -120,11 +97,10 @@ export default function VpnReducer(state = initialState, action) {
           ...action.payload,
         },
       };
-    case CONFIGTYPE:
-      return {
-        ...state,
-        configtype: action.payload,
-      };
+    case setIkePolicyData.type:
+      return { ...state, ikePolicyData: action.payload };
+    case setConfigType.type:
+      return { ...state, configtype: action.payload };
     case setValidated.type:
       return { ...state, validatedData: action.payload };
     case setSaveConfiguration.type:

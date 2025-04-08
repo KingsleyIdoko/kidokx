@@ -1,17 +1,34 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { IKEPOLICYDATA } from "../../../../store/reducers/vpnReducer";
+import { setIkePolicyData } from "../../../../store/reducers/vpnReducer";
+import { useForm } from "react-hook-form";
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
-  const { ikePolicyData = {}, selectedDevice } = useSelector(
-    (state) => state.vpn
-  );
+  const {
+    ikePolicyData = {},
+    selectedDevice,
+    saveconfiguration,
+    configtype,
+  } = useSelector((state) => state.vpn);
   const [ikeProposalNames, setIkeProposalNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  const {
+    register,
+    trigger,
+    getValues,
+    reset,
+    formState: { errors },
+  } = useForm({ mode: "onChange" });
+
+  useEffect(() => {
+    if (ikePolicyData) {
+      reset(ikePolicyData);
+    }
+  }, [ikePolicyData, reset]);
   const ikePolicyLabels = [
     "IKE Policy Name",
     "IKE Mode",
@@ -41,15 +58,37 @@ export default function IkePolicyConfig() {
     fetchIkeProposalNames();
   }, []);
 
-  const handleChanges = (field, value) => {
-    const updatedData = {
-      ...ikePolicyData,
-      device: selectedDevice,
-      [field]: value,
+  useEffect(() => {
+    const validateAndPost = async () => {
+      const fields = [
+        "policyName",
+        "ike_mode",
+        "proposalName",
+        "authentication_method",
+      ];
+      const isValid = await trigger(fields);
+      if (!isValid) return;
+      const finalPayload = {
+        ...ikePolicyData,
+        device: selectedDevice,
+        ...getValues(),
+      };
+      console.log(finalPayload);
+      dispatch(setIkePolicyData(finalPayload));
     };
-    console.log(updatedData);
-    dispatch({ type: IKEPOLICYDATA, payload: updatedData });
-  };
+
+    if (saveconfiguration && configtype === "ikepolicy") {
+      validateAndPost();
+    }
+  }, [
+    saveconfiguration,
+    configtype,
+    ikePolicyData,
+    selectedDevice,
+    dispatch,
+    trigger,
+    getValues,
+  ]);
 
   if (loading)
     return (
@@ -98,17 +137,16 @@ export default function IkePolicyConfig() {
 
         <div className="w-[20rem] flex flex-col space-y-5">
           <input
+            {...register("policyName", { required: "Policy Name is Required" })}
             type="text"
             placeholder="Enter Name"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.policyName || ""}
-            onChange={(e) => handleChanges("policyName", e.target.value)}
+            defaultValue={ikePolicyData.policyName || ""}
           />
 
           <select
+            {...register("ike_mode", { required: "select ike mode" })}
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.ike_mode || ""}
-            onChange={(e) => handleChanges("ike_mode", e.target.value)}
           >
             <option value="">Select Mode</option>
             <option value="main">Main</option>
@@ -116,9 +154,11 @@ export default function IkePolicyConfig() {
           </select>
 
           <select
+            {...register("proposalName", {
+              required: "Select a Proposal Name",
+            })}
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
             value={ikePolicyData.proposalName || ""}
-            onChange={(e) => handleChanges("proposalName", e.target.value)}
           >
             <option value="">Select a Proposal</option>
             {ikeProposalNames.map((proposal, index) => (
@@ -129,11 +169,10 @@ export default function IkePolicyConfig() {
           </select>
 
           <select
+            {...register("authentication_method", {
+              required: "select auth method",
+            })}
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.authentication_method || ""}
-            onChange={(e) =>
-              handleChanges("authentication_method", e.target.value)
-            }
           >
             <option value="">Select Auth Method</option>
             <option value="pre-shared-key">Pre-Shared Key</option>

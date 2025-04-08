@@ -24,7 +24,6 @@ export default function SaveConfig({
     [location]
   );
   const currentPath = pathSegments[pathSegments.length - 1];
-  console.log(validatedData, isSelectedDevice);
 
   const handleSaveBtn = () => {
     dispatch(setSaveConfiguration(true));

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { CONFIGTYPE } from "../../../../store/reducers/vpnReducer";
+import { setConfigType } from "../../../../store/reducers/vpnReducer";
 
 function IpsecSteps({ onhandleSelection }) {
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ function IpsecSteps({ onhandleSelection }) {
               onClick={() => {
                 if (isDisabled) return; // prevent click if disabled
                 onhandleSelection(ipsec.name, ipsec.path, ipsecSelection);
-                dispatch({ type: CONFIGTYPE, payload: ipsec.storename });
+                dispatch(setConfigType(ipsec.storename));
                 navigate(ipsec.path);
               }}
             >
