@@ -78,17 +78,10 @@ export default function IkePolicyConfig() {
     };
 
     if (saveconfiguration && configtype === "ikepolicy") {
+      console.log(saveconfiguration, configtype);
       validateAndPost();
     }
-  }, [
-    saveconfiguration,
-    configtype,
-    ikePolicyData,
-    selectedDevice,
-    dispatch,
-    trigger,
-    getValues,
-  ]);
+  }, [saveconfiguration, configtype]);
 
   if (loading)
     return (
