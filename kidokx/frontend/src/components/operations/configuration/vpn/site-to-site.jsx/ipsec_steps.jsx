@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { setConfigType } from "../../../../store/reducers/vpnReducer";
 
-function IpsecSteps({ onhandleSelection }) {
+function IpsecSteps() {
   const navigate = useNavigate();
-  const location = useLocation();
+
   const dispatch = useDispatch();
   const { configtype, editingData } = useSelector((store) => store.vpn);
 
@@ -42,6 +42,14 @@ function IpsecSteps({ onhandleSelection }) {
     },
   ];
 
+  const handleSelection = () => {
+    navigate(`/vpn/site-to-site/config/${configtype}/`);
+  };
+
+  useEffect(() => {
+    navigate(`/vpn/site-to-site/config/${configtype}/`);
+  }, [configtype, navigate]);
+
   return (
     <div>
       {/* Sidebar with IPsec Options */}
@@ -63,7 +71,7 @@ function IpsecSteps({ onhandleSelection }) {
           `}
               onClick={() => {
                 if (isDisabled) return; // prevent click if disabled
-                onhandleSelection(ipsec.name, ipsec.path, ipsecSelection);
+                handleSelection(ipsec.name, ipsec.path, ipsecSelection);
                 dispatch(setConfigType(ipsec.storename));
                 navigate(ipsec.path);
               }}

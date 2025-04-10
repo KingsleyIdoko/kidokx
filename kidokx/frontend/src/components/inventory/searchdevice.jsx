@@ -7,12 +7,14 @@ import {
   setIsSelectedDevice,
   setSelectedDevice,
 } from "../store/reducers/inventoryReducers";
-import { setConfigType } from "../store/reducers/vpnReducer";
+import {
+  setConfigType,
+  setValidSearchComponent,
+} from "../store/reducers/vpnReducer";
 
 export function SearchDevice() {
-  const { configtype, saveconfiguration, editingData } = useSelector(
-    (state) => state.vpn
-  );
+  const { configtype, saveconfiguration, editingData, createvpndata } =
+    useSelector((state) => state.vpn);
   const { selectedDevice, inventories } = useSelector(
     (state) => state.inventories
   );
@@ -23,9 +25,10 @@ export function SearchDevice() {
   const isEditPath = location.pathname.includes("/edit/");
 
   const {
+    watch,
     register,
     trigger,
-    watch,
+    getValues,
     setValue,
     formState: { errors },
   } = useForm({
@@ -35,18 +38,47 @@ export function SearchDevice() {
       config: configtype || "",
     },
   });
+
+  // Is used to set the configtype on create vpn page
   const watchConfig = watch("config");
-  const watchDevice = watch("device");
 
   useEffect(() => {
-    if (saveconfiguration) {
-      const validateAndPost = async () => {
-        const isValid = await trigger(["device", "config"]);
-        dispatch(setIsSelectedDevice(watchDevice ? true : false));
-      };
-      validateAndPost();
+    if (configtype) {
+      setValue("config", configtype); // keeps the form in sync with Redux
     }
-  }, [saveconfiguration, trigger, dispatch]);
+  }, [configtype, setValue]);
+
+  useEffect(() => {
+    if (watchConfig) {
+      dispatch(setConfigType(watchConfig.toLowerCase()));
+    }
+  }, [watchConfig, dispatch]);
+
+  useEffect(() => {
+    if (saveconfiguration || createvpndata) {
+      const validateAndNavigate = async () => {
+        const isValid = await trigger(["device", "config"]);
+        if (isValid) {
+          const { device: watchDevice, config: watchConfig } = getValues();
+          const config = watchConfig.toLowerCase();
+          dispatch(setConfigType(config));
+          dispatch(setSelectedDevice(watchDevice));
+          dispatch(setIsSelectedDevice(true));
+          dispatch(setValidSearchComponent(true));
+        } else {
+          dispatch(setIsSelectedDevice(false));
+        }
+      };
+      validateAndNavigate();
+    }
+  }, [
+    saveconfiguration,
+    createvpndata,
+    trigger,
+    getValues,
+    dispatch,
+    navigate,
+  ]);
 
   useEffect(() => {
     if (selectedDevice && devices.some((d) => d.name === selectedDevice)) {
@@ -72,15 +104,6 @@ export function SearchDevice() {
       getDevice();
     }
   }, [inventories]);
-
-  useEffect(() => {
-    if (!isEditPath && watchConfig && watchDevice) {
-      const config = watchConfig.toLowerCase();
-      dispatch(setConfigType(config));
-      dispatch(setSelectedDevice(watchDevice));
-      navigate(`/vpn/site-to-site/config/${config}/`);
-    }
-  }, [watchConfig, watchDevice, dispatch, navigate, isEditPath]);
 
   if (error) {
     return <p className="text-red-500">Error fetching data: {error.message}</p>;

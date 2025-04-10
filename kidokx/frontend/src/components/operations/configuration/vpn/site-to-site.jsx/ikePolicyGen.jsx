@@ -67,6 +67,7 @@ export default function IkePolicyConfig() {
         "authentication_method",
       ];
       const isValid = await trigger(fields);
+      console.log(isValid);
       if (!isValid) return;
       const finalPayload = {
         ...ikePolicyData,
@@ -118,6 +119,7 @@ export default function IkePolicyConfig() {
       <div className="flex items-center justify-between">
         <div className="w-[24rem] flex flex-col space-y-4">
           {ikePolicyLabels.map((label_name, index) => (
+            <div>
             <button
               key={index}
               type="button"
@@ -125,52 +127,90 @@ export default function IkePolicyConfig() {
             >
               {label_name}
             </button>
+            </div>
           ))}
         </div>
 
         <div className="w-[20rem] flex flex-col space-y-5">
-          <input
-            {...register("policyName", { required: "Policy Name is Required" })}
-            type="text"
-            placeholder="Enter Name"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            defaultValue={ikePolicyData.policyName || ""}
-          />
-
-          <select
-            {...register("ike_mode", { required: "select ike mode" })}
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-          >
-            <option value="">Select Mode</option>
-            <option value="main">Main</option>
-            <option value="aggressive">Aggressive</option>
-          </select>
-
-          <select
-            {...register("proposalName", {
-              required: "Select a Proposal Name",
-            })}
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ikePolicyData.proposalName || ""}
-          >
-            <option value="">Select a Proposal</option>
-            {ikeProposalNames.map((proposal, index) => (
-              <option key={index} value={proposal}>
-                {proposal}
-              </option>
-            ))}
-          </select>
-
-          <select
-            {...register("authentication_method", {
-              required: "select auth method",
-            })}
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-          >
-            <option value="">Select Auth Method</option>
-            <option value="pre-shared-key">Pre-Shared Key</option>
-            <option value="rsa">RSA</option>
-          </select>
+          <div className="h-[4rem] flex flex-col justify-between">
+            <input
+              {...register("policyName", {
+                required: "Policy Name is Required",
+              })}
+              type="text"
+              placeholder="Enter Name"
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.policyName ? "border-red-500" : "border-gray-300"
+              }`}
+              defaultValue={ikePolicyData.policyName || ""}
+            />
+            {errors.policyName && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.policyName.message}
+              </p>
+            )}
+          </div>
+          <div className="h-[4rem] flex flex-col justify-between">
+            <select
+              {...register("ike_mode", { required: "select ike mode" })}
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.ike_mode ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">Select Mode</option>
+              <option value="main">Main</option>
+              <option value="aggressive">Aggressive</option>
+            </select>
+            {errors.ike_mode && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.ike_mode.message}
+              </p>
+            )}
+          </div>
+          <div className="h-[4rem] flex flex-col justify-between">
+            <select
+              {...register("proposalName", {
+                required: "Select a Proposal Name",
+              })}
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.proposalName ? "border-red-500" : "border-gray-300"
+              } `}
+              value={ikePolicyData.proposalName || ""}
+            >
+              <option value="">Select a Proposal</option>
+              {ikeProposalNames.map((proposal, index) => (
+                <option key={index} value={proposal}>
+                  {proposal}
+                </option>
+              ))}
+            </select>
+            {errors.proposalName && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.proposalName.message}
+              </p>
+            )}
+          </div>
+          <div className="h-[4rem] flex flex-col justify-between">
+            <select
+              {...register("authentication_method", {
+                required: "select auth method",
+              })}
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.authentication_method
+                  ? "border-red-500"
+                  : "border-gray-300"
+              }`}
+            >
+              <option value="">Select Auth Method</option>
+              <option value="pre-shared-key">Pre-Shared Key</option>
+              <option value="rsa">RSA</option>
+            </select>
+            {errors.authentication_method && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.authentication_method.message}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -27,6 +27,9 @@ export default function SaveConfig({
 
   const handleSaveBtn = () => {
     dispatch(setSaveConfiguration(true));
+    setTimeout(() => {
+      dispatch(setSaveConfiguration(false));
+    }, 2000);
   };
 
   useEffect(() => {

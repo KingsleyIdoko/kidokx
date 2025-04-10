@@ -21,6 +21,8 @@ export const setDeployconfiguration = createAction("DEPLOYCONFIGURATION");
 export const setEditing = createAction("EDITING");
 export const setConfigType = createAction("CONFIGTYPE");
 export const setIkePolicyData = createAction("IKEPOLICYDATA");
+export const setCreateVpnData = createAction("CREATEVPN");
+export const setValidSearchComponent = createAction("VALIDSEARCHCOMPONENT");
 
 const initialState = {
   pageSize: 10,
@@ -40,6 +42,8 @@ const initialState = {
   editeddata: {},
   validateDevice: false,
   editingData: false,
+  createvpndata: false,
+  validsearchcomponent: false,
 };
 
 export default function VpnReducer(state = initialState, action) {
@@ -97,6 +101,11 @@ export default function VpnReducer(state = initialState, action) {
           ...action.payload,
         },
       };
+
+    case setValidSearchComponent.type:
+      return { ...state, validsearchcomponent: action.payload };
+    case setCreateVpnData.type:
+      return { ...state, createvpndata: action.payload };
     case setIkePolicyData.type:
       return { ...state, ikePolicyData: action.payload };
     case setConfigType.type:
