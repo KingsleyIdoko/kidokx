@@ -1,17 +1,26 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useDispatch, useSelector } from "react-redux";
-import { setIkePolicyData } from "../../../../store/reducers/vpnReducer";
+import {
+  setIkePolicyData,
+  setEditing,
+  setConfigType,
+  setValidated,
+} from "../../../../store/reducers/vpnReducer";
+import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 import { useForm } from "react-hook-form";
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
   const {
     ikePolicyData = {},
-    selectedDevice,
     saveconfiguration,
     configtype,
+    editingData,
+    editeddata,
   } = useSelector((state) => state.vpn);
+  const { selectedDevice } = useSelector((state) => state.inventories);
+
   const [ikeProposalNames, setIkeProposalNames] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -25,10 +34,11 @@ export default function IkePolicyConfig() {
   } = useForm({ mode: "onChange" });
 
   useEffect(() => {
-    if (ikePolicyData) {
+    if (ikePolicyData && Object.keys(ikePolicyData).length > 0) {
       reset(ikePolicyData);
     }
   }, [ikePolicyData, reset]);
+
   const ikePolicyLabels = [
     "IKE Policy Name",
     "IKE Mode",
@@ -66,20 +76,59 @@ export default function IkePolicyConfig() {
         "proposalName",
         "authentication_method",
       ];
+
       const isValid = await trigger(fields);
-      console.log(isValid);
       if (!isValid) return;
+
+      const values = getValues();
+      const ikePolicyData = fields.reduce((acc, key) => {
+        acc[key] = values[key];
+        return acc;
+      }, {});
+
       const finalPayload = {
         ...ikePolicyData,
         device: selectedDevice,
-        ...getValues(),
       };
-      console.log(finalPayload);
-      dispatch(setIkePolicyData(finalPayload));
+
+      const isValidPayload = Object.entries(finalPayload).every(
+        ([key, value]) => value !== undefined && value !== null && value !== ""
+      );
+
+      if (!isValidPayload) {
+        console.error(
+          "Final payload is missing required fields:",
+          finalPayload
+        );
+        dispatch(setValidated(false));
+        return;
+      }
+
+      try {
+        if (!editingData) {
+          await axios.post(
+            "http://127.0.0.1:8000/api/ipsec/ikepolicy/create/",
+            finalPayload
+          );
+        } else {
+          await axios.put(
+            `http://127.0.0.1:8000/api/ipsec/ikepolicy/${editeddata?.id}/update/`,
+            finalPayload
+          );
+          dispatch(setEditing(false));
+        }
+
+        dispatch(setIkePolicyData(finalPayload));
+        dispatch(setConfigType(configtype));
+        dispatch(setSelectedDevice(selectedDevice));
+        dispatch(setValidated(true));
+      } catch (err) {
+        console.error("Post/Put failed:", err.message);
+        dispatch(setValidated(false));
+      }
     };
 
     if (saveconfiguration && configtype === "ikepolicy") {
-      console.log(saveconfiguration, configtype);
       validateAndPost();
     }
   }, [saveconfiguration, configtype]);
@@ -119,14 +168,13 @@ export default function IkePolicyConfig() {
       <div className="flex items-center justify-between">
         <div className="w-[24rem] flex flex-col space-y-4">
           {ikePolicyLabels.map((label_name, index) => (
-            <div>
-            <button
+            <div
               key={index}
-              type="button"
-              className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+              className="h-[4.2rem] flex flex-col justify-between"
             >
-              {label_name}
-            </button>
+              <div className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
+                {label_name}
+              </div>
             </div>
           ))}
         </div>
@@ -142,7 +190,6 @@ export default function IkePolicyConfig() {
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
                 errors.policyName ? "border-red-500" : "border-gray-300"
               }`}
-              defaultValue={ikePolicyData.policyName || ""}
             />
             {errors.policyName && (
               <p className="text-xs text-red-500 font-medium flex items-center">
@@ -150,9 +197,10 @@ export default function IkePolicyConfig() {
               </p>
             )}
           </div>
+
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register("ike_mode", { required: "select ike mode" })}
+              {...register("ike_mode", { required: "Select IKE Mode" })}
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
                 errors.ike_mode ? "border-red-500" : "border-gray-300"
               }`}
@@ -167,6 +215,7 @@ export default function IkePolicyConfig() {
               </p>
             )}
           </div>
+
           <div className="h-[4rem] flex flex-col justify-between">
             <select
               {...register("proposalName", {
@@ -174,8 +223,7 @@ export default function IkePolicyConfig() {
               })}
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
                 errors.proposalName ? "border-red-500" : "border-gray-300"
-              } `}
-              value={ikePolicyData.proposalName || ""}
+              }`}
             >
               <option value="">Select a Proposal</option>
               {ikeProposalNames.map((proposal, index) => (
@@ -190,10 +238,11 @@ export default function IkePolicyConfig() {
               </p>
             )}
           </div>
+
           <div className="h-[4rem] flex flex-col justify-between">
             <select
               {...register("authentication_method", {
-                required: "select auth method",
+                required: "Select Authentication Method",
               })}
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
                 errors.authentication_method
