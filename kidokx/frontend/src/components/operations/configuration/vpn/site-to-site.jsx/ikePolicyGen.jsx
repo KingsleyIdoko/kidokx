@@ -44,6 +44,7 @@ export default function IkePolicyConfig() {
     "IKE Mode",
     "IKE Proposal",
     "Authentication Method",
+    "preshared_key",
   ];
 
   const fetchIkeProposalNames = async () => {
@@ -75,6 +76,7 @@ export default function IkePolicyConfig() {
         "ike_mode",
         "proposalName",
         "authentication_method",
+        "preshared_key",
       ];
 
       const isValid = await trigger(fields);
@@ -257,6 +259,23 @@ export default function IkePolicyConfig() {
             {errors.authentication_method && (
               <p className="text-xs text-red-500 font-medium flex items-center">
                 {errors.authentication_method.message}
+              </p>
+            )}
+          </div>
+          <div className="h-[4rem] flex flex-col justify-between">
+            <input
+              {...register("policyName", {
+                required: "Policy Name is Required",
+              })}
+              type="text"
+              placeholder="Enter Name"
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.policyName ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.policyName && (
+              <p className="text-xs text-red-500 font-medium flex items-center">
+                {errors.policyName.message}
               </p>
             )}
           </div>
