@@ -18,6 +18,10 @@ class ipsecConfiguationItems:
         ESP = 'esp', 'ESP'
         AH = 'ah', 'AH'
 
+    class Mode(models.TextChoices):
+        MAIN = 'main','Main'
+        AGGRESSIVE = 'aggressive','Aggressive'
+
     class AuthAlgorithm(models.TextChoices):
         MD5 = 'md5', 'MD5'
         SHA1 = 'sha1', 'SHA1'
@@ -34,7 +38,7 @@ class ipsecConfiguationItems:
         AES_256_GCM = 'aes-256-gcm', 'AES-256-GCM'
 
     class AuthenticationMethod(models.TextChoices):
-        PSK = 'psk', 'Pre-Shared Key'
+        PSK = 'pre-shared-key', 'Pre-Shared Key'
         RSA = 'rsa', 'RSA'
 
 
@@ -63,7 +67,8 @@ class IkeProposal(models.Model):
 class IkePolicy(models.Model):
     policyname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    proposals = models.ManyToManyField(IkeProposal)
+    mode = models.CharField(max_length=50, choices=ipsecConfiguationItems.Mode.choices)
+    proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
     authentication_method = models.CharField(
         max_length=20, choices=ipsecConfiguationItems.AuthenticationMethod.choices, 
         default=ipsecConfiguationItems.AuthenticationMethod.PSK

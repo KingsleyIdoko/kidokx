@@ -15,6 +15,11 @@ class IkePolicyCreateView(CreateAPIView):
     queryset = IkePolicy.objects.all()
     serializer_class = IkePolicySerializer
 
+
+    def perform_create(self, serializer):
+        print("Creating IkePolicy Proposal:", serializer.validated_data)
+        serializer.save()
+
 ikepolicy_create_view = IkePolicyCreateView.as_view()
 
 class IkePolicyDetailView(RetrieveAPIView):

@@ -3,7 +3,7 @@ import json
 
 proposal_id  =  int(input("select proposal_id for details view: "))
 
-endpoint = f"http://localhost:8000/ipsec/proposal/{proposal_id}/delete/"
+endpoint = f"http://localhost:8000/ipsec/ikepolicy/{proposal_id}/delete/"
 
 get_response = requests.delete(endpoint)
 

@@ -2,7 +2,7 @@ import requests
 import json
 
 
-endpoint = "http://localhost:8000/inventories/devices/"
+endpoint = "http://localhost:8000/api/ipsec/ikepolicy/"
 
 get_response = requests.get(endpoint)
 

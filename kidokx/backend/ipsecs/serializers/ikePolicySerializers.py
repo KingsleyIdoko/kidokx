@@ -4,13 +4,14 @@ from inventories.models import Device
 
 class IkePolicySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
-    proposals = serializers.SlugRelatedField(slug_field='name', queryset=IkeProposal.objects.all(), many=True)
+    proposals = serializers.SlugRelatedField(slug_field='proposalname', queryset=IkeProposal.objects.all(), many=False)
     class Meta:
         model = IkePolicy
         fields = [
             'id',  
             'policyname',
             'device', 
+            'mode',
             'proposals',
             'authentication_method',
             'pre_shared_key',
