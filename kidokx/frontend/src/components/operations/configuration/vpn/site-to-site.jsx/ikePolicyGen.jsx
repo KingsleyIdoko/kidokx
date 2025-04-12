@@ -44,7 +44,7 @@ export default function IkePolicyConfig() {
     "IKE Mode",
     "IKE Proposal",
     "Authentication Method",
-    "preshared_key",
+    "Pre_Shared_Key",
   ];
 
   const fetchIkeProposalNames = async () => {
@@ -72,11 +72,11 @@ export default function IkePolicyConfig() {
   useEffect(() => {
     const validateAndPost = async () => {
       const fields = [
-        "policyName",
-        "ike_mode",
-        "proposalName",
+        "proposals",
+        "policyname",
+        "mode",
         "authentication_method",
-        "preshared_key",
+        "pre_shared_key",
       ];
 
       const isValid = await trigger(fields);
@@ -105,7 +105,7 @@ export default function IkePolicyConfig() {
         dispatch(setValidated(false));
         return;
       }
-
+      console.log(finalPayload);
       try {
         if (!editingData) {
           await axios.post(
@@ -184,47 +184,47 @@ export default function IkePolicyConfig() {
         <div className="w-[20rem] flex flex-col space-y-5">
           <div className="h-[4rem] flex flex-col justify-between">
             <input
-              {...register("policyName", {
+              {...register("policyname", {
                 required: "Policy Name is Required",
               })}
               type="text"
               placeholder="Enter Name"
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-                errors.policyName ? "border-red-500" : "border-gray-300"
+                errors.policyname ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.policyName && (
+            {errors.policyname && (
               <p className="text-xs text-red-500 font-medium flex items-center">
-                {errors.policyName.message}
+                {errors.policyname.message}
               </p>
             )}
           </div>
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register("ike_mode", { required: "Select IKE Mode" })}
+              {...register("mode", { required: "Select IKE Mode" })}
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-                errors.ike_mode ? "border-red-500" : "border-gray-300"
+                errors.mode ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="">Select Mode</option>
               <option value="main">Main</option>
               <option value="aggressive">Aggressive</option>
             </select>
-            {errors.ike_mode && (
+            {errors.mode && (
               <p className="text-xs text-red-500 font-medium flex items-center">
-                {errors.ike_mode.message}
+                {errors.mode.message}
               </p>
             )}
           </div>
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register("proposalName", {
+              {...register("proposals", {
                 required: "Select a Proposal Name",
               })}
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-                errors.proposalName ? "border-red-500" : "border-gray-300"
+                errors.proposals ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="">Select a Proposal</option>
@@ -234,9 +234,9 @@ export default function IkePolicyConfig() {
                 </option>
               ))}
             </select>
-            {errors.proposalName && (
+            {errors.proposals && (
               <p className="text-xs text-red-500 font-medium flex items-center">
-                {errors.proposalName.message}
+                {errors.proposals.message}
               </p>
             )}
           </div>
@@ -264,18 +264,18 @@ export default function IkePolicyConfig() {
           </div>
           <div className="h-[4rem] flex flex-col justify-between">
             <input
-              {...register("policyName", {
-                required: "Policy Name is Required",
+              {...register("pre_shared_key", {
+                required: "Preshared Password is Required",
               })}
               type="text"
               placeholder="Enter Name"
               className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-                errors.policyName ? "border-red-500" : "border-gray-300"
+                errors.pre_shared_key ? "border-red-500" : "border-gray-300"
               }`}
             />
-            {errors.policyName && (
+            {errors.pre_shared_key && (
               <p className="text-xs text-red-500 font-medium flex items-center">
-                {errors.policyName.message}
+                {errors.pre_shared_key.message}
               </p>
             )}
           </div>

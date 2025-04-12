@@ -41,18 +41,20 @@ export function SearchDevice() {
 
   // Is used to set the configtype on create vpn page
   const watchConfig = watch("config");
+  const watchDevice = watch("device");
 
   useEffect(() => {
     if (configtype) {
-      setValue("config", configtype); // keeps the form in sync with Redux
+      setValue("config", configtype);
     }
   }, [configtype, setValue]);
 
   useEffect(() => {
     if (watchConfig) {
       dispatch(setConfigType(watchConfig.toLowerCase()));
+      dispatch(setSelectedDevice(watchDevice));
     }
-  }, [watchConfig, dispatch]);
+  }, [watchConfig, watchDevice, dispatch]);
 
   useEffect(() => {
     if (saveconfiguration || createvpndata) {
