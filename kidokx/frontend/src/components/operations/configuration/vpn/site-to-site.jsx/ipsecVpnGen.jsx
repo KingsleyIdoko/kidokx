@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios'; // Assuming API calls for gateway and policy lists
-import { useDispatch, useSelector } from 'react-redux';
-import { IPSECVPNDATA } from '../../../../store/reducers/vpnReducer';
+import { useState, useEffect } from "react";
+import axios from "axios"; // Assuming API calls for gateway and policy lists
+import { useDispatch, useSelector } from "react-redux";
+import { setIpsecVpnData } from "../../../../store/reducers/vpnReducer";
 
 function IPsecVPNConfig() {
   const dispatch = useDispatch();
   const { ipsecVpnData = {}, selectedDevice } = useSelector(
-    (state) => state.vpn,
+    (state) => state.vpn
   );
 
   const [ikeGatewayList, setIkeGatewayList] = useState([]);
@@ -20,15 +20,15 @@ function IPsecVPNConfig() {
 
     try {
       const [gatewayResponse, policyResponse] = await Promise.all([
-        axios.get('http://127.0.0.1:8000/api/ipsec/ikegateway/names/'),
-        axios.get('http://127.0.0.1:8000/api/ipsec/ipsecpolicy/names/'),
+        axios.get("http://127.0.0.1:8000/api/ipsec/ikegateway/names/"),
+        axios.get("http://127.0.0.1:8000/api/ipsec/ipsecpolicy/names/"),
       ]);
 
       setIkeGatewayList(gatewayResponse.data);
       setIpsecPolicyList(policyResponse.data);
     } catch (err) {
       errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error('Error fetching VPN dependencies:', err);
+      console.error("Error fetching VPN dependencies:", err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -46,7 +46,7 @@ function IPsecVPNConfig() {
       [field]: value,
     };
     console.log(updatedData);
-    dispatch({ type: IPSECVPNDATA, payload: updatedData });
+    dispatch(setIpsecVpnData(updatedData));
   };
 
   if (loading)
@@ -75,7 +75,7 @@ function IPsecVPNConfig() {
       </div>
     );
 
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) return <p className="text-red-500">{error.join(", ")}</p>;
 
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
@@ -104,8 +104,8 @@ function IPsecVPNConfig() {
             type="text"
             placeholder="Enter VPN Name"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecVpnData.vpnName || ''}
-            onChange={(e) => handleChanges('vpnName', e.target.value)}
+            value={ipsecVpnData.vpnName || ""}
+            onChange={(e) => handleChanges("vpnName", e.target.value)}
           />
 
           {/* Bind Interface */}
@@ -113,15 +113,15 @@ function IPsecVPNConfig() {
             type="text"
             placeholder="Enter Bind Interface (e.g., st0.0)"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecVpnData.bindInterface || ''}
-            onChange={(e) => handleChanges('bindInterface', e.target.value)}
+            value={ipsecVpnData.bindInterface || ""}
+            onChange={(e) => handleChanges("bindInterface", e.target.value)}
           />
 
           {/* IKE Gateway */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecVpnData.ikeGateway || ''}
-            onChange={(e) => handleChanges('ikeGateway', e.target.value)}
+            value={ipsecVpnData.ikeGateway || ""}
+            onChange={(e) => handleChanges("ikeGateway", e.target.value)}
           >
             <option value="">Select IKE Gateway</option>
             {ikeGatewayList.map((gateway, index) => (
@@ -134,8 +134,8 @@ function IPsecVPNConfig() {
           {/* IPSec Policy */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecVpnData.ipsecPolicy || ''}
-            onChange={(e) => handleChanges('ipsecPolicy', e.target.value)}
+            value={ipsecVpnData.ipsecPolicy || ""}
+            onChange={(e) => handleChanges("ipsecPolicy", e.target.value)}
           >
             <option value="">Select IPSec Policy</option>
             {ipsecPolicyList.map((policy, index) => (
@@ -148,8 +148,8 @@ function IPsecVPNConfig() {
           {/* Establish Tunnel Immediately */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecVpnData.establishTunnels || ''}
-            onChange={(e) => handleChanges('establishTunnels', e.target.value)}
+            value={ipsecVpnData.establishTunnels || ""}
+            onChange={(e) => handleChanges("establishTunnels", e.target.value)}
           >
             <option value="">Select Tunnel Establish Mode</option>
             <option value="immediately">Immediately</option>

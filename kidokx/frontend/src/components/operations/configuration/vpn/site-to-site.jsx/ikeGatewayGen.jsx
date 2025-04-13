@@ -1,29 +1,29 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { IKEGATEWAYDATA } from '../../../../store/reducers/vpnReducer';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setIkeGatewayData } from "../../../../store/reducers/vpnReducer";
+import axios from "axios";
 
 function IkeGatewayConfig() {
   const dispatch = useDispatch();
   const { selectedDevice } = useSelector((state) => state.vpn);
   const [selectedOptions, setSelectedOptions] = useState({
-    policyName: '',
-    remote_address: '',
-    external_interface: '',
-    ike_policy: '',
-    ike_version: '',
-    psk_passwd: '',
+    policyName: "",
+    remote_address: "",
+    external_interface: "",
+    ike_policy: "",
+    ike_version: "",
+    psk_passwd: "",
   });
   const ikeGatewayParams = [
-    'Gateway Name',
-    'Remote Address',
-    'External Interface',
-    'IKE Policy',
-    'IKE Version',
-    'Pre-Shared Key',
+    "Gateway Name",
+    "Remote Address",
+    "External Interface",
+    "IKE Policy",
+    "IKE Version",
+    "Pre-Shared Key",
   ];
 
-  const ikeVersions = ['v1-only', 'v2-only'];
+  const ikeVersions = ["v1-only", "v2-only"];
   const [ikePolicyNames, setIkePolicyNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -34,12 +34,12 @@ function IkeGatewayConfig() {
 
     try {
       const response = await axios.get(
-        'http://127.0.0.1:8000/api/ipsec/ikepolicy/names/',
+        "http://127.0.0.1:8000/api/ipsec/ikepolicy/names/"
       );
       setIkePolicyNames(response.data);
     } catch (err) {
       errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error('Error fetching IKE Policy data:', err);
+      console.error("Error fetching IKE Policy data:", err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -55,7 +55,7 @@ function IkeGatewayConfig() {
       ...selectedOptions,
       device: selectedDevice,
     };
-    dispatch({ type: IKEGATEWAYDATA, payload: updateOptions });
+    dispatch(setIkeGatewayData(updateOptions));
   }, [selectedOptions, dispatch, selectedDevice]);
 
   if (loading) {
@@ -86,7 +86,7 @@ function IkeGatewayConfig() {
   }
 
   if (error) {
-    return <p className="text-red-500">{error.join(', ')}</p>;
+    return <p className="text-red-500">{error.join(", ")}</p>;
   }
 
   if (!ikePolicyNames || ikePolicyNames.length === 0) {

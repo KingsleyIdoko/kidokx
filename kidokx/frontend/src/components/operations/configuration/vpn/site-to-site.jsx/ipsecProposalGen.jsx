@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useIpsecData } from './api/ikeProposalItems';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { IPSECPROPOSALDATA } from '../../../../store/reducers/vpnReducer';
+import { useState, useEffect } from "react";
+import { useIpsecData } from "./api/ikeProposalItems";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setIpsecProposalData } from "../../../../store/reducers/vpnReducer";
 
 function IPsecProposalConfig() {
   const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
   const dispatch = useDispatch();
   const { selectedDevice } = useSelector((state) => state.vpn);
   const [selectedOptions, setSelectedOptions] = useState({
-    proposalName: '',
-    lifetime_seconds: '',
+    proposalName: "",
+    lifetime_seconds: "",
   });
 
   useEffect(() => {
@@ -18,7 +18,7 @@ function IPsecProposalConfig() {
       setSelectedOptions((prev) => ({
         ...prev,
         ...Object.keys(ipsecChoicesData).reduce((acc, key) => {
-          acc[key] = ''; // Set to empty so user must choose explicitly
+          acc[key] = ""; // Set to empty so user must choose explicitly
           return acc;
         }, {}),
       }));
@@ -28,12 +28,12 @@ function IPsecProposalConfig() {
   useEffect(() => {
     const filteredOptions = Object.entries(selectedOptions).reduce(
       (acc, [key, value]) => {
-        if (value !== '' && value !== null && value !== undefined) {
+        if (value !== "" && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {},
+      {}
     );
 
     const updateOptions = {
@@ -42,7 +42,7 @@ function IPsecProposalConfig() {
     };
 
     if (Object.keys(updateOptions).length > 1) {
-      dispatch({ type: IPSECPROPOSALDATA, payload: updateOptions });
+      dispatch(setIpsecProposalData(updateOptions));
     }
   }, [selectedOptions, selectedDevice, dispatch]);
 
@@ -72,7 +72,7 @@ function IPsecProposalConfig() {
       </div>
     );
 
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) return <p className="text-red-500">{error.join(", ")}</p>;
 
   if (!ikeProposalData || !ipsecChoicesData) {
     return (
@@ -104,7 +104,7 @@ function IPsecProposalConfig() {
   const filteredIsecData = Object.keys(ipsecChoicesData)
     .filter(
       (category) =>
-        !['authentication_method', 'encapsulation_protocol'].includes(category),
+        !["authentication_method", "encapsulation_protocol"].includes(category)
     )
     .reduce((acc, key) => {
       acc[key] = ipsecChoicesData[key];
@@ -112,12 +112,12 @@ function IPsecProposalConfig() {
     }, {});
 
   const getPlaceholderText = (category) => {
-    if (category.includes('authentication'))
-      return 'Select Authentication Algorithm';
-    if (category.includes('encryption')) return 'Select Encryption Algorithm';
-    if (category.includes('dh_group')) return 'Select DH Group';
-    if (category.includes('lifetime')) return 'Select Lifetime';
-    return `Select ${category.replace(/_/g, ' ')}`;
+    if (category.includes("authentication"))
+      return "Select Authentication Algorithm";
+    if (category.includes("encryption")) return "Select Encryption Algorithm";
+    if (category.includes("dh_group")) return "Select DH Group";
+    if (category.includes("lifetime")) return "Select Lifetime";
+    return `Select ${category.replace(/_/g, " ")}`;
   };
 
   return (
@@ -133,7 +133,7 @@ function IPsecProposalConfig() {
               key={category}
               className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
             >
-              {String(category).replace(/_/g, ' ')}
+              {String(category).replace(/_/g, " ")}
             </div>
           ))}
 
@@ -160,7 +160,7 @@ function IPsecProposalConfig() {
             <select
               key={category}
               className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions[category] || ''}
+              value={selectedOptions[category] || ""}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
                   ...prev,
@@ -170,7 +170,7 @@ function IPsecProposalConfig() {
             >
               <option value="">{getPlaceholderText(category)}</option>
               {filteredIsecData[category]
-                .filter((option) => option[0] !== 'Pre-Shared Key')
+                .filter((option) => option[0] !== "Pre-Shared Key")
                 .map((option, index) => (
                   <option key={option[0] || index} value={option[0]}>
                     {option[1]}

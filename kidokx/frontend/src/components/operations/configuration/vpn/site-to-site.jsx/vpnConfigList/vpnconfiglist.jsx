@@ -3,7 +3,6 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import SearchDevice from "../../../../../inventory/searchdevice";
-
 import {
   setEditedData,
   setValidated,
@@ -22,8 +21,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function VpnConfigList() {
-  const { ikeProposalData: backendIkeProposalData } = useIpsecData();
-  const [updatedikeProposalData, setUpdatedIkeProposalData] = useState([]);
+  const { ikeProposalData, ikePolicyData } = useIpsecData();
+  const [updatedData, setUpdatedData] = useState([]);
   const [error, setError] = useState(null);
   const [pendingRedirect, setPendingRedirect] = useState(false);
 
@@ -31,13 +30,20 @@ export default function VpnConfigList() {
   const location = useLocation();
   const dispatch = useDispatch();
 
-  const { configtype, editeddata, ikeProposalData, validsearchcomponent } =
-    useSelector((state) => state.vpn || {});
+  const {
+    configtype,
+    editeddata,
+    ikeProposalData: proposalFromStore,
+    validsearchcomponent,
+  } = useSelector((state) => state.vpn || {});
+
   useEffect(() => {
-    if (backendIkeProposalData) {
-      setUpdatedIkeProposalData(backendIkeProposalData);
+    if (configtype === "ikeproposal") {
+      setUpdatedData(Array.isArray(ikeProposalData) ? ikeProposalData : []);
+    } else if (configtype === "ikepolicy") {
+      setUpdatedData(Array.isArray(ikePolicyData) ? ikePolicyData : []);
     }
-  }, [backendIkeProposalData]);
+  }, [configtype, ikeProposalData, ikePolicyData]);
 
   useEffect(() => {
     let isMounted = true;
@@ -79,7 +85,7 @@ export default function VpnConfigList() {
         `http://127.0.0.1:8000/api/ipsec/ikeproposal/${id}/delete/`
       );
       if (response.status === 204 || response.status === 200) {
-        setUpdatedIkeProposalData((prevData) =>
+        setUpdatedData((prevData) =>
           prevData.filter((proposal) => proposal.id !== id)
         );
       }
@@ -105,9 +111,9 @@ export default function VpnConfigList() {
     editeddata.constructor === Object;
 
   const isIkeProposalEmpty =
-    ikeProposalData &&
-    Object.keys(ikeProposalData).length === 0 &&
-    ikeProposalData.constructor === Object;
+    proposalFromStore &&
+    Object.keys(proposalFromStore).length === 0 &&
+    proposalFromStore.constructor === Object;
 
   const isSamePath =
     location.pathname === `/vpn/site-to-site/config/${configtype}/`;
@@ -126,7 +132,7 @@ export default function VpnConfigList() {
     }
   }, [
     editeddata,
-    ikeProposalData,
+    proposalFromStore,
     configtype,
     pendingRedirect,
     navigate,
@@ -163,34 +169,42 @@ export default function VpnConfigList() {
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {updatedikeProposalData
-              .sort((a, b) => b.id - a.id)
-              .map((proposal, index) => (
-                <tr key={proposal.id} className="hover:bg-gray-50">
-                  <td className="py-3 px-6 border-b">{index + 1}</td>
-                  <td className="py-3 px-6 border-b">
-                    <button>{proposal.device}</button>
-                  </td>
-                  <td className="py-3 px-6 border-b">
-                    <button
-                      onClick={() => handleEdit(proposal)}
-                      className="hover:underline"
-                    >
-                      {proposal.proposalname}
-                    </button>
-                  </td>
-                  <td className="py-3 px-6 border-b">
-                    <div className="flex space-x-6 justify-center items-center">
-                      <button onClick={() => handleEdit(proposal)}>
-                        <FontAwesomeIcon icon={faEdit} />
+            {(updatedData || []).length === 0 ? (
+              <tr>
+                <td colSpan="4" className="text-center py-6 text-gray-400">
+                  No {configtype} data found.
+                </td>
+              </tr>
+            ) : (
+              updatedData
+                .sort((a, b) => b.id - a.id)
+                .map((proposal, index) => (
+                  <tr key={proposal.id} className="hover:bg-gray-50">
+                    <td className="py-3 px-6 border-b">{index + 1}</td>
+                    <td className="py-3 px-6 border-b">
+                      <button>{proposal.device}</button>
+                    </td>
+                    <td className="py-3 px-6 border-b">
+                      <button
+                        onClick={() => handleEdit(proposal)}
+                        className="hover:underline"
+                      >
+                        {proposal.proposalname}
                       </button>
-                      <button onClick={() => handleDelete(proposal.id)}>
-                        <FontAwesomeIcon icon={faTrash} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-3 px-6 border-b">
+                      <div className="flex space-x-6 justify-center items-center">
+                        <button onClick={() => handleEdit(proposal)}>
+                          <FontAwesomeIcon icon={faEdit} />
+                        </button>
+                        <button onClick={() => handleDelete(proposal.id)}>
+                          <FontAwesomeIcon icon={faTrash} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+            )}
           </tbody>
         </table>
       </div>

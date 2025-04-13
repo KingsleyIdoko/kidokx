@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
-import { IPSECPOLICYDATA } from '../../../../store/reducers/vpnReducer';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { setIpsecPolicyData } from "../../../../store/reducers/vpnReducer";
 
 export default function IpsecPolicyConfig() {
   const dispatch = useDispatch();
   const { ipsecPolicyData = {}, selectedDevice } = useSelector(
-    (state) => state.vpn,
+    (state) => state.vpn
   );
 
   const [ipsecProposalNames, setIpsecProposalNames] = useState(null);
@@ -14,10 +14,10 @@ export default function IpsecPolicyConfig() {
   const [error, setError] = useState(null);
 
   const ipsecPolicyLabels = [
-    'IPSec Policy Name',
-    'Description',
-    'Perfect Forward Secrecy (PFS)',
-    'IPSec Proposal',
+    "IPSec Policy Name",
+    "Description",
+    "Perfect Forward Secrecy (PFS)",
+    "IPSec Proposal",
   ];
 
   const fetchIpsecProposalNames = async () => {
@@ -26,12 +26,12 @@ export default function IpsecPolicyConfig() {
 
     try {
       const response = await axios.get(
-        'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
+        "http://127.0.0.1:8000/api/ipsec/ikeproposal/names/"
       );
       setIpsecProposalNames(response.data);
     } catch (err) {
       errorMessages.push(`Error fetching IPSec Proposal data: ${err.message}`);
-      console.error('Error fetching IPSec Proposal data:', err);
+      console.error("Error fetching IPSec Proposal data:", err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -48,7 +48,7 @@ export default function IpsecPolicyConfig() {
       device: selectedDevice,
       [field]: value,
     };
-    dispatch({ type: IPSECPOLICYDATA, payload: updatedData });
+    dispatch(setIpsecPolicyData(updatedData));
   };
 
   if (loading)
@@ -77,7 +77,7 @@ export default function IpsecPolicyConfig() {
       </div>
     );
 
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
+  if (error) return <p className="text-red-500">{error.join(", ")}</p>;
   if (!ipsecProposalNames)
     return <p className="text-gray-500">No IPSec proposals available</p>;
 
@@ -102,8 +102,8 @@ export default function IpsecPolicyConfig() {
             type="text"
             placeholder="Enter IPSec Policy Name"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecPolicyData.policyName || ''}
-            onChange={(e) => handleChanges('policyName', e.target.value)}
+            value={ipsecPolicyData.policyName || ""}
+            onChange={(e) => handleChanges("policyName", e.target.value)}
           />
 
           {/* Description */}
@@ -111,15 +111,15 @@ export default function IpsecPolicyConfig() {
             type="text"
             placeholder="Enter Description"
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecPolicyData.description || ''}
-            onChange={(e) => handleChanges('description', e.target.value)}
+            value={ipsecPolicyData.description || ""}
+            onChange={(e) => handleChanges("description", e.target.value)}
           />
 
           {/* Perfect Forward Secrecy */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecPolicyData.pfs_group || ''}
-            onChange={(e) => handleChanges('pfs_group', e.target.value)}
+            value={ipsecPolicyData.pfs_group || ""}
+            onChange={(e) => handleChanges("pfs_group", e.target.value)}
           >
             <option value="">Select PFS Group</option>
             <option value="group2">Group 2</option>
@@ -132,8 +132,8 @@ export default function IpsecPolicyConfig() {
           {/* IPSec Proposal */}
           <select
             className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={ipsecPolicyData.proposalName || ''}
-            onChange={(e) => handleChanges('proposalName', e.target.value)}
+            value={ipsecPolicyData.proposalName || ""}
+            onChange={(e) => handleChanges("proposalName", e.target.value)}
           >
             <option value="">Select IPSec Proposal</option>
             {ipsecProposalNames.map((proposal, index) => (
