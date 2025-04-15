@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import SearchDevice from "../../../../../inventory/searchdevice";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import SearchDevice from '../../../../../inventory/searchdevice';
 import {
   setEditedData,
   setValidated,
@@ -11,17 +11,18 @@ import {
   setIkeProposalData,
   setEditing,
   setCreateVpnData,
-} from "../../../../../store/reducers/vpnReducer";
+} from '../../../../../store/reducers/vpnReducer';
 import {
   setDeviceInventories,
   setSelectedDevice,
-} from "../../../../../store/reducers/inventoryReducers";
-import { useIpsecData } from "../api/ikeProposalItems";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+} from '../../../../../store/reducers/inventoryReducers';
+import { useIpsecData } from '../api/ikeProposalItems';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function VpnConfigList() {
   const { ikeProposalData, ikePolicyData } = useIpsecData();
+
   const [updatedData, setUpdatedData] = useState([]);
   const [error, setError] = useState(null);
   const [pendingRedirect, setPendingRedirect] = useState(false);
@@ -36,14 +37,21 @@ export default function VpnConfigList() {
     ikeProposalData: proposalFromStore,
     validsearchcomponent,
   } = useSelector((state) => state.vpn || {});
+  const { selectedDevice } = useSelector((state) => state.inventories);
 
   useEffect(() => {
-    if (configtype === "ikeproposal") {
-      setUpdatedData(Array.isArray(ikeProposalData) ? ikeProposalData : []);
-    } else if (configtype === "ikepolicy") {
-      setUpdatedData(Array.isArray(ikePolicyData) ? ikePolicyData : []);
+    if (!selectedDevice) return;
+
+    if (configtype === 'ikeproposal' && Array.isArray(ikeProposalData)) {
+      setUpdatedData(
+        ikeProposalData.filter((item) => item.device === selectedDevice),
+      );
+    } else if (configtype === 'ikepolicy' && Array.isArray(ikePolicyData)) {
+      setUpdatedData(
+        ikePolicyData.filter((item) => item.device === selectedDevice),
+      );
     }
-  }, [configtype, ikeProposalData, ikePolicyData]);
+  }, [selectedDevice, configtype, ikeProposalData, ikePolicyData]);
 
   useEffect(() => {
     let isMounted = true;
@@ -51,7 +59,7 @@ export default function VpnConfigList() {
     const fetchDeviceList = async () => {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/inventories/devices/"
+          'http://127.0.0.1:8000/api/inventories/devices/',
         );
         if (isMounted) {
           dispatch(setDeviceInventories(res.data));
@@ -59,7 +67,7 @@ export default function VpnConfigList() {
       } catch (err) {
         if (isMounted) {
           setError(err.message);
-          console.error("Error fetching device list:", err.message);
+          console.error('Error fetching device list:', err.message);
         }
       }
     };
@@ -71,26 +79,26 @@ export default function VpnConfigList() {
     };
   }, [dispatch]);
 
-  const handleEdit = (proposal) => {
-    dispatch(setEditedData(proposal));
-    dispatch(setSelectedDevice(proposal.device));
+  const handleEdit = (item) => {
+    dispatch(setEditedData(item));
+    dispatch(setSelectedDevice(item.device));
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
-    navigate(`/vpn/site-to-site/config/ikeproposal/edit/${proposal.id}/`);
+    navigate(`/vpn/site-to-site/config/${configtype}/edit/${item.id}/`);
   };
 
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://127.0.0.1:8000/api/ipsec/ikeproposal/${id}/delete/`
+        `http://127.0.0.1:8000/api/ipsec/ikeproposal/${id}/delete/`,
       );
       if (response.status === 204 || response.status === 200) {
         setUpdatedData((prevData) =>
-          prevData.filter((proposal) => proposal.id !== id)
+          prevData.filter((proposal) => proposal.id !== id),
         );
       }
     } catch (err) {
-      console.error("Error deleting proposal:", err.message);
+      console.error('Error deleting proposal:', err.message);
     }
   };
 
@@ -143,19 +151,28 @@ export default function VpnConfigList() {
     validsearchcomponent,
   ]);
 
+  const titleMap = {
+    ikeproposal: 'IKEPROPOSAL NAME',
+    ikepolicy: 'IKEPOLICY NAME',
+    ikegateway: 'IKEGATEWAY NAME',
+    ipsecproposal: 'IPSECPROPOSAL NAME',
+    ipsecpolicy: 'IPSECPOLICY NAME',
+    ipsecvpn: 'IPSECVPN NAME',
+  };
+
+  const title = titleMap[configtype] || 'IKEPROPOSAL NAME';
+
   return (
     <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-8 shadow-md mt-10">
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
-
       <div className="w-[90rem] justify-between items-start gap-3 mb-4">
         <SearchDevice />
       </div>
-
       <button
         className="w-[12rem] mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         onClick={handleCreateBtn}
       >
-        {`Create ${configtype ? configtype : "Ike Proposal"}`}
+        {`Create ${configtype ? configtype : 'Ike Proposal'}`}
       </button>
 
       <div className="overflow-x-auto">
@@ -164,7 +181,7 @@ export default function VpnConfigList() {
             <tr>
               <th className="py-3 px-6 border-b">#</th>
               <th className="py-3 px-6 border-b">Device Name</th>
-              <th className="py-3 px-6 border-b">Proposal Name</th>
+              <th className="py-3 px-6 border-b">{title}</th>
               <th className="py-3 px-6 border-b text-center">Action</th>
             </tr>
           </thead>
@@ -178,26 +195,32 @@ export default function VpnConfigList() {
             ) : (
               updatedData
                 .sort((a, b) => b.id - a.id)
-                .map((proposal, index) => (
-                  <tr key={proposal.id} className="hover:bg-gray-50">
+                .map((item, index) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
                     <td className="py-3 px-6 border-b">{index + 1}</td>
                     <td className="py-3 px-6 border-b">
-                      <button>{proposal.device}</button>
+                      <button>{item.device}</button>
                     </td>
                     <td className="py-3 px-6 border-b">
                       <button
-                        onClick={() => handleEdit(proposal)}
+                        onClick={() => handleEdit(item)}
                         className="hover:underline"
                       >
-                        {proposal.proposalname}
+                        {configtype === 'ikeproposal'
+                          ? item.proposalname
+                          : configtype === 'ikepolicy'
+                          ? item.policyname
+                          : configtype === 'ikegateway'
+                          ? item.gatewayname
+                          : ''}
                       </button>
                     </td>
                     <td className="py-3 px-6 border-b">
                       <div className="flex space-x-6 justify-center items-center">
-                        <button onClick={() => handleEdit(proposal)}>
+                        <button onClick={() => handleEdit(item)}>
                           <FontAwesomeIcon icon={faEdit} />
                         </button>
-                        <button onClick={() => handleDelete(proposal.id)}>
+                        <button onClick={() => handleDelete(item.id)}>
                           <FontAwesomeIcon icon={faTrash} />
                         </button>
                       </div>

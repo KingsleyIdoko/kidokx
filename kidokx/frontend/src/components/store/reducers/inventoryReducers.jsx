@@ -1,24 +1,28 @@
-import { createAction } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   inventories: [],
-  selectedDevice: "",
+  selectedDevice: '',
   isSelectedDevice: false,
 };
 
-export const setSelectedDevice = createAction("SELECTEDDEVICE");
-export const setIsSelectedDevice = createAction("ISSELECTEDDEVICE");
-export const setDeviceInventories = createAction("DEVICEINVENTORIES");
+const inventorySlice = createSlice({
+  name: 'inventory',
+  initialState,
+  reducers: {
+    setDeviceInventories: (state, action) => {
+      state.inventories = action.payload;
+    },
+    setSelectedDevice: (state, action) => {
+      state.selectedDevice = action.payload;
+    },
+    setIsSelectedDevice: (state, action) => {
+      state.isSelectedDevice = action.payload;
+    },
+  },
+});
 
-export default function InventoryReducer(state = initialState, action) {
-  switch (action.type) {
-    case setDeviceInventories.type:
-      return { ...state, inventories: action.payload };
-    case setSelectedDevice.type:
-      return { ...state, selectedDevice: action.payload };
-    case setIsSelectedDevice.type:
-      return { ...state, isSelectedDevice: action.payload };
-    default:
-      return state;
-  }
-}
+export const { setDeviceInventories, setSelectedDevice, setIsSelectedDevice } =
+  inventorySlice.actions;
+
+export default inventorySlice.reducer;
