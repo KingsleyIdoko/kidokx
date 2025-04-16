@@ -4,18 +4,17 @@ from inventories.models import Device
 
 class IkeGatewaySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
-    policies = serializers.SlugRelatedField(slug_field='name', queryset=IkePolicy.objects.all(), many=True)
-
+    ike_policy = serializers.SlugRelatedField(slug_field='policyname', queryset=IkePolicy.objects.all())
 
     class Meta:
         model = IkeGateway
         fields = [
-            'id',  
-            'name',
-            'device',  
-            'policies',
+            'id',
+            'gatewayname',
+            'device',
             'remote_address',
-            'local_interface',
+            'ike_version',
+            'local_address',
             'external_interface',
+            'ike_policy',
         ]
-

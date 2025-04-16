@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import SearchDevice from '../../../../../inventory/searchdevice';
+import { BaseUrl } from '../api/postikeproposal';
 import {
   setEditedData,
   setValidated,
@@ -11,73 +12,49 @@ import {
   setIkeProposalData,
   setEditing,
   setCreateVpnData,
+  setIpsecVpnData,
 } from '../../../../../store/reducers/vpnReducer';
-import {
-  setDeviceInventories,
-  setSelectedDevice,
-} from '../../../../../store/reducers/inventoryReducers';
-import { useIpsecData } from '../api/ikeProposalItems';
+import { setSelectedDevice } from '../../../../../store/reducers/inventoryReducers';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function VpnConfigList() {
-  const { ikeProposalData, ikePolicyData } = useIpsecData();
-
   const [updatedData, setUpdatedData] = useState([]);
   const [error, setError] = useState(null);
   const [pendingRedirect, setPendingRedirect] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-
   const {
     configtype,
     editeddata,
     ikeProposalData: proposalFromStore,
     validsearchcomponent,
+    ipsecVpnData,
   } = useSelector((state) => state.vpn || {});
   const { selectedDevice } = useSelector((state) => state.inventories);
 
   useEffect(() => {
-    if (!selectedDevice) return;
-
-    if (configtype === 'ikeproposal' && Array.isArray(ikeProposalData)) {
-      setUpdatedData(
-        ikeProposalData.filter((item) => item.device === selectedDevice),
-      );
-    } else if (configtype === 'ikepolicy' && Array.isArray(ikePolicyData)) {
-      setUpdatedData(
-        ikePolicyData.filter((item) => item.device === selectedDevice),
-      );
-    }
-  }, [selectedDevice, configtype, ikeProposalData, ikePolicyData]);
-
-  useEffect(() => {
-    let isMounted = true;
-
-    const fetchDeviceList = async () => {
+    const fetchData = async () => {
+      const errors = [];
+      const urlPath = `${BaseUrl}/api/ipsec/${configtype}/`;
       try {
-        const res = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/devices/',
-        );
-        if (isMounted) {
-          dispatch(setDeviceInventories(res.data));
+        if (!selectedDevice) return;
+        const vpndata = await axios.get(urlPath);
+        if (Array.isArray(vpndata.data)) {
+          setUpdatedData(vpndata.data);
+          dispatch(setIpsecVpnData(vpndata.data));
         }
       } catch (err) {
-        if (isMounted) {
-          setError(err.message);
-          console.error('Error fetching device list:', err.message);
-        }
+        errors.push(`Error fetching data: ${err.message}`);
+        console.error('Error fetching IPsec data:', err);
+      } finally {
+        setError(errors.length ? errors : null);
       }
     };
 
-    fetchDeviceList();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [dispatch]);
+    fetchData();
+  }, [configtype, dispatch, selectedDevice]);
 
   const handleEdit = (item) => {
     dispatch(setEditedData(item));
@@ -90,7 +67,7 @@ export default function VpnConfigList() {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://127.0.0.1:8000/api/ipsec/ikeproposal/${id}/delete/`,
+        `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
       );
       if (response.status === 204 || response.status === 200) {
         setUpdatedData((prevData) =>
@@ -111,6 +88,7 @@ export default function VpnConfigList() {
     dispatch(setDeployconfiguration(false));
     dispatch(setEditing(false));
     setPendingRedirect(true);
+    setTimeout(() => dispatch(setCreateVpnData(false)), 2000);
   };
 
   const isEditedDataEmpty =

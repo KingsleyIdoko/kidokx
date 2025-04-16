@@ -20,51 +20,35 @@ export default function IkePolicyConfig() {
     editeddata,
   } = useSelector((state) => state.vpn);
   const { selectedDevice } = useSelector((state) => state.inventories);
-  const [ikeProposalNames, setIkeProposalNames] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [ikeProposalNames, setIkeProposalNames] = useState([]);
 
   const {
     register,
-    trigger,
     handleSubmit,
     reset,
     formState: { errors },
   } = useForm({ mode: 'onChange' });
 
   useEffect(() => {
-    if (ikePolicyData && Object.keys(ikePolicyData).length > 0) {
+    if (editingData && editeddata) {
+      reset(editeddata);
+    } else if (ikePolicyData) {
       reset(ikePolicyData);
     }
-  }, [ikePolicyData, reset]);
-
-  const ikePolicyLabels = [
-    'IKE Policy Name',
-    'IKE Mode',
-    'IKE Proposal',
-    'Authentication Method',
-    'Pre_Shared_Key',
-  ];
-
-  const fetchIkeProposalNames = async () => {
-    setLoading(true);
-    let errorMessages = [];
-
-    try {
-      const response = await axios.get(
-        'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
-      );
-      setIkeProposalNames(response.data);
-    } catch (err) {
-      errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error('Error fetching IKE Proposal data:', err);
-    } finally {
-      setError(errorMessages.length ? errorMessages : null);
-      setLoading(false);
-    }
-  };
+  }, [ikePolicyData, editingData, editeddata, reset]);
 
   useEffect(() => {
+    const fetchIkeProposalNames = async () => {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
+        );
+        setIkeProposalNames(response.data);
+      } catch (err) {
+        console.error('Error fetching IKE Proposal data:', err);
+      }
+    };
+
     fetchIkeProposalNames();
   }, []);
 
@@ -100,35 +84,13 @@ export default function IkePolicyConfig() {
     }
   }, [saveconfiguration, configtype, handleSubmit]);
 
-  if (loading)
-    return (
-      <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
-      </div>
-    );
-
-  if (error) return <p className="text-red-500">{error.join(', ')}</p>;
-  if (!ikeProposalNames)
-    return <p className="text-gray-500">No IKE proposals available</p>;
+  const ikePolicyLabels = [
+    'IKE Policy Name',
+    'IKE Mode',
+    'IKE Proposal',
+    'Authentication Method',
+    'Pre_Shared_Key',
+  ];
 
   return (
     <form
@@ -153,11 +115,11 @@ export default function IkePolicyConfig() {
           <div className="h-[4rem] flex flex-col justify-between">
             <input
               {...register('policyname', {
-                required: 'Policy Name is Required',
+                required: 'Policy Name is required',
               })}
               type="text"
               placeholder="Enter Name"
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.policyname ? 'border-red-500' : 'border-gray-300'
               }`}
             />
@@ -171,7 +133,7 @@ export default function IkePolicyConfig() {
           <div className="h-[4rem] flex flex-col justify-between">
             <select
               {...register('mode', { required: 'Select IKE Mode' })}
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.mode ? 'border-red-500' : 'border-gray-300'
               }`}
             >
@@ -188,17 +150,15 @@ export default function IkePolicyConfig() {
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register('proposals', {
-                required: 'Select a Proposal Name',
-              })}
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+              {...register('proposals', { required: 'Select a Proposal Name' })}
+              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.proposals ? 'border-red-500' : 'border-gray-300'
               }`}
             >
               <option value="">Select a Proposal</option>
-              {ikeProposalNames.map((proposal, index) => (
-                <option key={index} value={proposal}>
-                  {proposal}
+              {ikeProposalNames.map((name, i) => (
+                <option key={i} value={name}>
+                  {name}
                 </option>
               ))}
             </select>
@@ -214,7 +174,7 @@ export default function IkePolicyConfig() {
               {...register('authentication_method', {
                 required: 'Select Authentication Method',
               })}
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.authentication_method
                   ? 'border-red-500'
                   : 'border-gray-300'
@@ -234,11 +194,11 @@ export default function IkePolicyConfig() {
           <div className="h-[4rem] flex flex-col justify-between">
             <input
               {...register('pre_shared_key', {
-                required: 'Preshared Password is Required',
+                required: 'Preshared Key is required',
               })}
               type="text"
               placeholder="Enter Preshared Key"
-              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.pre_shared_key ? 'border-red-500' : 'border-gray-300'
               }`}
             />

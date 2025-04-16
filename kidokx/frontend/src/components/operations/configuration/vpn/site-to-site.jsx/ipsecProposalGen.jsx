@@ -1,39 +1,35 @@
-import { useState, useEffect } from "react";
-import { useIpsecData } from "./api/ikeProposalItems";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { setIpsecProposalData } from "../../../../store/reducers/vpnReducer";
+import { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { setIpsecProposalData } from '../../../../store/reducers/vpnReducer';
 
 function IPsecProposalConfig() {
-  const { ikeProposalData, ipsecChoicesData, error, loading } = useIpsecData();
   const dispatch = useDispatch();
   const { selectedDevice } = useSelector((state) => state.vpn);
+
   const [selectedOptions, setSelectedOptions] = useState({
-    proposalName: "",
-    lifetime_seconds: "",
+    proposalName: '',
+    lifetime_seconds: '',
   });
 
+  const filteredIsecData = {}; // Placeholder to prevent rendering errors
+
   useEffect(() => {
-    if (ipsecChoicesData) {
-      setSelectedOptions((prev) => ({
-        ...prev,
-        ...Object.keys(ipsecChoicesData).reduce((acc, key) => {
-          acc[key] = ""; // Set to empty so user must choose explicitly
-          return acc;
-        }, {}),
-      }));
-    }
-  }, [ipsecChoicesData]);
+    setSelectedOptions((prev) => ({
+      ...prev,
+      proposalName: '',
+      lifetime_seconds: '',
+    }));
+  }, []);
 
   useEffect(() => {
     const filteredOptions = Object.entries(selectedOptions).reduce(
       (acc, [key, value]) => {
-        if (value !== "" && value !== null && value !== undefined) {
+        if (value !== '' && value !== null && value !== undefined) {
           acc[key] = value;
         }
         return acc;
       },
-      {}
+      {},
     );
 
     const updateOptions = {
@@ -46,78 +42,13 @@ function IPsecProposalConfig() {
     }
   }, [selectedOptions, selectedDevice, dispatch]);
 
-  if (loading)
-    return (
-      <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
-      </div>
-    );
-
-  if (error) return <p className="text-red-500">{error.join(", ")}</p>;
-
-  if (!ikeProposalData || !ipsecChoicesData) {
-    return (
-      <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
-      </div>
-    );
-  }
-
-  const filteredIsecData = Object.keys(ipsecChoicesData)
-    .filter(
-      (category) =>
-        !["authentication_method", "encapsulation_protocol"].includes(category)
-    )
-    .reduce((acc, key) => {
-      acc[key] = ipsecChoicesData[key];
-      return acc;
-    }, {});
-
   const getPlaceholderText = (category) => {
-    if (category.includes("authentication"))
-      return "Select Authentication Algorithm";
-    if (category.includes("encryption")) return "Select Encryption Algorithm";
-    if (category.includes("dh_group")) return "Select DH Group";
-    if (category.includes("lifetime")) return "Select Lifetime";
-    return `Select ${category.replace(/_/g, " ")}`;
+    if (category.includes('authentication'))
+      return 'Select Authentication Algorithm';
+    if (category.includes('encryption')) return 'Select Encryption Algorithm';
+    if (category.includes('dh_group')) return 'Select DH Group';
+    if (category.includes('lifetime')) return 'Select Lifetime';
+    return `Select ${category.replace(/_/g, ' ')}`;
   };
 
   return (
@@ -133,7 +64,7 @@ function IPsecProposalConfig() {
               key={category}
               className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
             >
-              {String(category).replace(/_/g, " ")}
+              {String(category).replace(/_/g, ' ')}
             </div>
           ))}
 
@@ -160,7 +91,7 @@ function IPsecProposalConfig() {
             <select
               key={category}
               className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions[category] || ""}
+              value={selectedOptions[category] || ''}
               onChange={(e) =>
                 setSelectedOptions((prev) => ({
                   ...prev,
@@ -169,13 +100,6 @@ function IPsecProposalConfig() {
               }
             >
               <option value="">{getPlaceholderText(category)}</option>
-              {filteredIsecData[category]
-                .filter((option) => option[0] !== "Pre-Shared Key")
-                .map((option, index) => (
-                  <option key={option[0] || index} value={option[0]}>
-                    {option[1]}
-                  </option>
-                ))}
             </select>
           ))}
 

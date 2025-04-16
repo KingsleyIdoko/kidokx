@@ -1,10 +1,13 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setIpsecVpnData } from '../../../../../store/reducers/vpnReducer';
+import { BaseUrl } from './postikeproposal';
 
 function useIpsecData() {
-  const [ikeProposalData, setIkeProposalData] = useState(null);
+  const dispatch = useDispatch();
+  const { configtype } = useSelector((state) => state.vpn);
 
-  const [ikePolicyData, setIkePolicyData] = useState(null);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -12,15 +15,10 @@ function useIpsecData() {
     const fetchData = async () => {
       setLoading(true);
       const errors = [];
-
+      const urlPath = `${BaseUrl}/api/ipsec/${configtype}/`;
       try {
-        const [ikeResponse, policyResponse] = await Promise.all([
-          axios.get('http://127.0.0.1:8000/api/ipsec/ikeproposal/'),
-          axios.get('http://127.0.0.1:8000/api/ipsec/ikepolicy/'),
-        ]);
-
-        setIkeProposalData(ikeResponse.data);
-        setIkePolicyData(policyResponse.data);
+        const vpndata = await axios.get(urlPath);
+        dispatch(setIpsecVpnData(vpndata.data));
       } catch (err) {
         errors.push(`Error fetching data: ${err.message}`);
         console.error('Error fetching IPsec data:', err);
@@ -31,8 +29,7 @@ function useIpsecData() {
     };
 
     fetchData();
-  }, []);
-  return { ikeProposalData, ikePolicyData, error, loading };
-}
+  }, [configtype, dispatch]);
 
-export { useIpsecData };
+  return { error, loading };
+}

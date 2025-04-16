@@ -41,6 +41,9 @@ class ipsecConfiguationItems:
         PSK = 'pre-shared-key', 'Pre-Shared Key'
         RSA = 'rsa', 'RSA'
 
+    class IkeVersions(models.TextChoices):
+        V1_ONLY = "v1-only", "v1-only"
+        V2_ONLY = "v2-only", "v2-only"
 
 class IkeProposal(models.Model):
     proposalname = models.CharField(max_length=100, unique=True)
@@ -79,16 +82,24 @@ class IkePolicy(models.Model):
         return self.policyname
 
 
+
 class IkeGateway(models.Model):
     gatewayname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     remote_address = models.GenericIPAddressField()
-    local_interface = models.CharField(max_length=50)
+    local_address = models.GenericIPAddressField()
     ike_policy = models.ForeignKey(IkePolicy, on_delete=models.CASCADE)
     external_interface = models.CharField(max_length=50, default='g0/0/0')
+    ike_version = models.CharField(
+        max_length=50,
+        choices=ipsecConfiguationItems.IkeVersions.choices,
+        default=ipsecConfiguationItems.IkeVersions.V1_ONLY
+    )
 
     def __str__(self):
-        return f"{self.name} ({self.remote_address})"
+        return f"{self.gatewayname} ({self.remote_address})"
+
+
 
 
 class IpsecProposal(models.Model):

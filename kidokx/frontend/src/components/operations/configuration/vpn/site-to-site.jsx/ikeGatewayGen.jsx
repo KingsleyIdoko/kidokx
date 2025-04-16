@@ -1,32 +1,32 @@
-import { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setIkeGatewayData } from "../../../../store/reducers/vpnReducer";
-import axios from "axios";
+import { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+  setIkeGatewayData,
+  setEditing,
+  setConfigType,
+  setValidated,
+} from '../../../../store/reducers/vpnReducer';
+import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
+import axios from 'axios';
+import { useForm } from 'react-hook-form';
 
 function IkeGatewayConfig() {
   const dispatch = useDispatch();
-  const { selectedDevice } = useSelector((state) => state.vpn);
-  const [selectedOptions, setSelectedOptions] = useState({
-    policyName: "",
-    remote_address: "",
-    external_interface: "",
-    ike_policy: "",
-    ike_version: "",
-    psk_passwd: "",
-  });
-  const ikeGatewayParams = [
-    "Gateway Name",
-    "Remote Address",
-    "External Interface",
-    "IKE Policy",
-    "IKE Version",
-    "Pre-Shared Key",
-  ];
+  const { selectedDevice } = useSelector((state) => state.inventories);
+  const { saveconfiguration, configtype, editingData, editeddata } =
+    useSelector((state) => state.vpn);
 
-  const ikeVersions = ["v1-only", "v2-only"];
+  const ikeVersions = ['v1-only', 'v2-only'];
+
   const [ikePolicyNames, setIkePolicyNames] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({ mode: 'onChange' });
 
   const fetchIkePolicyNames = async () => {
     setLoading(true);
@@ -34,12 +34,12 @@ function IkeGatewayConfig() {
 
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8000/api/ipsec/ikepolicy/names/"
+        'http://127.0.0.1:8000/api/ipsec/ikepolicy/names/',
       );
       setIkePolicyNames(response.data);
     } catch (err) {
       errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error("Error fetching IKE Policy data:", err);
+      console.error('Error fetching IKE Policy data:', err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -50,54 +50,52 @@ function IkeGatewayConfig() {
     fetchIkePolicyNames();
   }, []);
 
+  const onSubmit = async (data) => {
+    const payload = { ...data, device: selectedDevice };
+    try {
+      if (!editingData) {
+        await axios.post(
+          'http://127.0.0.1:8000/api/ipsec/ikegateway/create/',
+          payload,
+        );
+      } else {
+        await axios.put(
+          `http://127.0.0.1:8000/api/ipsec/ikegateway/${editeddata?.id}/update/`,
+          payload,
+        );
+        dispatch(setEditing(false));
+      }
+
+      dispatch(setConfigType(configtype));
+      dispatch(setSelectedDevice(selectedDevice));
+      dispatch(setValidated(true));
+    } catch (err) {
+      console.error('Post/Put failed:', err.message);
+      dispatch(setValidated(false));
+    }
+  };
+
   useEffect(() => {
-    const updateOptions = {
-      ...selectedOptions,
-      device: selectedDevice,
-    };
-    dispatch(setIkeGatewayData(updateOptions));
-  }, [selectedOptions, dispatch, selectedDevice]);
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-40">
-        <svg
-          className="w-12 h-12 animate-spin text-blue-500"
-          viewBox="0 0 24 24"
-          fill="none"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 0 018-8v8H4z"
-          />
-        </svg>
-        <p className="mt-2 text-gray-600">Fetching data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return <p className="text-red-500">{error.join(", ")}</p>;
-  }
-
-  if (!ikePolicyNames || ikePolicyNames.length === 0) {
-    return <p className="text-gray-500">No IKE Policies available</p>;
-  }
+    if (saveconfiguration && configtype === 'ikegateway') {
+      handleSubmit(onSubmit)();
+    }
+  }, [saveconfiguration, configtype, handleSubmit]);
 
   return (
-    <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
+    <form
+      className="w-[44rem] mx-auto bg-white rounded-lg p-6"
+      onSubmit={handleSubmit(onSubmit)}
+    >
       <div className="flex mx-auto">
         <div className="w-[24rem] flex flex-col space-y-4">
-          {ikeGatewayParams.map((label, index) => (
+          {[
+            'Gateway Name',
+            'Remote Address',
+            'Local Address',
+            'External Interface',
+            'IKE Policy',
+            'IKE Version',
+          ].map((label, index) => (
             <div
               key={index}
               className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
@@ -108,97 +106,107 @@ function IkeGatewayConfig() {
         </div>
 
         <div className="w-[20rem] flex flex-col space-y-5">
-          <input
-            type="text"
-            placeholder="Enter Gateway Name"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.policyName}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                policyName: e.target.value,
-              }))
-            }
-          />
+          {[
+            {
+              name: 'gatewayname',
+              type: 'text',
+              placeholder: 'Enter Gateway Name',
+              error: errors.gatewayname,
+              message: 'Gateway Name is required',
+            },
+            {
+              name: 'remote_address',
+              type: 'text',
+              placeholder: 'Enter Remote Address',
+              error: errors.remote_address,
+              message: 'Remote Address is required',
+            },
+            {
+              name: 'local_address',
+              type: 'text',
+              placeholder: 'Enter Local Address',
+              error: errors.local_address,
+              message: 'Local Address is required',
+            },
+          ].map(({ name, type, placeholder, error, message }) => (
+            <div key={name} className="h-[3rem] flex flex-col justify-between">
+              <input
+                type={type}
+                placeholder={placeholder}
+                className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                  error ? 'border-red-500' : 'border-gray-300'
+                }`}
+                {...register(name, { required: message })}
+              />
+              {error && <p className="text-red-500 text-sm">{error.message}</p>}
+            </div>
+          ))}
 
-          <input
-            type="text"
-            placeholder="Enter Remote Address"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.remote_address}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                remote_address: e.target.value,
-              }))
-            }
-          />
+          <div className="h-[3rem] flex flex-col justify-between">
+            <select
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.external_interface ? 'border-red-500' : 'border-gray-300'
+              }`}
+              {...register('external_interface', {
+                required: 'Select an interface',
+              })}
+            >
+              <option value="">Select Interface</option>
+              <option value="ge-0/0/0">ge-0/0/0</option>
+              <option value="ge-0/0/1">ge-0/0/1</option>
+              <option value="ge-0/0/2">ge-0/0/2</option>
+            </select>
+            {errors.external_interface && (
+              <p className="text-red-500 text-sm">
+                {errors.external_interface.message}
+              </p>
+            )}
+          </div>
 
-          <select
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.external_interface}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                external_interface: e.target.value,
-              }))
-            }
-          >
-            <option value="">Select Interface</option>
-            <option value="ge-0/0/0">ge-0/0/0</option>
-          </select>
+          <div className="h-[3rem] flex flex-col justify-between">
+            <select
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.ike_policy ? 'border-red-500' : 'border-gray-300'
+              }`}
+              {...register('ike_policy', { required: 'Select an IKE Policy' })}
+            >
+              <option value="">Select IKE Policy</option>
+              {ikePolicyNames.map((policy, index) => (
+                <option key={index} value={policy}>
+                  {policy}
+                </option>
+              ))}
+            </select>
+            {errors.ike_policy && (
+              <p className="text-red-500 text-sm">
+                {errors.ike_policy.message}
+              </p>
+            )}
+          </div>
 
-          <select
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.ike_policy}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                ike_policy: e.target.value,
-              }))
-            }
-          >
-            <option value="">Select Ike Policy</option>
-            {ikePolicyNames.map((policy, index) => (
-              <option key={index} value={policy}>
-                {policy}
-              </option>
-            ))}
-          </select>
-
-          <select
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.ike_version}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                ike_version: e.target.value,
-              }))
-            }
-          >
-            <option value="">Select Ike Version</option>
-            {ikeVersions.map((version, index) => (
-              <option key={index} value={version}>
-                {version}
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="text"
-            placeholder="Enter Pre-Shared Key"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.psk_passwd}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                psk_passwd: e.target.value,
-              }))
-            }
-          />
+          <div className="h-[3rem] flex flex-col justify-between">
+            <select
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                errors.ike_version ? 'border-red-500' : 'border-gray-300'
+              }`}
+              {...register('ike_version', { required: 'Select IKE Version' })}
+            >
+              <option value="">Select IKE Version</option>
+              {ikeVersions.map((version, index) => (
+                <option key={index} value={version}>
+                  {version}
+                </option>
+              ))}
+            </select>
+            {errors.ike_version && (
+              <p className="text-red-500 text-sm">
+                {errors.ike_version.message}
+              </p>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 

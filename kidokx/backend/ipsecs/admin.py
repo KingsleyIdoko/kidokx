@@ -18,8 +18,8 @@ class IkePolicyAdmin(admin.ModelAdmin):
 
 @admin.register(IkeGateway)
 class IkeGatewayAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'gatewayname', 'remote_address', 'local_interface', 'external_interface')
-    search_fields = ('gatewayname', 'remote_address', 'local_interface', 'external_interface')
+    list_display = ('id', 'device', 'gatewayname', 'remote_address', 'local_address', 'external_interface')
+    search_fields = ('gatewayname', 'remote_address', 'local_address', 'external_interface')
 
 
 @admin.register(IpsecProposal)

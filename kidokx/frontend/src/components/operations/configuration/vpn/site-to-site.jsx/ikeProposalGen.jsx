@@ -55,7 +55,7 @@ function IkeProposalConfig() {
     editeddata,
     editingData,
   } = useSelector((store) => store.vpn);
-  console.log(editingData);
+
   const { selectedDevice } = useSelector((store) => store.inventories);
 
   const defaultValues = ikeproposalforms.reduce((acc, curr) => {
