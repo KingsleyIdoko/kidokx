@@ -30,13 +30,12 @@ export default function IkePolicyConfig() {
   } = useForm({ mode: 'onChange' });
 
   useEffect(() => {
-    if (editingData && editeddata) {
+    if (editingData && editeddata && ikeProposalNames.length > 0) {
       reset(editeddata);
-    } else if (ikePolicyData) {
+    } else if (ikePolicyData && ikeProposalNames.length > 0) {
       reset(ikePolicyData);
     }
-  }, [ikePolicyData, editingData, editeddata, reset]);
-
+  }, [ikePolicyData, editingData, editeddata, ikeProposalNames, reset]);
   useEffect(() => {
     const fetchIkeProposalNames = async () => {
       try {
@@ -54,7 +53,7 @@ export default function IkePolicyConfig() {
 
   const submitForm = async (values) => {
     const finalPayload = { ...values, device: selectedDevice };
-
+    console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
@@ -151,6 +150,7 @@ export default function IkePolicyConfig() {
           <div className="h-[4rem] flex flex-col justify-between">
             <select
               {...register('proposals', { required: 'Select a Proposal Name' })}
+              defaultValue={editeddata?.proposals || ''}
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.proposals ? 'border-red-500' : 'border-gray-300'
               }`}

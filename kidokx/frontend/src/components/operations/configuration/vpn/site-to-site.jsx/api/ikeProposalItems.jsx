@@ -13,18 +13,17 @@ function useIpsecData() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
       const errors = [];
       const urlPath = `${BaseUrl}/api/ipsec/${configtype}/`;
       try {
         const vpndata = await axios.get(urlPath);
+        console.log(vpn.data);
         dispatch(setIpsecVpnData(vpndata.data));
       } catch (err) {
         errors.push(`Error fetching data: ${err.message}`);
         console.error('Error fetching IPsec data:', err);
       } finally {
         setError(errors.length ? errors : null);
-        setLoading(false);
       }
     };
 
@@ -33,3 +32,5 @@ function useIpsecData() {
 
   return { error, loading };
 }
+
+export { useIpsecData };

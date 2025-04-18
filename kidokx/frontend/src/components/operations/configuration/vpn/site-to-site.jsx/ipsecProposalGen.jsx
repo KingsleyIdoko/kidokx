@@ -1,124 +1,153 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setIpsecProposalData } from '../../../../store/reducers/vpnReducer';
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { vpnproposalforms } from './api/postikeproposal';
+import {
+  setConfigType,
+  setIpsecProposalData,
+  setValidated,
+  setEditing,
+} from '../../../../store/reducers/vpnReducer';
+import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
 
-function IPsecProposalConfig() {
+function IkeProposalConfig() {
   const dispatch = useDispatch();
-  const { selectedDevice } = useSelector((state) => state.vpn);
+  const {
+    ipsecProposalData,
+    saveconfiguration,
+    configtype,
+    editeddata,
+    editingData,
+  } = useSelector((store) => store.vpn);
+  const { selectedDevice } = useSelector((store) => store.inventories);
 
-  const [selectedOptions, setSelectedOptions] = useState({
-    proposalName: '',
-    lifetime_seconds: '',
-  });
+  const defaultValues = vpnproposalforms.reduce((acc, curr) => {
+    const fieldName = curr.name.toLowerCase().replace(/\s+/g, '_');
+    acc[fieldName] = curr.value instanceof Array ? '' : curr.value;
+    return acc;
+  }, {});
 
-  const filteredIsecData = {}; // Placeholder to prevent rendering errors
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({ mode: 'onChange', defaultValues });
 
   useEffect(() => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      proposalName: '',
-      lifetime_seconds: '',
-    }));
-  }, []);
+    if (editeddata?.id) {
+      reset(editeddata);
+    }
+  }, [editeddata, reset]);
 
-  useEffect(() => {
-    const filteredOptions = Object.entries(selectedOptions).reduce(
-      (acc, [key, value]) => {
-        if (value !== '' && value !== null && value !== undefined) {
-          acc[key] = value;
-        }
-        return acc;
-      },
-      {},
-    );
-
-    const updateOptions = {
-      ...filteredOptions,
+  const submitForm = async (formData) => {
+    const finalPayload = {
+      ...formData,
       device: selectedDevice,
     };
-
-    if (Object.keys(updateOptions).length > 1) {
-      dispatch(setIpsecProposalData(updateOptions));
+    console.log(finalPayload);
+    try {
+      if (!editingData) {
+        await axios.post(
+          'http://127.0.0.1:8000/api/ipsec/ipsecproposal/create/',
+          finalPayload,
+        );
+      } else {
+        await axios.put(
+          `http://127.0.0.1:8000/api/ipsec/ipsecproposal/${editeddata?.id}/update/`,
+          finalPayload,
+        );
+        dispatch(setEditing(false));
+      }
+      dispatch(setIpsecProposalData(finalPayload));
+      dispatch(setConfigType(configtype));
+      dispatch(setSelectedDevice(selectedDevice));
+      dispatch(setValidated(true));
+    } catch (err) {
+      console.error('Post/Put failed:', err.message);
+      dispatch(setValidated(false));
     }
-  }, [selectedOptions, selectedDevice, dispatch]);
-
-  const getPlaceholderText = (category) => {
-    if (category.includes('authentication'))
-      return 'Select Authentication Algorithm';
-    if (category.includes('encryption')) return 'Select Encryption Algorithm';
-    if (category.includes('dh_group')) return 'Select DH Group';
-    if (category.includes('lifetime')) return 'Select Lifetime';
-    return `Select ${category.replace(/_/g, ' ')}`;
   };
+
+  useEffect(() => {
+    if (saveconfiguration && configtype === 'ipsecproposal') {
+      handleSubmit(submitForm)();
+    }
+  }, [saveconfiguration, configtype, handleSubmit]);
+
+  const errorClass = (field) =>
+    errors[field] ? 'border-red-500' : 'border-gray-300';
 
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
-      <div className="flex mx-auto">
-        <div className="w-[24rem] flex flex-col space-y-4">
-          <div className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
-            IPsec Proposal Name
-          </div>
+      <form
+        className="grid grid-cols-2 space-y-4 gap-x-10 gap-y-4 items-center"
+        onSubmit={handleSubmit(submitForm)}
+      >
+        {vpnproposalforms.map((formItem) => {
+          const fieldName = formItem.name.toLowerCase().replace(/\s+/g, '_');
+          const isTextInput = typeof formItem.value === 'string';
+          const fieldErrorClass = `text-black bg-gray-100 border rounded-lg focus:outline-none w-full ${errorClass(
+            fieldName,
+          )}`;
 
-          {Object.keys(filteredIsecData).map((category) => (
+          return (
             <div
-              key={category}
-              className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left"
+              key={`${fieldName}-wrapper`}
+              className="col-span-2 grid grid-cols-2 gap-x-10 items-center"
             >
-              {String(category).replace(/_/g, ' ')}
+              <button
+                type="button"
+                className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
+              >
+                {formItem.name}
+              </button>
+              <div className="flex flex-col justify-between">
+                {isTextInput ? (
+                  <input
+                    {...register(fieldName, {
+                      required: `${formItem.name} is required`,
+                    })}
+                    type="text"
+                    placeholder={formItem.name}
+                    className={`${fieldErrorClass} px-4 py-3 ${
+                      editingData && fieldName === 'proposal_name'
+                        ? 'bg-gray-200 opacity-70 cursor-not-allowed'
+                        : ''
+                    }`}
+                    disabled={editingData && fieldName === 'proposal_name'}
+                  />
+                ) : (
+                  <select
+                    {...register(fieldName, {
+                      required: `${formItem.name} is required`,
+                    })}
+                    className={`${fieldErrorClass} px-4 py-4`}
+                  >
+                    <option value="">Select {formItem.name}</option>
+                    {formItem.value.map((option, i) => (
+                      <option
+                        key={`${fieldName}-${option}-${i}`}
+                        value={option}
+                      >
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                )}
+                {errors[fieldName] && (
+                  <p className="text-xs text-red-500 font-medium flex items-center">
+                    {errors[fieldName].message}
+                  </p>
+                )}
+              </div>
             </div>
-          ))}
-
-          <div className="w-3/4 px-4 py-3 bg-gray-100 text-black border rounded-lg text-left">
-            lifetime-seconds
-          </div>
-        </div>
-
-        <div className="w-[20rem] flex flex-col space-y-5">
-          <input
-            type="text"
-            placeholder="Enter Name"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.proposalName}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                proposalName: e.target.value,
-              }))
-            }
-          />
-
-          {Object.keys(filteredIsecData).map((category) => (
-            <select
-              key={category}
-              className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              value={selectedOptions[category] || ''}
-              onChange={(e) =>
-                setSelectedOptions((prev) => ({
-                  ...prev,
-                  [category]: e.target.value,
-                }))
-              }
-            >
-              <option value="">{getPlaceholderText(category)}</option>
-            </select>
-          ))}
-
-          <input
-            type="text"
-            placeholder="Enter lifetime-seconds"
-            className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-            value={selectedOptions.lifetime_seconds}
-            onChange={(e) =>
-              setSelectedOptions((prev) => ({
-                ...prev,
-                lifetime_seconds: e.target.value,
-              }))
-            }
-          />
-        </div>
-      </div>
+          );
+        })}
+      </form>
     </div>
   );
 }
 
-export default IPsecProposalConfig;
+export default IkeProposalConfig;

@@ -13,17 +13,24 @@ import { useForm } from 'react-hook-form';
 function IkeGatewayConfig() {
   const dispatch = useDispatch();
   const { selectedDevice } = useSelector((state) => state.inventories);
-  const { saveconfiguration, configtype, editingData, editeddata } =
-    useSelector((state) => state.vpn);
+  const {
+    saveconfiguration,
+    configtype,
+    editingData,
+    ikeGatewayData,
+    editeddata,
+  } = useSelector((state) => state.vpn);
 
   const ikeVersions = ['v1-only', 'v2-only'];
 
+  console.log(editeddata);
   const [ikePolicyNames, setIkePolicyNames] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const {
     register,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: 'onChange' });
@@ -45,10 +52,17 @@ function IkeGatewayConfig() {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchIkePolicyNames();
   }, []);
+
+  useEffect(() => {
+    if (editingData && editeddata && ikePolicyNames.length > 0) {
+      reset(editeddata);
+    } else if (ikeGatewayData && ikePolicyNames.length > 0) {
+      reset(ikeGatewayData);
+    }
+  }, [ikeGatewayData, editingData, editeddata, ikePolicyNames, reset]);
 
   const onSubmit = async (data) => {
     const payload = { ...data, device: selectedDevice };

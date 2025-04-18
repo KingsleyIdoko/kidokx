@@ -1,17 +1,17 @@
 from rest_framework import serializers
 from ipsecs.models import IpsecProposal
+from inventories.models import Device
 
 class IpsecProposalSerializer(serializers.ModelSerializer):
-    device_name = serializers.ReadOnlyField(source='device.name')  # Assuming Device has a name field
+    device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
 
     class Meta:
         model = IpsecProposal
         fields = [
             'id',  
-            'name',
+            'proposal_name',
             'device',  
-            'device_name',  
             'authentication_algorithm',
             'encryption_algorithm',
-            'lifetime_seconds',
+            'encapsulation_protocol',
         ]

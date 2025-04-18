@@ -103,7 +103,7 @@ class IkeGateway(models.Model):
 
 
 class IpsecProposal(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    proposal_name = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices
@@ -111,10 +111,10 @@ class IpsecProposal(models.Model):
     encryption_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.EncryptionAlgorithm.choices
     )
-    lifetime_seconds = models.PositiveIntegerField(default=3600)
+    encapsulation_protocol = models.CharField(max_length=50, choices=ipsecConfiguationItems.Protocol.choices, default=ipsecConfiguationItems.Protocol.ESP)
 
     def __str__(self):
-        return self.name
+        return self.proposal_name 
 
 
 class IpsecPolicy(models.Model):
