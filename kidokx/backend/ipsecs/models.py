@@ -112,6 +112,10 @@ class IpsecProposal(models.Model):
         max_length=50, choices=ipsecConfiguationItems.EncryptionAlgorithm.choices
     )
     encapsulation_protocol = models.CharField(max_length=50, choices=ipsecConfiguationItems.Protocol.choices, default=ipsecConfiguationItems.Protocol.ESP)
+    dh_group = models.CharField(
+        max_length=20, choices=ipsecConfiguationItems.dh_group.choices, 
+        default=ipsecConfiguationItems.dh_group.GROUP14
+    )
 
     def __str__(self):
         return self.proposal_name 
@@ -119,15 +123,18 @@ class IpsecProposal(models.Model):
 
 class IpsecPolicy(models.Model):
     policyname = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=100, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    proposals = models.ManyToManyField(IpsecProposal)
+    ikeproposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
     pfs_group = models.CharField(
-        max_length=20, choices=ipsecConfiguationItems.dh_group.choices, 
+        max_length=20,
+        choices=ipsecConfiguationItems.dh_group.choices,
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
 
     def __str__(self):
-        return self.name
+        return self.policyname
+
 
 
 class IpsecVpn(models.Model):

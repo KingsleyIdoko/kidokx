@@ -11,6 +11,7 @@ class IpsecProposalSerializer(serializers.ModelSerializer):
             'id',  
             'proposal_name',
             'device',  
+            'dh_group',
             'authentication_algorithm',
             'encryption_algorithm',
             'encapsulation_protocol',

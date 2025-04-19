@@ -30,7 +30,6 @@ export default function VpnConfigList() {
     editeddata,
     ikeProposalData: proposalFromStore,
     validsearchcomponent,
-    ipsecVpnData,
   } = useSelector((state) => state.vpn || {});
   const { selectedDevice } = useSelector((state) => state.inventories);
 
@@ -42,6 +41,7 @@ export default function VpnConfigList() {
         if (!selectedDevice) return;
         const vpndata = await axios.get(urlPath);
         if (Array.isArray(vpndata.data)) {
+          // console.log(vpndata.data);
           setUpdatedData(vpndata.data);
           dispatch(setIpsecVpnData(vpndata.data));
         }
@@ -190,7 +190,7 @@ export default function VpnConfigList() {
                           ? item.policyname
                           : configtype === 'ikegateway'
                           ? item.gatewayname
-                          : ''}
+                          : item.proposal_name}
                       </button>
                     </td>
                     <td className="py-3 px-6 border-b">

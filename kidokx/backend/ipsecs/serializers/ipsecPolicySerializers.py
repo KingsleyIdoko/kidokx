@@ -1,17 +1,19 @@
 from rest_framework import serializers
-from ipsecs.models import IpsecPolicy
+from ipsecs.models import IpsecPolicy, IkeProposal
+from inventories.models import Device
 
 class IpsecPolicySerializer(serializers.ModelSerializer):
-    device_name = serializers.ReadOnlyField(source='device.name')  # Assuming Device has a name field
-    proposals = serializers.PrimaryKeyRelatedField(many=True, queryset=IpsecPolicy.objects.all())  # Serialize ManyToManyField
+    device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
+    ikeproposals = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.all()
+)
 
     class Meta:
         model = IpsecPolicy
         fields = [
             'id',
-            'name',
-            'device',  # ForeignKey (needed for updates)
-            'device_name',  # Read-only field for device name
-            'proposals',  # ManyToManyField (IDs of related proposals)
+            'policyname',
+            'description',
+            'device',
             'pfs_group',
+            'ikeproposals',
         ]

@@ -13,13 +13,8 @@ import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers'
 
 function IkeProposalConfig() {
   const dispatch = useDispatch();
-  const {
-    ipsecProposalData,
-    saveconfiguration,
-    configtype,
-    editeddata,
-    editingData,
-  } = useSelector((store) => store.vpn);
+  const { saveconfiguration, configtype, editeddata, editingData } =
+    useSelector((store) => store.vpn);
   const { selectedDevice } = useSelector((store) => store.inventories);
 
   const defaultValues = vpnproposalforms.reduce((acc, curr) => {
