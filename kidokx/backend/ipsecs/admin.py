@@ -31,12 +31,12 @@ class IpsecProposalAdmin(admin.ModelAdmin):
 
 @admin.register(IpsecPolicy)
 class IpsecPolicyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'policyname', 'pfs_group')
-    search_fields = ('policyname',)
+    list_display = ('id', 'device', 'policy_name', 'pfs_group')
+    search_fields = ('policy_name',)
     list_filter = ('pfs_group',)
 
 
 @admin.register(IpsecVpn)
 class IpsecVpnAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'name', 'ike_gateway', 'ipsec_policy', 'bind_interface')
+    list_display = ('id', 'device', 'vpn_name', 'ike_gateway', 'ipsec_policy', 'bind_interface')
     search_fields = ('name', 'ike_gateway__name', 'ipsec_policy__name', 'bind_interface')

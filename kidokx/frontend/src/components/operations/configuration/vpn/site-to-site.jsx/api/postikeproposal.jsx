@@ -37,3 +37,11 @@ export const vpnproposalforms = [
     ],
   },
 ];
+
+export const ipsecVpnForm = [
+  { name: 'VPN Name', value: '' },
+  { name: 'Bind Interface', value: '' },
+  { name: 'IPsec Policy', value: [] },
+  { name: 'Ike Gateway', value: [] },
+  { name: 'Establish Tunnel', value: ['immediately', 'on-traffic'] },
+];

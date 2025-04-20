@@ -39,6 +39,6 @@ ipsecpolicy_delete_view = IkeProposalDestroyView.as_view()
 
 class IpsecPollicyNamesView(APIView):
     def get(self, request):
-        ipsecpolicynames = IpsecPolicy.objects.values_list('policyname', flat=True)
+        ipsecpolicynames = IpsecPolicy.objects.values_list('policy_name', flat=True)
         return Response(ipsecpolicynames )  
 ipsecpolicy_names_view = IpsecPollicyNamesView.as_view()

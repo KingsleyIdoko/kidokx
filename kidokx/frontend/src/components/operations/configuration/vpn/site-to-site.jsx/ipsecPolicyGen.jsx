@@ -45,7 +45,7 @@ export default function IpsecPolicyConfig() {
       ...formData,
       device: selectedDevice,
     };
-    console.log(finalPayload);
+
     try {
       if (!editingData) {
         await axios.post(

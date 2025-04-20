@@ -45,6 +45,11 @@ class ipsecConfiguationItems:
         V1_ONLY = "v1-only", "v1-only"
         V2_ONLY = "v2-only", "v2-only"
 
+    class IpsecVpnEstablishTunnel(models.TextChoices):
+            immediately = "immediately", "immediately"
+            on_traffic = "on-traffic", "on-traffic"
+
+
 class IkeProposal(models.Model):
     proposalname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
@@ -97,7 +102,7 @@ class IkeGateway(models.Model):
     )
 
     def __str__(self):
-        return f"{self.gatewayname} ({self.remote_address})"
+        return f"{self.gatewayname}"
 
 
 
@@ -122,10 +127,10 @@ class IpsecProposal(models.Model):
 
 
 class IpsecPolicy(models.Model):
-    policyname = models.CharField(max_length=100, unique=True)
+    policy_name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=100, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    ikeproposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
+    ike_proposal = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
     pfs_group = models.CharField(
         max_length=20,
         choices=ipsecConfiguationItems.dh_group.choices,
@@ -133,16 +138,22 @@ class IpsecPolicy(models.Model):
     )
 
     def __str__(self):
-        return self.policyname
+        return self.policy_name
 
 
 
 class IpsecVpn(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    vpn_name = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.CASCADE)
     ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE)
     bind_interface = models.CharField(max_length=50, default='g0/0/0')
+    establish_tunnel = models.CharField(
+        max_length=50,
+        choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
+        default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,
+    )
 
     def __str__(self):
-        return f"{self.name} (Device: {self.device.name})"
+        return f"{self.vpn_name}"
+

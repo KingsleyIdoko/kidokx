@@ -4,16 +4,16 @@ from inventories.models import Device
 
 class IpsecPolicySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
-    ikeproposals = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.all()
+    ike_proposal = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.all()
 )
 
     class Meta:
         model = IpsecPolicy
         fields = [
             'id',
-            'policyname',
+            'policy_name',
             'description',
             'device',
             'pfs_group',
-            'ikeproposals',
+            'ike_proposal',
         ]

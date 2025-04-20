@@ -190,7 +190,13 @@ export default function VpnConfigList() {
                           ? item.policyname
                           : configtype === 'ikegateway'
                           ? item.gatewayname
-                          : item.proposal_name}
+                          : configtype === 'ipsecproposal'
+                          ? item.proposal_name
+                          : configtype === 'ipsecpolicy'
+                          ? item.policy_name
+                          : configtype === 'ipsecvpn'
+                          ? item.ipsecvpn_name
+                          : ''}
                       </button>
                     </td>
                     <td className="py-3 px-6 border-b">
