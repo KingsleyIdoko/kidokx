@@ -26,16 +26,6 @@ function IPsecVPNConfig() {
     handleSubmit,
     formState: { errors },
   } = useForm({ mode: 'onChange' });
-  useEffect(() => {
-    if (
-      editingData &&
-      editeddata &&
-      ikeGatewayList.length &&
-      ipsecPolicyList.length
-    ) {
-      reset(editeddata);
-    }
-  }, [editingData, editeddata, ikeGatewayList, ipsecPolicyList, reset]);
 
   const normalizeKey = (label) =>
     label
@@ -53,13 +43,33 @@ function IPsecVPNConfig() {
     bindInterface: 'bind_interface',
     establishTunnel: 'establish_tunnel',
   };
+
+  const reverseFieldMap = Object.fromEntries(
+    Object.entries(fieldMap).map(([k, v]) => [v, k]),
+  );
+
+  useEffect(() => {
+    if (
+      editingData &&
+      editeddata &&
+      ikeGatewayList.length &&
+      ipsecPolicyList.length
+    ) {
+      const normalizedData = {};
+      for (const [key, value] of Object.entries(editeddata)) {
+        const camelKey = reverseFieldMap[key];
+        if (camelKey) normalizedData[camelKey] = value;
+      }
+      reset(normalizedData);
+    }
+  }, [editingData, editeddata, ikeGatewayList, ipsecPolicyList, reset]);
+
   const onsubmit = async (formData) => {
     const finalPayload = { device: selectedDevice };
-
     for (const [key, value] of Object.entries(formData)) {
       finalPayload[fieldMap[key] || key] = value;
     }
-    console.log(finalPayload);
+
     try {
       if (!editingData) {
         await axios.post(
@@ -73,6 +83,7 @@ function IPsecVPNConfig() {
         );
         dispatch(setEditing(false));
       }
+
       dispatch(setIpsecVpnData(finalPayload));
       dispatch(setConfigType(configtype));
       dispatch(setSelectedDevice(selectedDevice));
@@ -82,11 +93,13 @@ function IPsecVPNConfig() {
       dispatch(setValidated(false));
     }
   };
+
   useEffect(() => {
     if (saveconfiguration && configtype === 'ipsecvpn') {
       handleSubmit(onsubmit)();
     }
   }, [saveconfiguration, configtype, handleSubmit]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {

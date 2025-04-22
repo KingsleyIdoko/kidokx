@@ -1,5 +1,6 @@
 from django.db import models
 from inventories.models import Device
+from django.core.exceptions import ValidationError
 
 class ipsecConfiguationItems:
     class dh_group(models.TextChoices):
@@ -51,7 +52,7 @@ class ipsecConfiguationItems:
 
 
 class IkeProposal(models.Model):
-    proposalname = models.CharField(max_length=100, unique=True)
+    proposalname = models.CharField(max_length=100,unique=True,verbose_name="IKE Proposal Name",help_text="A unique name for this IKE proposal")
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices
@@ -64,12 +65,19 @@ class IkeProposal(models.Model):
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
     lifetime_seconds = models.PositiveIntegerField(default=86400)
+    is_published  =  models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['proposalname']
+        verbose_name = 'IKE Proposal'
+        verbose_name_plural = 'IKE Proposals'
+
+    def clean(self):
+        if self.lifetime_seconds < 60:
+            raise ValidationError("Lifetime must be at least 60 seconds")
 
     def __str__(self):
         return self.proposalname
-    
-    def get_device(self):
-        return self.device.name
 
 
 class IkePolicy(models.Model):
@@ -78,14 +86,14 @@ class IkePolicy(models.Model):
     mode = models.CharField(max_length=50, choices=ipsecConfiguationItems.Mode.choices)
     proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
     authentication_method = models.CharField(
-        max_length=20, choices=ipsecConfiguationItems.AuthenticationMethod.choices, 
+        max_length=20, choices=ipsecConfiguationItems.AuthenticationMethod.choices,
         default=ipsecConfiguationItems.AuthenticationMethod.PSK
     )
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.policyname
-
 
 
 class IkeGateway(models.Model):
@@ -100,11 +108,10 @@ class IkeGateway(models.Model):
         choices=ipsecConfiguationItems.IkeVersions.choices,
         default=ipsecConfiguationItems.IkeVersions.V1_ONLY
     )
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.gatewayname}"
-
-
 
 
 class IpsecProposal(models.Model):
@@ -116,14 +123,19 @@ class IpsecProposal(models.Model):
     encryption_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.EncryptionAlgorithm.choices
     )
-    encapsulation_protocol = models.CharField(max_length=50, choices=ipsecConfiguationItems.Protocol.choices, default=ipsecConfiguationItems.Protocol.ESP)
+    encapsulation_protocol = models.CharField(
+        max_length=50,
+        choices=ipsecConfiguationItems.Protocol.choices,
+        default=ipsecConfiguationItems.Protocol.ESP
+    )
     dh_group = models.CharField(
-        max_length=20, choices=ipsecConfiguationItems.dh_group.choices, 
+        max_length=20, choices=ipsecConfiguationItems.dh_group.choices,
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.proposal_name 
+        return self.proposal_name
 
 
 class IpsecPolicy(models.Model):
@@ -136,10 +148,10 @@ class IpsecPolicy(models.Model):
         choices=ipsecConfiguationItems.dh_group.choices,
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return self.policy_name
-
 
 
 class IpsecVpn(models.Model):
@@ -153,7 +165,7 @@ class IpsecVpn(models.Model):
         choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
         default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,
     )
+    is_published = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.vpn_name}"
-

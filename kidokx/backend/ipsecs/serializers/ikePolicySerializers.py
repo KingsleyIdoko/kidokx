@@ -15,6 +15,7 @@ class IkePolicySerializer(serializers.ModelSerializer):
             'proposals',
             'authentication_method',
             'pre_shared_key',
+            'is_published',
         ]
 
     

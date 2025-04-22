@@ -17,4 +17,5 @@ class IkeGatewaySerializer(serializers.ModelSerializer):
             'local_address',
             'external_interface',
             'ike_policy',
+            'is_published',
         ]

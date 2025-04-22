@@ -16,4 +16,5 @@ class IpsecPolicySerializer(serializers.ModelSerializer):
             'device',
             'pfs_group',
             'ike_proposal',
+            'is_published',
         ]

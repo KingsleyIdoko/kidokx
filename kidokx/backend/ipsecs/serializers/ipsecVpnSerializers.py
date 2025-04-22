@@ -17,5 +17,6 @@ class IpsecVpnSerializer(serializers.ModelSerializer):
             'ipsec_policy',
             'bind_interface',
             'establish_tunnel',
+            'is_published',
         ]
 

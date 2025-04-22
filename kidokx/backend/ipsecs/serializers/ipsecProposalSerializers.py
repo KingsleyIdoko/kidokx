@@ -15,4 +15,5 @@ class IpsecProposalSerializer(serializers.ModelSerializer):
             'authentication_algorithm',
             'encryption_algorithm',
             'encapsulation_protocol',
+            'is_published',
         ]

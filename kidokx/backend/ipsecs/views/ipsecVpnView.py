@@ -25,6 +25,7 @@ class IPsecVpnUpdateView(UpdateAPIView):
     queryset = IpsecVpn.objects.all()
     serializer_class = IpsecVpnSerializer
     lookup_field = 'pk'
+    
 ipsecvpn_update_view = IPsecVpnUpdateView.as_view()
 
 class IPsecVpnDestroyView(DestroyAPIView):

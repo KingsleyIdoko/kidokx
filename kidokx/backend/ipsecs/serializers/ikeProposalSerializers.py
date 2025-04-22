@@ -13,4 +13,5 @@ class IkeProposalSerializer(serializers.ModelSerializer):
             'encryption_algorithm',
             'dh_group',
             'lifetime_seconds',
+            'is_published',
         ]

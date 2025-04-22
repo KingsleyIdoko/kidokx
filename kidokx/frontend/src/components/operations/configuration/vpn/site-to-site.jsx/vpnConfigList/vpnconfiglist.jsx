@@ -20,6 +20,7 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function VpnConfigList() {
   const [updatedData, setUpdatedData] = useState([]);
+  console.log(updatedData);
   const [error, setError] = useState(null);
   const [pendingRedirect, setPendingRedirect] = useState(false);
   const navigate = useNavigate();
@@ -41,7 +42,6 @@ export default function VpnConfigList() {
         if (!selectedDevice) return;
         const vpndata = await axios.get(urlPath);
         if (Array.isArray(vpndata.data)) {
-          // console.log(vpndata.data);
           setUpdatedData(vpndata.data);
           dispatch(setIpsecVpnData(vpndata.data));
         }
@@ -62,6 +62,22 @@ export default function VpnConfigList() {
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
     navigate(`/vpn/site-to-site/config/${configtype}/edit/${item.id}/`);
+  };
+
+  const handleDeploy = async (item) => {
+    const deployData = {
+      ...item,
+      is_published: true,
+    };
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,
+        deployData,
+      );
+    } catch (err) {
+      console.error('Post/Put failed:', err.message);
+      dispatch(setValidated(false));
+    }
   };
 
   const handleDelete = async (id) => {
@@ -157,10 +173,15 @@ export default function VpnConfigList() {
         <table className="min-w-full text-left bg-white border border-gray-200">
           <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
             <tr>
-              <th className="py-3 px-6 border-b">#</th>
-              <th className="py-3 px-6 border-b">Device Name</th>
-              <th className="py-3 px-6 border-b">{title}</th>
-              <th className="py-3 px-6 border-b text-center">Action</th>
+              <th className="py-3 px-6 border-b w-[10rem]">#</th>
+              <th className="py-3 px-6 border-b w-[10rem]">Device Name</th>
+              <th className="py-3 px-6 border-b w-[10rem]">{title}</th>
+              <th className="py-3 px-6 border-b text-center  w-[10rem]">
+                Action
+              </th>
+              <th className="py-3 px-6 border-b text-center  w-[10rem]">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
@@ -173,44 +194,59 @@ export default function VpnConfigList() {
             ) : (
               updatedData
                 .sort((a, b) => b.id - a.id)
-                .map((item, index) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="py-3 px-6 border-b">{index + 1}</td>
-                    <td className="py-3 px-6 border-b">
-                      <button>{item.device}</button>
-                    </td>
-                    <td className="py-3 px-6 border-b">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="hover:underline"
-                      >
-                        {configtype === 'ikeproposal'
-                          ? item.proposalname
-                          : configtype === 'ikepolicy'
-                          ? item.policyname
-                          : configtype === 'ikegateway'
-                          ? item.gatewayname
-                          : configtype === 'ipsecproposal'
-                          ? item.proposal_name
-                          : configtype === 'ipsecpolicy'
-                          ? item.policy_name
-                          : configtype === 'ipsecvpn'
-                          ? item.ipsecvpn_name
-                          : ''}
-                      </button>
-                    </td>
-                    <td className="py-3 px-6 border-b">
-                      <div className="flex space-x-6 justify-center items-center">
-                        <button onClick={() => handleEdit(item)}>
-                          <FontAwesomeIcon icon={faEdit} />
+                .map((item, index) => {
+                  return (
+                    <tr key={item.id} className="hover:bg-gray-50">
+                      <td className="py-3 px-6 border-b">{index + 1}</td>
+                      <td className="py-3 px-6 border-b">
+                        <button>{item.device}</button>
+                      </td>
+                      <td className="py-3 px-6 border-b">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="hover:underline"
+                        >
+                          {configtype === 'ikeproposal'
+                            ? item.proposalname
+                            : configtype === 'ikepolicy'
+                            ? item.policyname
+                            : configtype === 'ikegateway'
+                            ? item.gatewayname
+                            : configtype === 'ipsecproposal'
+                            ? item.proposal_name
+                            : configtype === 'ipsecpolicy'
+                            ? item.policy_name
+                            : configtype === 'ipsecvpn'
+                            ? item.vpn_name
+                            : ''}
                         </button>
-                        <button onClick={() => handleDelete(item.id)}>
-                          <FontAwesomeIcon icon={faTrash} />
+                      </td>
+                      <td className="py-3 px-6 border-b">
+                        <div className="flex space-x-6 justify-center items-center">
+                          <button onClick={() => handleEdit(item)}>
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button onClick={() => handleDelete(item.id)}>
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </td>
+                      <td className=" flex   justify-center py-3 px-6 border-b ">
+                        <button
+                          onClick={() => handleDeploy(item)}
+                          disabled={item.is_published}
+                          className={`w-[10rem] text-gray-600 ${
+                            item.is_published
+                              ? 'bg-gray-200 opacity-70 cursor-not-allowed'
+                              : 'bg-gray-200 hover:bg-gray-300'
+                          } py-2 px-3 rounded-lg`}
+                        >
+                          {item.is_published ? 'Deployed' : 'Deploy'}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+                    </tr>
+                  );
+                })
             )}
           </tbody>
         </table>
