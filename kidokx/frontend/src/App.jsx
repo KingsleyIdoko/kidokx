@@ -7,6 +7,10 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import SiteToSiteList from './components/operations/configuration/vpn/site-to-site.jsx/SiteToSiteVPNList';
 import HopePage from './components/homepage/homepage';
 import VpnConfigList from './components/operations/configuration/vpn/site-to-site.jsx/vpnConfigList/vpnconfiglist';
+import DeviceIvenventory from './components/inventory/devicelist';
+import CreateDevice from './components/inventory/createdevices';
+import CreateSite from './components/sites/createsite';
+import SiteList from './components/sites/sitelist';
 
 function App() {
   return (
@@ -15,6 +19,13 @@ function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<HopePage />} />
+          <Route
+            path="/inventory/device/list/*"
+            element={<DeviceIvenventory />}
+          />
+          <Route path="/inventory/device/create/*" element={<CreateDevice />} />
+          <Route path="/inventory/sites/create/*" element={<CreateSite />} />
+          <Route path="/inventory/sites/list/*" element={<SiteList />} />
           <Route
             path="/vpn/site-to-site/list/config/*"
             element={<VpnConfigList />}

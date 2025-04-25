@@ -66,6 +66,8 @@ class IkeProposal(models.Model):
     )
     lifetime_seconds = models.PositiveIntegerField(default=86400)
     is_published  =  models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     class Meta:
         ordering = ['proposalname']
@@ -91,6 +93,8 @@ class IkePolicy(models.Model):
     )
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
     is_published = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return self.policyname
@@ -109,6 +113,8 @@ class IkeGateway(models.Model):
         default=ipsecConfiguationItems.IkeVersions.V1_ONLY
     )
     is_published = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return f"{self.gatewayname}"
@@ -133,6 +139,8 @@ class IpsecProposal(models.Model):
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
     is_published = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return self.proposal_name
@@ -149,6 +157,8 @@ class IpsecPolicy(models.Model):
         default=ipsecConfiguationItems.dh_group.GROUP14
     )
     is_published = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return self.policy_name
@@ -166,6 +176,8 @@ class IpsecVpn(models.Model):
         default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,
     )
     is_published = models.BooleanField(default=False)
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
+    timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
         return f"{self.vpn_name}"

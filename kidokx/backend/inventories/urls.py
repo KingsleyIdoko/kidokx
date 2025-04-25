@@ -1,10 +1,23 @@
 from django.urls import path
-from .views import (device_list_view ,device_update_view, device_detail_view, device_delete_view,device_create_view,device_create_view )
+from .inventoryview.views import (device_list_view ,device_update_view, device_detail_view, device_delete_view,device_create_view,device_create_view, device_names_view )
+from .sites.views import (site_list_view,site_names_view,site_detail_view,site_create_view,site_update_view,site_delete_view)
+
+
+
+
 
 urlpatterns = [
     path('devices/',device_list_view),
-    path('device/<int:pk>',device_detail_view),
+    path('devices/names/',device_names_view),
+    path('device/<int:pk>/',device_detail_view),
     path('device/create/',device_create_view),
     path('device/<int:pk>/update/',device_update_view,),
     path('device/<int:pk>/delete/',device_delete_view),
+    # sites urls
+    path('sites/',site_list_view),
+    path('sites/names/',site_names_view),
+    path('site/<int:pk>/',site_detail_view),
+    path('site/create/',site_create_view),
+    path('site/<int:pk>/update/',site_update_view,),
+    path('site/<int:pk>/delete/',site_delete_view),
 ]

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import menuItems from './menuItems';
+import { menuItems } from './menuItems';
 import { useNavigate } from 'react-router-dom';
 
 import store from '../store/store';
@@ -28,21 +28,17 @@ export default function Navbar() {
   };
 
   const handleFirstDropDown = (firstDropDownName) => {
+    if (firstDropDownName === 'Sites') {
+      navigate('/inventory/sites/list/');
+    }
     store.dispatch(FirstDropDown(firstDropDownName));
   };
-
-  // useEffect(() => {
-  //   const navigateURL = (activeSecondDropDown) => {
-  //     console.log(activeSecondDropDown);
-  //   };
-  //   navigateURL();
-  // }, [activeSecondDropDown]);
 
   const handleSecondDropDown = (secondDropdown) => {
     store.dispatch(SecondDropDown(secondDropdown.name));
     const devicetype = secondDropdown.name.toLowerCase();
     if (!secondDropdown.subItems) {
-      navigate(`inventory/routers/${devicetype}/`);
+      navigate(`inventory/device/list/${devicetype}/`);
     }
   };
 
@@ -122,17 +118,19 @@ export default function Navbar() {
                               className="flex items-center justify-between space-x-6 bg-white hover:bg-sky-400 hover:text-white rounded-lg py-2 px-3 cursor-pointer"
                             >
                               <div>{firstdropdown.name}</div>
-                              <svg
-                                className={`fill-current h-6 w-6 transition-transform ${
-                                  activeFirstDropDown === firstdropdown.name
-                                    ? '-rotate-90'
-                                    : 'rotate-0'
-                                }`}
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                              </svg>
+                              {firstdropdown.hasSubmenu && (
+                                <svg
+                                  className={`fill-current h-6 w-6 transition-transform ${
+                                    activeFirstDropDown === firstdropdown.name
+                                      ? '-rotate-90'
+                                      : 'rotate-0'
+                                  }`}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 20 20"
+                                >
+                                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                                </svg>
+                              )}
                             </div>
 
                             {activeFirstDropDown === firstdropdown.name &&

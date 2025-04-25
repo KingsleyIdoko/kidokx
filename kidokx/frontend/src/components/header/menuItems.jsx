@@ -1,8 +1,10 @@
-const menuItems = [
+import axios from 'axios';
+export const menuItems = [
   {
     name: 'inventory',
     hasSubmenu: true,
     items: [
+      { name: 'Sites', hasSubmenu: false },
       {
         name: 'routers',
         hasSubmenu: true,
@@ -163,4 +165,33 @@ const menuItems = [
   },
 ];
 
-export default menuItems;
+const get_sites = async () => {
+  try {
+    const response = await axios.get(
+      'http://127.0.0.1:8000/api/inventories/devices/names/',
+    );
+    return response.data || [];
+  } catch (err) {
+    console.error('Error fetching IKE Proposal data:', err);
+    return [];
+  }
+};
+
+export const createDeviceFormItems = async () => {
+  const sites = await get_sites();
+  return [
+    { params_name: 'site', value: sites },
+    { params_name: 'Device Name', value: '' },
+    {
+      params_name: 'vendor',
+      value: ['cisco', 'juniper', 'arista', 'nokia', 'fortinet'],
+    },
+    { params_name: 'Protocol', value: ['snmp', 'SSH', 'https', 'netconf-shh'] },
+    {
+      params_name: 'Device Type',
+      value: ['router', 'switch', 'firewall', 'loadbalancer'],
+    },
+    { params_name: 'IP Address', value: '' },
+    { params_name: 'model', value: '' },
+  ];
+};
