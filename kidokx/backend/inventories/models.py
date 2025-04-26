@@ -20,7 +20,7 @@ PROTOCOL_CHOICES = [
 ]
 
 class Site(models.Model):
-    site_name = models.CharField(max_length=50)
+    site_name = models.CharField(max_length=50, unique=True)
     location = models.CharField(max_length=50)
     description = models.CharField(max_length=50)  # or use models.TextField() if you want longer input
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)

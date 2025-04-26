@@ -39,7 +39,7 @@ site_delete_view = SiteDestroyView.as_view()
 
 class SiteListNames(APIView):
     def get(self, request, *args, **kwargs):
-        sitelists = Site.objects.values_list("name", flat=True)
+        sitelists = Site.objects.values_list("site_name", flat=True)
         return Response(sitelists)
 
 site_names_view = SiteListNames.as_view()

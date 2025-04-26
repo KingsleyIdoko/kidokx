@@ -168,7 +168,7 @@ export const menuItems = [
 const get_sites = async () => {
   try {
     const response = await axios.get(
-      'http://127.0.0.1:8000/api/inventories/devices/names/',
+      'http://127.0.0.1:8000/api/inventories/sites/names/',
     );
     return response.data || [];
   } catch (err) {
@@ -179,6 +179,7 @@ const get_sites = async () => {
 
 export const createDeviceFormItems = async () => {
   const sites = await get_sites();
+  console.log(sites);
   return [
     { params_name: 'site', value: sites },
     { params_name: 'Device Name', value: '' },

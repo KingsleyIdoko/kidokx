@@ -9,15 +9,15 @@ from .sites.views import (site_list_view,site_names_view,site_detail_view,site_c
 urlpatterns = [
     path('devices/',device_list_view),
     path('devices/names/',device_names_view),
-    path('device/<int:pk>/',device_detail_view),
-    path('device/create/',device_create_view),
-    path('device/<int:pk>/update/',device_update_view,),
-    path('device/<int:pk>/delete/',device_delete_view),
+    path('devices/<int:pk>/',device_detail_view),
+    path('devices/create/',device_create_view),
+    path('devices/<int:pk>/update/',device_update_view,),
+    path('devices/<int:pk>/delete/',device_delete_view),
     # sites urls
     path('sites/',site_list_view),
     path('sites/names/',site_names_view),
-    path('site/<int:pk>/',site_detail_view),
-    path('site/create/',site_create_view),
-    path('site/<int:pk>/update/',site_update_view,),
-    path('site/<int:pk>/delete/',site_delete_view),
+    path('sites/<int:pk>/',site_detail_view),
+    path('sites/create/',site_create_view),
+    path('sites/<int:pk>/update/',site_update_view,),
+    path('sites/<int:pk>/delete/',site_delete_view),
 ]

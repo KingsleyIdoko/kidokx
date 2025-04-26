@@ -3,10 +3,13 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setSiteData } from '../store/reducers/siteReducer';
 
 export default function SiteList() {
-  const [siteData, setSiteData] = useState([]);
+  const [siteApiData, setSiteAPiData] = useState([]);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -14,23 +17,39 @@ export default function SiteList() {
         const res = await axios.get(
           'http://127.0.0.1:8000/api/inventories/sites/',
         );
-        setSiteData(res.data);
+        setSiteAPiData(res.data);
       } catch (err) {
         console.log('Api call failed', err);
       }
     };
     fetchData();
-  }, []);
+  }, [dispatch]);
 
   const handleAddSite = () => {
     navigate('/inventory/sites/create/');
+  };
+
+  const handleEdit = (site) => {
+    dispatch(setSiteData(site));
+    navigate('/inventory/sites/create/'); // if you want to go to edit page after clicking edit
+  };
+
+  const handleDelete = async (siteId) => {
+    try {
+      await axios.delete(
+        `http://127.0.0.1:8000/api/inventories/sites/${siteId}/delete/`,
+      );
+      setSiteAPiData((prev) => prev.filter((site) => site.id !== siteId));
+    } catch (err) {
+      console.error('Delete failed', err.message);
+    }
   };
 
   return (
     <div className="w-[120rem] px-10 py-8 bg-white mx-auto mt-12">
       <h1 className="text-2xl font-bold mb-6 text-center">Sites Overview</h1>
       <button
-        className=" mb-6 text-white py-2 px-6 bg-sky-400 rounded-md"
+        className="mb-6 text-white py-2 px-6 bg-sky-400 rounded-md"
         onClick={handleAddSite}
       >
         Add Site
@@ -56,8 +75,8 @@ export default function SiteList() {
           </tr>
         </thead>
         <tbody>
-          {siteData.map((site, index) => (
-            <tr key={index} className="hover:bg-gray-50">
+          {siteApiData.map((site, index) => (
+            <tr key={site.id || index} className="hover:bg-gray-50">
               <td className="border-t border-b border-gray-300 px-6 py-4 text-sm">
                 {index + 1}
               </td>
@@ -71,11 +90,17 @@ export default function SiteList() {
                 {site.description}
               </td>
               <td className="border-t border-b border-gray-300 px-6 py-4 text-center">
-                <div className="flex space-x-3">
-                  <button className="text-blue-600 hover:text-blue-800">
+                <div className="flex space-x-3 justify-center">
+                  <button
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => handleEdit(site)}
+                  >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
-                  <button className="text-red-600 hover:text-red-800">
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => handleDelete(site.id)}
+                  >
                     <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </div>
