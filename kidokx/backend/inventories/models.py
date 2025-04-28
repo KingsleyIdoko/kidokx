@@ -1,6 +1,5 @@
 from django.db import models
 
-# Example choices – update as needed
 DEVICE_TYPES = [
     ('router', 'router'),
     ('switch', 'switch'),

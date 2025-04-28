@@ -5,6 +5,8 @@ import axios from 'axios';
 
 export default function CreateDevice() {
   const [formItems, setFormItems] = useState([]);
+  const { editeddata } = useForm((state) => state.inventories);
+  console.log(editeddata);
   const {
     reset,
     trigger,

@@ -1,19 +1,49 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { setEditedData } from '../store/reducers/inventoryReducers';
+import { useDispatch } from 'react-redux';
 
 export default function DeviceInventory() {
+  const dispatch = useDispatch();
+  const [backendData, setBackendData] = useState([]);
   const navigate = useNavigate();
-  const handlecreatedevice = () => {
+
+  const handleEdit = (device) => {
+    dispatch(setEditedData(device));
     navigate('/inventory/device/create/');
   };
+
+  const handleDelete = (deviceId) => {
+    console.log('Deleting device with ID:', deviceId);
+  };
+
+  const handleCreateDevice = () => {
+    navigate('/inventory/device/create/');
+  };
+
+  useEffect(() => {
+    const fetchDeviceList = async () => {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:8000/api/inventories/devices/',
+        );
+        setBackendData(response.data);
+      } catch (err) {
+        console.error('Failed to fetch backend data:', err);
+      }
+    };
+    fetchDeviceList();
+  }, []);
 
   return (
     <div className="w-[120rem] p-6 bg-gray-50 mx-auto mt-10">
       <div className="py-2">
         <button
           className="py-2 px-8 rounded-md bg-green-600 text-white hover:opacity-70"
-          onClick={handlecreatedevice}
+          onClick={handleCreateDevice}
         >
           Add New
         </button>
@@ -24,34 +54,49 @@ export default function DeviceInventory() {
             <tr>
               <th className="px-4 py-3 font-medium w-[4rem]">#</th>
               <th className="px-4 py-3 font-medium w-[10rem]">Site</th>
-              <th className="px-4 py-3 font-medium w-[14rem]">IPv4 address</th>
-              <th className="px-4 py-3 font-medium w-[16rem]">Device name</th>
-              <th className="px-4 py-3 font-medium w-[14rem]">Device type</th>
+              <th className="px-4 py-3 font-medium w-[14rem]">IPv4 Address</th>
+              <th className="px-4 py-3 font-medium w-[16rem]">Device Name</th>
+              <th className="px-4 py-3 font-medium w-[14rem]">Device Type</th>
               <th className="px-4 py-3 font-medium w-[12rem]">Vendor</th>
-              <th className="px-4 py-3 font-medium w-[12rem]">Device model</th>
+              <th className="px-4 py-3 font-medium w-[12rem]">Device Model</th>
               <th className="px-4 py-3 font-medium w-[10rem]">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y text-gray-800">
-            <tr className="hover:bg-gray-50">
-              <td className="px-4 py-2">1</td>
-              <td className="px-4 py-2">site</td>
-              <td className="px-4 py-2">10.166.113.53</td>
-              <td className="px-4 py-2">TSW-73-7F459CCC</td>
-              <td className="px-4 py-2">Smart Display</td>
-              <td className="px-4 py-2">Crestron</td>
-              <td className="px-4 py-2">TSW-730</td>
-              <td className="px-4 py-2">
-                <div className="flex space-x-3">
-                  <button className="text-blue-600 hover:text-blue-800">
-                    <FontAwesomeIcon icon={faEdit} />
-                  </button>
-                  <button className="text-red-600 hover:text-red-800">
-                    <FontAwesomeIcon icon={faTrash} />
-                  </button>
-                </div>
-              </td>
-            </tr>
+            {backendData.map((device, index) => {
+              return (
+                <tr key={device.id || index} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{index + 1}</td>
+                  <td className="px-4 py-2">{device.site}</td>
+                  <td className="px-4 py-2">{device.ip_address}</td>
+                  <td
+                    className="px-4 py-2 hover:underline cursor-pointer"
+                    onClick={() => handleEdit(device)}
+                  >
+                    {device.device_name}
+                  </td>
+                  <td className="px-4 py-2">{device.device_type}</td>
+                  <td className="px-4 py-2">{device.vendor_name}</td>
+                  <td className="px-4 py-2">{device.device_model || 'n/a'}</td>
+                  <td className="px-4 py-2">
+                    <div className="flex space-x-3">
+                      <button
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={() => handleEdit(device)}
+                      >
+                        <FontAwesomeIcon icon={faEdit} />
+                      </button>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => handleDelete(device.id)}
+                      >
+                        <FontAwesomeIcon icon={faTrash} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

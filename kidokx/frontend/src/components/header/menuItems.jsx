@@ -179,7 +179,6 @@ const get_sites = async () => {
 
 export const createDeviceFormItems = async () => {
   const sites = await get_sites();
-  console.log(sites);
   return [
     { params_name: 'site', value: sites },
     { params_name: 'Device Name', value: '' },

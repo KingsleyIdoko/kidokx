@@ -4,6 +4,7 @@ const initialState = {
   inventories: [],
   selectedDevice: '',
   isSelectedDevice: false,
+  editeddata: {},
 };
 
 const inventorySlice = createSlice({
@@ -19,10 +20,17 @@ const inventorySlice = createSlice({
     setIsSelectedDevice: (state, action) => {
       state.isSelectedDevice = action.payload;
     },
+    setEditedData: (state, action) => {
+      state.isSelectedDevice = action.payload;
+    },
   },
 });
 
-export const { setDeviceInventories, setSelectedDevice, setIsSelectedDevice } =
-  inventorySlice.actions;
+export const {
+  setDeviceInventories,
+  setSelectedDevice,
+  setIsSelectedDevice,
+  setEditedData,
+} = inventorySlice.actions;
 
 export default inventorySlice.reducer;
