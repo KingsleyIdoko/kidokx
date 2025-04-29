@@ -21,7 +21,7 @@ const inventorySlice = createSlice({
       state.isSelectedDevice = action.payload;
     },
     setEditedData: (state, action) => {
-      state.isSelectedDevice = action.payload;
+      state.editeddata = action.payload;
     },
   },
 });

@@ -13,7 +13,7 @@ export default function DeviceInventory() {
 
   const handleEdit = (device) => {
     dispatch(setEditedData(device));
-    navigate('/inventory/device/create/');
+    navigate('/inventory/devices/create/');
   };
 
   const handleDelete = (deviceId) => {
@@ -21,7 +21,7 @@ export default function DeviceInventory() {
   };
 
   const handleCreateDevice = () => {
-    navigate('/inventory/device/create/');
+    navigate('/inventory/devices/create/');
   };
 
   useEffect(() => {

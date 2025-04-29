@@ -20,10 +20,13 @@ function App() {
         <Routes>
           <Route path="/" element={<HopePage />} />
           <Route
-            path="/inventory/device/list/*"
+            path="/inventory/devices/list/*"
             element={<DeviceIvenventory />}
           />
-          <Route path="/inventory/device/create/*" element={<CreateDevice />} />
+          <Route
+            path="/inventory/devices/create/*"
+            element={<CreateDevice />}
+          />
           <Route path="/inventory/sites/create/*" element={<CreateSite />} />
           <Route path="/inventory/sites/list/*" element={<SiteList />} />
           <Route

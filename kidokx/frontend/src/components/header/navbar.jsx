@@ -38,7 +38,7 @@ export default function Navbar() {
     store.dispatch(SecondDropDown(secondDropdown.name));
     const devicetype = secondDropdown.name.toLowerCase();
     if (!secondDropdown.subItems) {
-      navigate(`inventory/device/list/${devicetype}/`);
+      navigate(`inventory/devices/list/${devicetype}/`);
     }
   };
 
