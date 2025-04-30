@@ -17,10 +17,19 @@ export default function DeviceInventory() {
   };
 
   const handleDelete = (deviceId) => {
-    console.log('Deleting device with ID:', deviceId);
+    const updatedData = backendData.filter((device) => device.id !== deviceId);
+    setBackendData(updatedData);
+    try {
+      axios.delete(
+        `http://127.0.0.1:8000/api/inventories/devices/${deviceId}/delete/`,
+      );
+    } catch (err) {
+      console.log('An error has occured: ', err);
+    }
   };
 
   const handleCreateDevice = () => {
+    dispatch(setEditedData(null));
     navigate('/inventory/devices/create/');
   };
 

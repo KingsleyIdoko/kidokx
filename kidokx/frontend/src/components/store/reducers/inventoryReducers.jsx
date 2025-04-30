@@ -4,7 +4,7 @@ const initialState = {
   inventories: [],
   selectedDevice: '',
   isSelectedDevice: false,
-  editeddata: {},
+  editeddata: null,
 };
 
 const inventorySlice = createSlice({

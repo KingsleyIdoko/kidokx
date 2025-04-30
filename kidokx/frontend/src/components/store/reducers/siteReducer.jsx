@@ -2,6 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   sitedata: {},
+  site: null,
+  sitenames: [],
 };
 
 const siteSlice = createSlice({
@@ -11,9 +13,15 @@ const siteSlice = createSlice({
     setSiteData: (state, action) => {
       state.sitedata = action.payload;
     },
+    setSite: (state, action) => {
+      state.site = action.payload;
+    },
+    setGetSiteName: (state, action) => {
+      state.site = action.payload;
+    },
   },
 });
 
-export const { setSiteData } = siteSlice.actions;
+export const { setSiteData, setSite, setGetSiteName } = siteSlice.actions;
 
 export default siteSlice.reducer;

@@ -11,6 +11,7 @@ import {
   setConfigType,
   setValidSearchComponent,
 } from '../store/reducers/vpnReducer';
+import { setGetSiteName } from '../store/reducers/siteReducer';
 
 export function SearchDevice() {
   const { configtype, saveconfiguration, editingData, createvpndata } =
@@ -18,8 +19,11 @@ export function SearchDevice() {
   const { selectedDevice, inventories } = useSelector(
     (state) => state.inventories,
   );
+  const { sitenames = [] } = useSelector((state) => state.site.sitenames);
+
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState(null);
+  const [siteNames, setSiteNames] = useState([]);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const isEditPath = location.pathname.includes('/edit/');
@@ -38,10 +42,16 @@ export function SearchDevice() {
       config: configtype || '',
     },
   });
-
-  // Is used to set the configtype on create vpn page
   const watchConfig = watch('config');
   const watchDevice = watch('device');
+  const selectedsite = watch('site');
+
+  let filteredDevice = [];
+  if (selectedsite) {
+    filteredDevice = devices.filter((device) => device.site === selectedsite);
+  } else {
+    filteredDevice = devices;
+  }
 
   useEffect(() => {
     if (configtype) {
@@ -55,6 +65,30 @@ export function SearchDevice() {
       dispatch(setSelectedDevice(watchDevice));
     }
   }, [watchConfig, watchDevice, dispatch]);
+
+  useEffect(() => {
+    const fetchSiteData = async () => {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:8000/api/inventories/sites/names/',
+        );
+        if (response.status === 200) {
+          setSiteNames(response.data);
+          dispatch(setGetSiteName(response.data));
+        }
+      } catch (err) {
+        console.log('Error occurred fetching site names:', err);
+      }
+    };
+
+    if (sitenames) {
+      setSiteNames(siteNames);
+    }
+
+    if (!siteNames || Object.keys(siteNames).length === 0) {
+      fetchSiteData();
+    }
+  }, [siteNames, dispatch]);
 
   useEffect(() => {
     if (saveconfiguration || createvpndata) {
@@ -115,6 +149,24 @@ export function SearchDevice() {
     <form className="flex py-3 justify-between mx-auto items-start gap-3">
       <div className="w-full flex flex-col">
         <select
+          {...register('site', { required: 'Select site' })}
+          className="w-full py-3 px-3 border rounded focus:outline-none capitalize"
+        >
+          <option value=""> select Site</option>
+          {siteNames.map((site, index) => (
+            <option key={index} value={site}>
+              {site}
+            </option>
+          ))}
+        </select>
+        {errors.device && (
+          <p className="pl-3 text-sm text-red-500 font-medium flex items-center mt-2">
+            {errors.device.message}
+          </p>
+        )}
+      </div>
+      <div className="w-full flex flex-col">
+        <select
           {...register('device', { required: 'Select device' })}
           className={`w-full py-3 px-3 border focus:outline-none rounded 
             ${errors.device ? 'border-red-500' : ''}
@@ -123,11 +175,13 @@ export function SearchDevice() {
           disabled={editingData}
         >
           <option value="">Select Device</option>
-          {devices.map((device) => (
-            <option key={device.id} value={device.name}>
-              {device.name}
-            </option>
-          ))}
+          {filteredDevice.map((device) => {
+            return (
+              <option key={device.id} value={device.name}>
+                {device.device_name}
+              </option>
+            );
+          })}
         </select>
         {errors.device && (
           <p className="pl-3 text-sm text-red-500 font-medium flex items-center mt-2">
@@ -157,16 +211,6 @@ export function SearchDevice() {
             {errors.config.message}
           </p>
         )}
-      </div>
-
-      <div className="w-full flex flex-col">
-        <select className="w-full py-3 px-3 border rounded focus:outline-none">
-          <option value="">Site</option>
-          <option value="AMS">AMS</option>
-          <option value="LON">LON</option>
-          <option value="NYC">NYC</option>
-          <option value="LA">LA</option>
-        </select>
       </div>
 
       <div className="w-full flex flex-col">

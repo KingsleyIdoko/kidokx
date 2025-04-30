@@ -3,8 +3,11 @@ import { useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
 import { createDeviceFormItems } from '../header/menuItems';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateDevice() {
+  let response;
+  const navigate = useNavigate();
   const [formItems, setFormItems] = useState([]);
   const editedData = useSelector((state) => state.inventories.editeddata);
   const {
@@ -57,17 +60,21 @@ export default function CreateDevice() {
     });
     try {
       if (editedData) {
-        await axios.put(
+        response = await axios.put(
           `http://127.0.0.1:8000/api/inventories/devices/${editedData.id}/update/`,
           normalizedData,
         );
-        alert('Device updated successfully!');
+        if (response.status === 200) {
+          navigate('/inventory/devices/list/');
+        }
       } else {
-        await axios.post(
+        response = await axios.post(
           'http://127.0.0.1:8000/api/inventories/devices/create/',
           normalizedData,
         );
-        alert('Device created successfully!');
+        if (response.status === 201) {
+          navigate('/inventory/devices/list/');
+        }
       }
       reset({});
     } catch (err) {
@@ -83,52 +90,61 @@ export default function CreateDevice() {
         </h1>
 
         <div className="space-y-6">
-          {formItems.map((item) => (
-            <div
-              key={item.params_name}
-              className="flex items-center justify-center gap-20"
-            >
-              <label
-                htmlFor={item.params_name}
-                className="w-1/4 font-medium capitalize border py-3 px-6 rounded-lg bg-gray-100"
+          {formItems.map((item) => {
+            return (
+              <div
+                key={item.params_name}
+                className="flex items-center justify-center gap-20"
               >
-                {item.params_name.replace('_', ' ')}
-              </label>
+                <label
+                  htmlFor={item.params_name}
+                  className="w-1/4 font-medium capitalize border py-3 px-6 rounded-lg bg-gray-100"
+                >
+                  {item.params_name.replace('_', ' ')}
+                </label>
 
-              <div className="w-[28rem] flex flex-col">
-                {Array.isArray(item.value) ? (
-                  <select
-                    {...register(item.params_name, { required: true })}
-                    id={item.params_name}
-                    className="w-full py-2 px-4 capitalize border rounded focus:outline-none bg-gray-100 focus:ring focus:border-gray-400"
-                  >
-                    <option value="">Select {item.params_name}</option>
-                    {item.value.map((option) => (
-                      <option key={option} value={option}>
-                        {option}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    autoComplete="off"
-                    {...register(item.params_name, {
-                      required: item.params_name !== 'model',
-                    })}
-                    id={item.params_name}
-                    className="w-full py-2 px-4 border rounded bg-gray-100 focus:outline-none focus:ring focus:border-gray-400"
-                    placeholder={`Enter ${item.params_name}`}
-                  />
-                )}
-                {errors[item.params_name] && (
-                  <span className="text-red-500 text-sm">
-                    {item.params_name} is required
-                  </span>
-                )}
+                <div className="w-[28rem] flex flex-col">
+                  {Array.isArray(item.value) ? (
+                    <select
+                      {...register(item.params_name, { required: true })}
+                      id={item.params_name}
+                      className="w-full py-2 px-4 capitalize border rounded focus:outline-none bg-gray-100 focus:ring focus:border-gray-400"
+                    >
+                      <option value="">Select {item.params_name}</option>
+                      {item.value.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      autoComplete="off"
+                      {...register(item.params_name, {
+                        required: item.params_name !== 'model',
+                      })}
+                      id={item.params_name}
+                      className={`w-full py-2 px-4 border rounded focus:outline-none focus:ring focus:border-gray-400 ${
+                        editedData && item.params_name === 'Device Name'
+                          ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                          : 'bg-gray-100'
+                      }`}
+                      disabled={
+                        editedData && item.params_name === 'Device Name'
+                      }
+                      placeholder={`Enter ${item.params_name}`}
+                    />
+                  )}
+                  {errors[item.params_name] && (
+                    <span className="text-red-500 text-sm">
+                      {item.params_name} is required
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-10 absolute right-20">

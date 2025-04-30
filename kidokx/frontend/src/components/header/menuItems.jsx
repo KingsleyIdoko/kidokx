@@ -9,6 +9,7 @@ export const menuItems = [
         name: 'routers',
         hasSubmenu: true,
         subItems: [
+          { name: 'All Devices' },
           { name: 'Cisco' },
           { name: 'Juniper' },
           { name: 'Arista' },
@@ -180,13 +181,13 @@ const get_sites = async () => {
 export const createDeviceFormItems = async () => {
   const sites = await get_sites();
   return [
-    { params_name: 'site', value: sites },
     { params_name: 'Device Name', value: '' },
+    { params_name: 'site', value: sites },
     {
       params_name: 'vendor',
       value: ['cisco', 'juniper', 'arista', 'nokia', 'fortinet'],
     },
-    { params_name: 'Protocol', value: ['snmp', 'SSH', 'https', 'netconf-shh'] },
+    { params_name: 'Protocol', value: ['snmp', 'ssh', 'https', 'netconf-ssh'] },
     {
       params_name: 'Device Type',
       value: ['router', 'switch', 'firewall', 'loadbalancer'],

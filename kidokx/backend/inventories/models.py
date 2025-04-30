@@ -16,6 +16,7 @@ PROTOCOL_CHOICES = [
     ('ssh', 'SSH'),
     ('snmp', 'SNMP'),
     ('telnet', 'Telnet'),
+    ('netconf-ssh', 'netconf-ssh'),
 ]
 
 class Site(models.Model):

@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   setConfigType,
   setIkeProposalData,
@@ -9,35 +9,78 @@ import {
   setEditing,
   setDeployconfiguration,
   setValidated,
-} from "../../../../store/reducers/vpnReducer";
+} from '../../../../store/reducers/vpnReducer';
+
 import {
   setDeviceInventories,
   setSelectedDevice,
-} from "../../../../store/reducers/inventoryReducers";
+} from '../../../../store/reducers/inventoryReducers';
 
-import { useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
+import {
+  setSite,
+  setSiteData,
+  setGetSiteName,
+} from '../../../../store/reducers/siteReducer';
+
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 
 export default function SiteToSiteList() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = useState(null);
-
+  const [siteNames, setSiteNames] = useState([]);
   const { inventories = [] } = useSelector((state) => state.inventories || {});
-
+  const [filteredInventory, setFilteredInventory] = useState([]);
   const {
     register,
+    watch,
     trigger,
     getValues,
     formState: { errors },
-  } = useForm({ mode: "onChange" });
+  } = useForm({ mode: 'onChange' });
 
+  const selectedSite = watch('site');
+
+  useEffect(() => {
+    if (inventories && inventories.length > 0 && selectedSite) {
+      setFilteredInventory(
+        inventories.filter((items) => items.site === selectedSite),
+      );
+    } else {
+      setFilteredInventory(inventories);
+    }
+  }, [inventories, selectedSite]);
+
+  useEffect(() => {
+    if (selectedSite) dispatch(setSite(selectedSite));
+  }, [selectedSite]);
+
+  useEffect(() => {
+    const fetchSiteData = async () => {
+      try {
+        const response = await axios.get(
+          'http://127.0.0.1:8000/api/inventories/sites/names/',
+        );
+        if (response.status === 200) {
+          setSiteNames(response.data);
+          dispatch(setGetSiteName(response.data));
+        }
+      } catch (err) {
+        console.log('Error occurred fetching site names:', err);
+      }
+    };
+
+    if (!siteNames || Object.keys(siteNames).length === 0) {
+      fetchSiteData();
+    }
+  }, [siteNames, dispatch]);
   const handleUrlPath = async () => {
-    const isValid = await trigger(["device", "config"]);
+    const isValid = await trigger(['device', 'config']);
     if (!isValid) return;
 
-    const config = getValues("config")?.toLowerCase();
-    const device = getValues("device");
+    const config = getValues('config')?.toLowerCase();
+    const device = getValues('device');
     if (!config) return;
 
     // Reset all related state in one go
@@ -58,15 +101,14 @@ export default function SiteToSiteList() {
 
   useEffect(() => {
     let isMounted = true;
-
     const fetchDeviceList = async () => {
       try {
         const res = await axios.get(
-          "http://127.0.0.1:8000/api/inventories/devices/"
+          'http://127.0.0.1:8000/api/inventories/devices/',
         );
         const lowerCaseData = res.data.map((device) => ({
           ...device,
-          name: device.name.toLowerCase(),
+          name: device.device_name.toLowerCase(),
         }));
         if (isMounted) {
           dispatch(setDeviceInventories(lowerCaseData));
@@ -74,20 +116,18 @@ export default function SiteToSiteList() {
       } catch (err) {
         if (isMounted) {
           setError(err.message);
-          console.error("Error occurred:", err.message);
+          console.error('Error occurred:', err.message);
         }
       }
     };
-
     fetchDeviceList();
-
     return () => {
       isMounted = false;
     };
   }, [dispatch]);
 
   return (
-    <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-4 shadow-md mt-10">
+    <div className="max-w-[100rem] mx-auto bg-white rounded-lg p-4 shadow-md mt-10">
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <div className="flex space-x-6 mb-8 border-b-2 py-2 items-center justify-between">
@@ -102,21 +142,38 @@ export default function SiteToSiteList() {
           </button>
           <div className="h-6"></div>
         </div>
+        {/* Site Dropdown */}
+        <div className="w-full flex flex-col">
+          <select
+            {...register('site')}
+            className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
+          >
+            <option value="">Select Site</option>
+            {siteNames.map((site, index) => (
+              <option key={index} value={site}>
+                {site}
+              </option>
+            ))}
+          </select>
+          <div className="h-6"></div>
+        </div>
 
         {/* Device Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register("device", { required: "select device" })}
+            {...register('device', { required: 'select device' })}
             className={`border px-4 rounded-lg h-12 focus:outline-none ${
-              errors.device ? "border-b-2 border-red-500" : ""
+              errors.device ? 'border-b-2 border-red-500' : ''
             }`}
           >
             <option value="">Select Device</option>
-            {inventories.map((device) => (
-              <option key={device.id} value={device.name}>
-                {device.name}
-              </option>
-            ))}
+            {filteredInventory.map((device) => {
+              return (
+                <option key={device.id} value={device.name}>
+                  {device.name}
+                </option>
+              );
+            })}
           </select>
           <div className="h-6">
             {errors.device && (
@@ -130,9 +187,9 @@ export default function SiteToSiteList() {
         {/* Config Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register("config", { required: "select configtype" })}
+            {...register('config', { required: 'select configtype' })}
             className={`w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none ${
-              errors.config ? "border-b-2 border-red-500" : ""
+              errors.config ? 'border-b-2 border-red-500' : ''
             }`}
           >
             <option value="">Select Config</option>
@@ -152,23 +209,10 @@ export default function SiteToSiteList() {
           </div>
         </div>
 
-        {/* Site Dropdown */}
-        <div className="w-full flex flex-col">
-          <select
-            {...register("site")}
-            className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
-          >
-            <option value="">Select Site</option>
-            <option value="site1">Site 1</option>
-            <option value="site2">Site 2</option>
-          </select>
-          <div className="h-6"></div>
-        </div>
-
         {/* VPN Type Dropdown */}
         <div className="w-full flex flex-col">
           <select
-            {...register("vpnType")}
+            {...register('vpnType')}
             className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
           >
             <option value="">Select VPN Type</option>

@@ -3,7 +3,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { setSiteData } from '../store/reducers/siteReducer';
 
 export default function SiteList() {
@@ -46,7 +46,7 @@ export default function SiteList() {
   };
 
   return (
-    <div className="w-[120rem] px-10 py-8 bg-white mx-auto mt-12">
+    <div className="max-w-[120rem] px-10 py-8 bg-white mx-auto mt-12">
       <h1 className="text-2xl font-bold mb-6 text-center">Sites Overview</h1>
       <button
         className="mb-6 text-white py-2 px-6 bg-sky-400 rounded-md"

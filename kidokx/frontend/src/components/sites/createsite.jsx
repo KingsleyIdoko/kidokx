@@ -2,10 +2,11 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function CreateSite() {
   const { sitedata } = useSelector((state) => state.site);
-
+  const navigate = useNavigate();
   const formData = [
     { name: 'Site Name', value: '' },
     { name: 'Location', value: '' },
@@ -37,26 +38,30 @@ export default function CreateSite() {
   }, [sitedata, reset]);
 
   const onSubmit = async (data) => {
+    let response;
     const payload = {};
     Object.entries(data).forEach(([key, value]) => {
-      payload[fieldMapping[key]] = value;
+      payload[fieldMapping[key]] = value ? value.toLowerCase() : value;
     });
 
     try {
       if (sitedata && sitedata.id) {
-        // Update site (PUT request)
-        await axios.put(
+        response = await axios.put(
           `http://127.0.0.1:8000/api/inventories/sites/${sitedata.id}/update/`,
           payload,
         );
-        alert('Site updated successfully!');
+        if (response.status === 201) {
+          navigate('/inventory/sites/list/');
+        }
       } else {
         // Create new site (POST request)
-        await axios.post(
+        response = await axios.post(
           'http://127.0.0.1:8000/api/inventories/sites/create/',
           payload,
         );
-        alert('Site created successfully!');
+        if (response.status === 201) {
+          navigate('/inventory/sites/list/');
+        }
       }
       reset({});
     } catch (err) {
@@ -65,7 +70,7 @@ export default function CreateSite() {
   };
 
   return (
-    <div className="w-[60rem] min-h-[40rem] bg-white rounded-lg mx-auto mt-12 p-10">
+    <div className="max-w-[60rem] min-h-[40rem] bg-white rounded-lg mx-auto mt-12 p-10">
       <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="font-bold text-3xl text-center mb-12 uppercase">
           {sitedata?.id ? 'Edit Site' : 'Create Site'}
