@@ -10,6 +10,10 @@ import {
   setEditing,
 } from '../../../../store/reducers/vpnReducer';
 import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
+import {
+  setSite,
+  setGetSiteName,
+} from '../../../../store/reducers/siteReducer';
 
 const ikeproposalforms = [
   { name: 'Proposal Name', value: '' },
@@ -57,7 +61,7 @@ function IkeProposalConfig() {
   } = useSelector((store) => store.vpn);
 
   const { selectedDevice } = useSelector((store) => store.inventories);
-
+  const { site } = useSelector((store) => store.site);
   const defaultValues = ikeproposalforms.reduce((acc, curr) => {
     const fieldName = curr.name.toLowerCase().replace(/\\s+/g, '_');
     acc[fieldName] = curr.value instanceof Array ? '' : curr.value;
@@ -93,6 +97,7 @@ function IkeProposalConfig() {
       ...transformedData,
       device: selectedDevice,
     };
+    console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
@@ -109,6 +114,7 @@ function IkeProposalConfig() {
       dispatch(setIkeProposalData(finalPayload));
       dispatch(setConfigType(configtype));
       dispatch(setSelectedDevice(selectedDevice));
+      dispatch(setGetSiteName(site));
       dispatch(setValidated(true));
     } catch (err) {
       console.error('Post/Put failed:', err.message);

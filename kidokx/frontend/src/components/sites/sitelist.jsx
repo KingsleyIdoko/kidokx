@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +31,7 @@ export default function SiteList() {
 
   const handleEdit = (site) => {
     dispatch(setSiteData(site));
-    navigate('/inventory/sites/create/'); // if you want to go to edit page after clicking edit
+    navigate('/inventory/sites/create/');
   };
 
   const handleDelete = async (siteId) => {

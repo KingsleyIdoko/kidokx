@@ -3,7 +3,7 @@ from ipsecs.models import IpsecPolicy, IkeProposal
 from inventories.models import Device
 
 class IpsecPolicySerializer(serializers.ModelSerializer):
-    device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
+    device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
     ike_proposal = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.all()
 )
 

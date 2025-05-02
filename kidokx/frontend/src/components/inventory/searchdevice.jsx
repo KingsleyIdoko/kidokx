@@ -20,7 +20,7 @@ export function SearchDevice() {
     (state) => state.inventories,
   );
   const { sitenames = [] } = useSelector((state) => state.site.sitenames);
-
+  const site = useSelector((state) => state.site.site);
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState(null);
   const [siteNames, setSiteNames] = useState([]);
@@ -34,12 +34,14 @@ export function SearchDevice() {
     trigger,
     getValues,
     setValue,
+    reset,
     formState: { errors },
   } = useForm({
     mode: 'onChange',
     defaultValues: {
       device: selectedDevice || '',
       config: configtype || '',
+      site: '',
     },
   });
   const watchConfig = watch('config');
@@ -58,6 +60,16 @@ export function SearchDevice() {
       setValue('config', configtype);
     }
   }, [configtype, setValue]);
+
+  useEffect(() => {
+    if (siteNames.length && site) {
+      reset({
+        device: selectedDevice || '',
+        config: configtype || '',
+        site: site,
+      });
+    }
+  }, [siteNames, site, selectedDevice, configtype, reset]);
 
   useEffect(() => {
     if (watchConfig) {

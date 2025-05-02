@@ -3,7 +3,7 @@ from ipsecs.models import IpsecProposal
 from inventories.models import Device
 
 class IpsecProposalSerializer(serializers.ModelSerializer):
-    device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
+    device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
 
     class Meta:
         model = IpsecProposal

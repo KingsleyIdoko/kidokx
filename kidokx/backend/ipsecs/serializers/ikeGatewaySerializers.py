@@ -3,7 +3,7 @@ from ipsecs.models import IkeGateway, IkePolicy
 from inventories.models import Device
 
 class IkeGatewaySerializer(serializers.ModelSerializer):
-    device = serializers.SlugRelatedField(slug_field='name', queryset=Device.objects.all())
+    device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
     ike_policy = serializers.SlugRelatedField(slug_field='policyname', queryset=IkePolicy.objects.all())
 
     class Meta:

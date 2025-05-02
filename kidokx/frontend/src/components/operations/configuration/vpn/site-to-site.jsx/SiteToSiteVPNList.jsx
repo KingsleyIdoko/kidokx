@@ -18,7 +18,6 @@ import {
 
 import {
   setSite,
-  setSiteData,
   setGetSiteName,
 } from '../../../../store/reducers/siteReducer';
 
@@ -54,7 +53,7 @@ export default function SiteToSiteList() {
 
   useEffect(() => {
     if (selectedSite) dispatch(setSite(selectedSite));
-  }, [selectedSite]);
+  }, [selectedSite, dispatch]);
 
   useEffect(() => {
     const fetchSiteData = async () => {
@@ -71,19 +70,22 @@ export default function SiteToSiteList() {
       }
     };
 
-    if (!siteNames || Object.keys(siteNames).length === 0) {
+    if (!siteNames || siteNames.length === 0) {
       fetchSiteData();
     }
   }, [siteNames, dispatch]);
-  const handleUrlPath = async () => {
-    const isValid = await trigger(['device', 'config']);
-    if (!isValid) return;
 
+  const handleUrlPath = async () => {
+    const isValid = await trigger(['device', 'config', 'site']);
+    if (!isValid) return;
     const config = getValues('config')?.toLowerCase();
     const device = getValues('device');
+    const site = getValues('site');
     if (!config) return;
 
-    // Reset all related state in one go
+    dispatch(setSite(site));
+    dispatch(setSelectedDevice(device));
+    dispatch(setConfigType(config));
     dispatch(setEditedData({}));
     dispatch(setIkeProposalData({}));
     dispatch(setValidated(false));
@@ -91,11 +93,6 @@ export default function SiteToSiteList() {
     dispatch(setDeployconfiguration(false));
     dispatch(setEditing(false));
 
-    // Set selected values
-    dispatch(setSelectedDevice(device));
-    dispatch(setConfigType(config));
-
-    // Navigate
     navigate(`/vpn/site-to-site/config/${config}/`);
   };
 
@@ -131,7 +128,6 @@ export default function SiteToSiteList() {
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
       <div className="flex space-x-6 mb-8 border-b-2 py-2 items-center justify-between">
-        {/* Add New Button */}
         <div className="w-full ">
           <button
             type="button"
@@ -142,11 +138,13 @@ export default function SiteToSiteList() {
           </button>
           <div className="h-6"></div>
         </div>
-        {/* Site Dropdown */}
+
         <div className="w-full flex flex-col">
           <select
-            {...register('site')}
-            className="w-60 h-12 capitalize border px-4 rounded-lg focus:outline-none"
+            {...register('site', { required: 'select site' })}
+            className={`border px-4 rounded-lg h-12 focus:outline-none ${
+              errors.device ? 'border-b-2 border-red-500' : ''
+            }`}
           >
             <option value="">Select Site</option>
             {siteNames.map((site, index) => (
@@ -155,10 +153,15 @@ export default function SiteToSiteList() {
               </option>
             ))}
           </select>
-          <div className="h-6"></div>
+          <div className="h-6">
+            {errors.site && (
+              <p className="text-xs pl-3 text-red-500 font-medium flex items-center mt-2">
+                {errors.site.message}
+              </p>
+            )}
+          </div>
         </div>
 
-        {/* Device Dropdown */}
         <div className="w-full flex flex-col">
           <select
             {...register('device', { required: 'select device' })}
@@ -184,7 +187,6 @@ export default function SiteToSiteList() {
           </div>
         </div>
 
-        {/* Config Dropdown */}
         <div className="w-full flex flex-col">
           <select
             {...register('config', { required: 'select configtype' })}
@@ -209,7 +211,6 @@ export default function SiteToSiteList() {
           </div>
         </div>
 
-        {/* VPN Type Dropdown */}
         <div className="w-full flex flex-col">
           <select
             {...register('vpnType')}
@@ -223,7 +224,6 @@ export default function SiteToSiteList() {
         </div>
       </div>
 
-      {/* VPN List Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-200">
           <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">

@@ -17,7 +17,7 @@ const siteSlice = createSlice({
       state.site = action.payload;
     },
     setGetSiteName: (state, action) => {
-      state.site = action.payload;
+      state.sitenames = action.payload;
     },
   },
 });
