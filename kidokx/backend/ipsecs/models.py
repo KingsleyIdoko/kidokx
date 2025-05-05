@@ -52,7 +52,7 @@ class ipsecConfiguationItems:
 
 
 class IkeProposal(models.Model):
-    proposalname = models.CharField(max_length=100,unique=True,verbose_name="IKE Proposal Name",help_text="A unique name for this IKE proposal")
+    proposalname = models.CharField(max_length=100,verbose_name="IKE Proposal Name")
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices
@@ -63,6 +63,10 @@ class IkeProposal(models.Model):
     dh_group = models.CharField(
         max_length=20, choices=ipsecConfiguationItems.dh_group.choices, 
         default=ipsecConfiguationItems.dh_group.GROUP14
+    )
+    authentication_method = models.CharField(
+        max_length=20, choices=ipsecConfiguationItems.AuthenticationMethod.choices,
+        default=ipsecConfiguationItems.AuthenticationMethod.PSK
     )
     lifetime_seconds = models.PositiveIntegerField(default=86400)
     is_published  =  models.BooleanField(default=False)
@@ -87,10 +91,6 @@ class IkePolicy(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     mode = models.CharField(max_length=50, choices=ipsecConfiguationItems.Mode.choices)
     proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
-    authentication_method = models.CharField(
-        max_length=20, choices=ipsecConfiguationItems.AuthenticationMethod.choices,
-        default=ipsecConfiguationItems.AuthenticationMethod.PSK
-    )
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  

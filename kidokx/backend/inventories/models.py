@@ -1,4 +1,8 @@
 from django.db import models
+from encrypted_model_fields.fields import EncryptedCharField
+
+
+
 
 DEVICE_TYPES = [
     ('router', 'router'),
@@ -29,9 +33,12 @@ class Site(models.Model):
     def __str__(self):
         return self.site_name
 
+
 class Device(models.Model):
     site = models.ForeignKey('Site', on_delete=models.CASCADE)
     device_name = models.CharField(max_length=100, unique=True)
+    username = models.CharField(max_length=50)
+    password = EncryptedCharField(max_length=100) 
     device_type = models.CharField(max_length=50, choices=DEVICE_TYPES, default='router')
     vendor_name = models.CharField(max_length=50, choices=VENDOR_TYPES, default='cisco')
     ip_address = models.GenericIPAddressField()

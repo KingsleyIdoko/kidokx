@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import SearchDevice from '../../../../../inventory/searchdevice';
-import { BaseUrl } from '../api/postikeproposal';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import SearchDevice from "../../../../../inventory/searchdevice";
+import { BaseUrl } from "../api/postikeproposal";
+
 import {
   setEditedData,
   setValidated,
@@ -13,14 +14,13 @@ import {
   setEditing,
   setCreateVpnData,
   setIpsecVpnData,
-} from '../../../../../store/reducers/vpnReducer';
-import { setSelectedDevice } from '../../../../../store/reducers/inventoryReducers';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+} from "../../../../../store/reducers/vpnReducer";
+import { setSelectedDevice } from "../../../../../store/reducers/inventoryReducers";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function VpnConfigList() {
   const [updatedData, setUpdatedData] = useState([]);
-  console.log(updatedData);
   const [error, setError] = useState(null);
   const [pendingRedirect, setPendingRedirect] = useState(false);
   const navigate = useNavigate();
@@ -36,10 +36,10 @@ export default function VpnConfigList() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!selectedDevice) return;
       const errors = [];
-      const urlPath = `${BaseUrl}/api/ipsec/${configtype}/`;
+      const urlPath = `${BaseUrl}/api/ipsec/${configtype}/?device=${selectedDevice}`;
       try {
-        if (!selectedDevice) return;
         const vpndata = await axios.get(urlPath);
         if (Array.isArray(vpndata.data)) {
           setUpdatedData(vpndata.data);
@@ -47,7 +47,7 @@ export default function VpnConfigList() {
         }
       } catch (err) {
         errors.push(`Error fetching data: ${err.message}`);
-        console.error('Error fetching IPsec data:', err);
+        console.error("Error fetching IPsec data:", err);
       } finally {
         setError(errors.length ? errors : null);
       }
@@ -72,10 +72,10 @@ export default function VpnConfigList() {
     try {
       await axios.put(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,
-        deployData,
+        deployData
       );
     } catch (err) {
-      console.error('Post/Put failed:', err.message);
+      console.error("Post/Put failed:", err.message);
       dispatch(setValidated(false));
     }
   };
@@ -83,15 +83,15 @@ export default function VpnConfigList() {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
+        `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`
       );
       if (response.status === 204 || response.status === 200) {
         setUpdatedData((prevData) =>
-          prevData.filter((proposal) => proposal.id !== id),
+          prevData.filter((proposal) => proposal.id !== id)
         );
       }
     } catch (err) {
-      console.error('Error deleting proposal:', err.message);
+      console.error("Error deleting proposal:", err.message);
     }
   };
 
@@ -146,15 +146,15 @@ export default function VpnConfigList() {
   ]);
 
   const titleMap = {
-    ikeproposal: 'IKEPROPOSAL NAME',
-    ikepolicy: 'IKEPOLICY NAME',
-    ikegateway: 'IKEGATEWAY NAME',
-    ipsecproposal: 'IPSECPROPOSAL NAME',
-    ipsecpolicy: 'IPSECPOLICY NAME',
-    ipsecvpn: 'IPSECVPN NAME',
+    ikeproposal: "IKEPROPOSAL NAME",
+    ikepolicy: "IKEPOLICY NAME",
+    ikegateway: "IKEGATEWAY NAME",
+    ipsecproposal: "IPSECPROPOSAL NAME",
+    ipsecpolicy: "IPSECPOLICY NAME",
+    ipsecvpn: "IPSECVPN NAME",
   };
 
-  const title = titleMap[configtype] || 'IKEPROPOSAL NAME';
+  const title = titleMap[configtype] || "IKEPROPOSAL NAME";
 
   return (
     <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-8 shadow-md mt-10">
@@ -166,7 +166,7 @@ export default function VpnConfigList() {
         className="w-[12rem] mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         onClick={handleCreateBtn}
       >
-        {`Create ${configtype ? configtype : 'Ike Proposal'}`}
+        {`Create ${configtype ? configtype : "Ike Proposal"}`}
       </button>
 
       <div className="overflow-x-auto">
@@ -206,19 +206,19 @@ export default function VpnConfigList() {
                           onClick={() => handleEdit(item)}
                           className="hover:underline"
                         >
-                          {configtype === 'ikeproposal'
+                          {configtype === "ikeproposal"
                             ? item.proposalname
-                            : configtype === 'ikepolicy'
+                            : configtype === "ikepolicy"
                             ? item.policyname
-                            : configtype === 'ikegateway'
+                            : configtype === "ikegateway"
                             ? item.gatewayname
-                            : configtype === 'ipsecproposal'
+                            : configtype === "ipsecproposal"
                             ? item.proposal_name
-                            : configtype === 'ipsecpolicy'
+                            : configtype === "ipsecpolicy"
                             ? item.policy_name
-                            : configtype === 'ipsecvpn'
+                            : configtype === "ipsecvpn"
                             ? item.vpn_name
-                            : ''}
+                            : ""}
                         </button>
                       </td>
                       <td className="py-3 px-6 border-b">
@@ -237,11 +237,11 @@ export default function VpnConfigList() {
                           disabled={item.is_published}
                           className={`w-[10rem] text-gray-600 ${
                             item.is_published
-                              ? 'bg-gray-200 opacity-70 cursor-not-allowed'
-                              : 'bg-gray-200 hover:bg-gray-300'
+                              ? "bg-gray-200 opacity-70 cursor-not-allowed"
+                              : "bg-gray-200 hover:bg-gray-300"
                           } py-2 px-3 rounded-lg`}
                         >
-                          {item.is_published ? 'Deployed' : 'Deploy'}
+                          {item.is_published ? "Deployed" : "Deploy"}
                         </button>
                       </td>
                     </tr>

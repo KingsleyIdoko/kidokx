@@ -5,7 +5,7 @@ from ipsecs.views.ikePolicyView import ikepolicy_list_view,ikepolicy_detail_view
 from ipsecs.views.ipsecProposalView import ipsecproposal_create_view, ipsecproposal_delete_view, ipsecproposal_detail_view, ipsecproposal_list_view, ipsecproposal_update_view
 from ipsecs.views.ipsecPolicyView import ipsecpolicy_create_view, ipsecpolicy_delete_view, ipsecpolicy_detail_view, ipsecpolicy_list_view, ipsecpolicy_update_view,ipsecpolicy_names_view
 from ipsecs.views.ipsecVpnView import ipsecvpn_create_view, ipsecvpn_delete_view, ipsecvpn_detail_view, ipsecvpn_list_view, ipsecvpn_update_view
-from ipsecs.views.configtextchoicesview import get_ipsec_choices
+
 
 urlpatterns = [
     #ikeproposal
@@ -52,7 +52,4 @@ urlpatterns = [
     path('ipsecvpn/create/',ipsecvpn_create_view),
     path('ipsecvpn/<int:pk>/update/',ipsecvpn_update_view,),
     path('ipsecvpn/<int:pk>/delete/',ipsecvpn_delete_view),
-
-    #ipsec choices
-    path('ipsec-choices/', get_ipsec_choices, name='ipsec-choices'),
 ]

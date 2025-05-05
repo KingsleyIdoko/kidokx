@@ -10,6 +10,7 @@ class IkeProposalSerializer(serializers.ModelSerializer):
             'proposalname',
             'device',
             'authentication_algorithm',
+            'authentication_method',
             'encryption_algorithm',
             'dh_group',
             'lifetime_seconds',

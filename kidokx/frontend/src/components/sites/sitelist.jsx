@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setSiteData } from '../store/reducers/siteReducer';
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setSiteData } from "../store/reducers/siteReducer";
 
 export default function SiteList() {
   const [siteApiData, setSiteAPiData] = useState([]);
@@ -15,33 +15,33 @@ export default function SiteList() {
     const fetchData = async () => {
       try {
         const res = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/sites/',
+          "http://127.0.0.1:8000/api/inventories/sites/"
         );
         setSiteAPiData(res.data);
       } catch (err) {
-        console.log('Api call failed', err);
+        console.log("Api call failed", err);
       }
     };
     fetchData();
   }, [dispatch]);
 
   const handleAddSite = () => {
-    navigate('/inventory/sites/create/');
+    navigate("/inventory/sites/create/");
   };
 
   const handleEdit = (site) => {
     dispatch(setSiteData(site));
-    navigate('/inventory/sites/create/');
+    navigate("/inventory/sites/create/");
   };
 
   const handleDelete = async (siteId) => {
     try {
       await axios.delete(
-        `http://127.0.0.1:8000/api/inventories/sites/${siteId}/delete/`,
+        `http://127.0.0.1:8000/api/inventories/sites/${siteId}/delete/`
       );
       setSiteAPiData((prev) => prev.filter((site) => site.id !== siteId));
     } catch (err) {
-      console.error('Delete failed', err.message);
+      console.error("Delete failed", err.message);
     }
   };
 

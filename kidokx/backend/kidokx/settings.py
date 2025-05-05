@@ -58,7 +58,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'kidokx.urls'
 CORS_URLS_REGEX = r"^/(api/ipsec|api/inventories)/.*$"
-
+FIELD_ENCRYPTION_KEY = 'iTe2amQwm4GwCQL4GTGL8pVr2GPd5_nQaqvWFWVdmdw='
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",

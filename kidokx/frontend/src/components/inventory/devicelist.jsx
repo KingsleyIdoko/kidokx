@@ -1,10 +1,10 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { setEditedData } from '../store/reducers/inventoryReducers';
-import { useDispatch } from 'react-redux';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { setEditedData } from "../store/reducers/inventoryReducers";
+import { useDispatch } from "react-redux";
 
 export default function DeviceInventory() {
   const dispatch = useDispatch();
@@ -13,7 +13,7 @@ export default function DeviceInventory() {
 
   const handleEdit = (device) => {
     dispatch(setEditedData(device));
-    navigate('/inventory/devices/create/');
+    navigate("/inventory/devices/create/");
   };
 
   const handleDelete = (deviceId) => {
@@ -21,34 +21,34 @@ export default function DeviceInventory() {
     setBackendData(updatedData);
     try {
       axios.delete(
-        `http://127.0.0.1:8000/api/inventories/devices/${deviceId}/delete/`,
+        `http://127.0.0.1:8000/api/inventories/devices/${deviceId}/delete/`
       );
     } catch (err) {
-      console.log('An error has occured: ', err);
+      console.log("An error has occured: ", err);
     }
   };
 
   const handleCreateDevice = () => {
     dispatch(setEditedData(null));
-    navigate('/inventory/devices/create/');
+    navigate("/inventory/devices/create/");
   };
 
   useEffect(() => {
     const fetchDeviceList = async () => {
       try {
         const response = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/devices/',
+          "http://127.0.0.1:8000/api/inventories/devices/"
         );
         setBackendData(response.data);
       } catch (err) {
-        console.error('Failed to fetch backend data:', err);
+        console.error("Failed to fetch backend data:", err);
       }
     };
     fetchDeviceList();
   }, []);
 
   return (
-    <div className="w-[120rem] p-6 bg-gray-50 mx-auto mt-10">
+    <div className="max-w-[120rem] p-6 bg-gray-50 mx-auto mt-10">
       <div className="py-2">
         <button
           className="py-2 px-8 rounded-md bg-green-600 text-white hover:opacity-70"
@@ -86,7 +86,7 @@ export default function DeviceInventory() {
                   </td>
                   <td className="px-4 py-2">{device.device_type}</td>
                   <td className="px-4 py-2">{device.vendor_name}</td>
-                  <td className="px-4 py-2">{device.device_model || 'n/a'}</td>
+                  <td className="px-4 py-2">{device.device_model || "n/a"}</td>
                   <td className="px-4 py-2">
                     <div className="flex space-x-3">
                       <button
