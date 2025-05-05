@@ -1,48 +1,47 @@
-import { useState, useEffect } from "react";
-import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import RaVPN from "./ra-vpn/ra-vpn";
-import IkeProposalConfig from "./site-to-site.jsx/ikeProposalGen";
-import IkePolicyConfig from "./site-to-site.jsx/ikePolicyGen";
-import IkeGatewayConfig from "./site-to-site.jsx/ikeGatewayGen";
-import IPsecProposalConfig from "./site-to-site.jsx/ipsecProposalGen";
-import IPsecPolicyConfig from "./site-to-site.jsx/ipsecPolicyGen";
-import IPsecVPNConfig from "./site-to-site.jsx/ipsecVpnGen";
-import NavigationBar from "./site-to-site.jsx/navigation";
-import SaveConfig from "./site-to-site.jsx/saveconfig";
-import IpsecSteps from "./site-to-site.jsx/ipsec_steps";
-import PagePreview from "./site-to-site.jsx/previewpage/pagepreview";
-import SearchDevice from "../../../inventory/searchdevice";
-import { useSelector } from "react-redux";
+import { useState, useEffect } from 'react';
+import { Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import RaVPN from './ra-vpn/ra-vpn';
+import IkeProposalConfig from './site-to-site.jsx/ikeProposalGen';
+import IkePolicyConfig from './site-to-site.jsx/ikePolicyGen';
+import IkeGatewayConfig from './site-to-site.jsx/ikeGatewayGen';
+import IPsecProposalConfig from './site-to-site.jsx/ipsecProposalGen';
+import IPsecPolicyConfig from './site-to-site.jsx/ipsecPolicyGen';
+import IPsecVPNConfig from './site-to-site.jsx/ipsecVpnGen';
+import NavigationBar from './site-to-site.jsx/navigation';
+import SaveConfig from './site-to-site.jsx/saveconfig';
+import IpsecSteps from './site-to-site.jsx/ipsec_steps';
+import PagePreview from './site-to-site.jsx/previewpage/pagepreview';
+import SearchDevice from '../../../inventory/searchdevice';
 
 function VPN() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [webPage, setWebPage] = useState("IKE Proposal");
+  const [webPage, setWebPage] = useState('IKE Proposal');
   const [nextPage, setNextPage] = useState(true);
   const [prevPage, setPrevPage] = useState(false);
-  const [selectedFormat, setSelectedFormat] = useState("CLI");
+  const [selectedFormat, setSelectedFormat] = useState('CLI');
   const [clickedPreview, setClickedPreview] = useState(false);
 
   // IPsec navigation steps
   const ipsecSelection = () => {
-    const isPreview = location.pathname.includes("/preview/");
-    const basePath = `/vpn/site-to-site/${isPreview ? "preview" : "config"}`;
+    const isPreview = location.pathname.includes('/preview/');
+    const basePath = `/vpn/site-to-site/${isPreview ? 'preview' : 'config'}`;
     return [
-      { name: "IKE Proposal", path: `${basePath}/ikeproposal` },
-      { name: "IKE Policy", path: `${basePath}/ikepolicy` },
-      { name: "IKE Gateway", path: `${basePath}/ikegateway` },
-      { name: "IPsec Proposal", path: `${basePath}/ipsecproposal` },
-      { name: "IPsec Policy", path: `${basePath}/ipsecpolicy` },
-      { name: "IPsec VPN", path: `${basePath}/ipsecvpn` },
+      { name: 'IKE Proposal', path: `${basePath}/ikeproposal` },
+      { name: 'IKE Policy', path: `${basePath}/ikepolicy` },
+      { name: 'IKE Gateway', path: `${basePath}/ikegateway` },
+      { name: 'IPsec Proposal', path: `${basePath}/ipsecproposal` },
+      { name: 'IPsec Policy', path: `${basePath}/ipsecpolicy` },
+      { name: 'IPsec VPN', path: `${basePath}/ipsecvpn` },
     ];
   };
 
   const handlePreviewBtn = () => {
-    const currentPath = location.pathname.split("/").pop();
-    const isCurrentlyPreview = location.pathname.includes("/preview/");
+    const currentPath = location.pathname.split('/').pop();
+    const isCurrentlyPreview = location.pathname.includes('/preview/');
     const nextBasePath = isCurrentlyPreview
-      ? "/vpn/site-to-site/config"
-      : "/vpn/site-to-site/config/preview";
+      ? '/vpn/site-to-site/config'
+      : '/vpn/site-to-site/config/preview';
 
     navigate(`${nextBasePath}/${currentPath}`);
 
@@ -54,7 +53,7 @@ function VPN() {
     const selection = ipsecSelection();
 
     const currentIndex = selection.findIndex(
-      (item) => item.path === currentPath
+      (item) => item.path === currentPath,
     );
 
     if (currentIndex !== -1) {
@@ -67,7 +66,7 @@ function VPN() {
   function handleNextBtn() {
     setTimeout(() => {
       const currentIndex = ipsecSelection.findIndex(
-        (item) => item.path === location.pathname
+        (item) => item.path === location.pathname,
       );
 
       if (currentIndex !== -1 && currentIndex < ipsecSelection.length - 1) {
@@ -80,7 +79,7 @@ function VPN() {
   function handlePreviousBtn() {
     setTimeout(() => {
       const currentIndex = ipsecSelection.findIndex(
-        (item) => item.path === location.pathname
+        (item) => item.path === location.pathname,
       );
       if (currentIndex > 0) {
         const prevPath = ipsecSelection[currentIndex - 1].path;

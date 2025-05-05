@@ -15,10 +15,6 @@ class IkeProposalCreateView(CreateAPIView):
     queryset = IkeProposal.objects.all()
     serializer_class = IkeProposalSerializer
 
-    def perform_create(self, serializer):
-        print("Creating IKE Proposal:", serializer.validated_data)
-        serializer.save()
-
 ikeproposal_create_view = IkeProposalCreateView.as_view()
 
 class IkeProposalDetailView(RetrieveAPIView):
