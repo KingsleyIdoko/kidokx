@@ -6,9 +6,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from ipsecs.serializers.ikeProposalSerializers import IkeProposalSerializer
 from ipsecs.netconf.netconf_client import get_junos_ike_proposals,normalize_device_proposal
-from ipsecs.netconf.serialized_xml import serialized_ikeproposal,push_junos_config
+from ipsecs.netconf.serialized_xml import serialized_ikeproposal,push_junos_config,serialized_delete_ikeproposal
 from inventories.models import Device
 from rest_framework import status
+import traceback
 
 
 class IKEProposalListView(ListAPIView):
@@ -104,9 +105,6 @@ class IkeProposalDetailView(RetrieveAPIView):
     lookup_field = 'pk'
 ikeproposal_detail_view = IkeProposalDetailView.as_view()
 
-import traceback
-from rest_framework.response import Response
-from rest_framework import status
 
 class IkeProposalUpdateView(UpdateAPIView):
     queryset = IkeProposal.objects.all()
@@ -175,7 +173,24 @@ class IkeProposalDestroyView(DestroyAPIView):
     queryset = IkeProposal.objects.all()
     serializer_class = IkeProposalSerializer
     lookup_field = 'pk'
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()  
+        device = obj.device  
+        proposalname = obj.proposalname
+        config = serialized_delete_ikeproposal((proposalname, None))
+        success, result = push_junos_config(
+            device.ip_address,
+            device.username,
+            device.password,
+            config
+        )
+        if success:
+            return super().delete(request, *args, **kwargs)
+        return Response({"detail": "Failed to delete proposal from device", "error": result}, status=400)
+
 ikeproposal_delete_view = IkeProposalDestroyView.as_view()
+
 
 
 class IkeProposalListNames(APIView):

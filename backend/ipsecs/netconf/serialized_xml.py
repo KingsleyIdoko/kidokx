@@ -9,6 +9,7 @@ def push_junos_config(host, username, password, config_set_string):
             try:
                 cu = Config(dev)
                 cu.lock()
+                print("🔓 Configuration locked.")
                 cu.load(config_set_string, format="set", merge=True)
                 cu.commit(sync=True)
                 return True, "Commit successful"
@@ -37,7 +38,10 @@ def serialized_ikeproposal(payload, old_proposals):
         f"set security ike proposal {proposalname} encryption-algorithm {encryption_algorithm}",
         f"set security ike proposal {proposalname} lifetime-seconds {lifetime_seconds}"
     ]
+    return "\n".join(set_config)
 
-    # Optional: mimic `insert after` behavior with CLI sequencing
-    # But `insert` isn't available in NETCONF `set` format
+def serialized_delete_ikeproposal(payload):
+    proposalname, _ = payload
+    set_config = f"delete security ike proposal {proposalname}"
+    print(set_config)
     return "\n".join(set_config)
