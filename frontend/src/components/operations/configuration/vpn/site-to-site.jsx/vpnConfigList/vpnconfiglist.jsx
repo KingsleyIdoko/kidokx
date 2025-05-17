@@ -24,6 +24,7 @@ export default function VpnConfigList() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+
   const {
     configtype,
     editeddata,
@@ -32,34 +33,27 @@ export default function VpnConfigList() {
   } = useSelector((state) => state.vpn || {});
   const { selectedDevice } = useSelector((state) => state.inventories);
 
-  useEffect(() => {
+  const fetchData = async () => {
     if (!selectedDevice || selectedDevice.trim() === '') {
       setUpdatedData([]);
       return;
     }
 
-    const fetchData = async () => {
-      const urlPath = `${BaseUrl}/api/ipsec/${configtype}/?device=${selectedDevice}`;
-      try {
-        const vpndata = await axios.get(urlPath);
-        if (Array.isArray(vpndata.data)) {
-          const modified_data = vpndata.data.map(
-            ({ device_name, ...rest }) => ({
-              ...rest,
-              device: device_name,
-            }),
-          );
-          setUpdatedData(modified_data);
-          dispatch(setIpsecVpnData(vpndata.data));
-        }
-      } catch (err) {
-        setError([`Error fetching data: ${err.message}`]);
+    const urlPath = `${BaseUrl}/api/ipsec/${configtype}/?device=${selectedDevice}`;
+    try {
+      const vpndata = await axios.get(urlPath);
+      if (Array.isArray(vpndata.data)) {
+        const modified_data = vpndata.data.map(({ device_name, ...rest }) => ({
+          ...rest,
+          device: device_name,
+        }));
+        setUpdatedData(modified_data);
+        dispatch(setIpsecVpnData(vpndata.data));
       }
-    };
-
-    fetchData();
-  }, [selectedDevice, configtype, dispatch]);
-
+    } catch (err) {
+      setError([`Error fetching data: ${err.message}`]);
+    }
+  };
   const handleEdit = (item) => {
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
@@ -67,16 +61,22 @@ export default function VpnConfigList() {
     navigate(`/vpn/site-to-site/config/${configtype}/edit/${item.id}/`);
   };
 
+  useEffect(() => {
+    fetchData();
+  }, [selectedDevice, configtype, dispatch]);
+
   const handleDeploy = async (item) => {
     const deployData = {
       ...item,
       is_published: true,
+      is_sendtodevice: true,
     };
     try {
       await axios.put(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,
         deployData,
       );
+      await fetchData();
     } catch (err) {
       console.error('Post/Put failed:', err.message);
       dispatch(setValidated(false));

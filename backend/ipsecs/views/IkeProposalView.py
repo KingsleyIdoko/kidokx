@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from ipsecs.serializers.ikeProposalSerializers import IkeProposalSerializer
 from ipsecs.netconf.netconf_client import get_junos_ike_proposals,normalize_device_proposal
+from ipsecs.netconf.serialized_xml import serialized_ikeproposal,push_junos_config
 from inventories.models import Device
 from rest_framework import status
 
@@ -103,34 +104,71 @@ class IkeProposalDetailView(RetrieveAPIView):
     lookup_field = 'pk'
 ikeproposal_detail_view = IkeProposalDetailView.as_view()
 
-class IkeProposalUpdateView(UpdateAPIView):  
+import traceback
+from rest_framework.response import Response
+from rest_framework import status
+
+class IkeProposalUpdateView(UpdateAPIView):
     queryset = IkeProposal.objects.all()
     serializer_class = IkeProposalSerializer
     lookup_field = 'pk'
 
     def update(self, request, *args, **kwargs):
-        device_value = request.data.get("device")
-        if isinstance(device_value, str) and not device_value.isdigit():
-            try:
-                device = Device.objects.get(device_name=device_value)
-                mutable_data = request.data.copy()
-                mutable_data["device"] = device.id
-                request._full_data = mutable_data
-            except Device.DoesNotExist:
+        try:
+            device_value = request.data.get("device")
+            if isinstance(device_value, str) and not device_value.isdigit():
+                try:
+                    device = Device.objects.get(device_name=device_value)
+                    mutable_data = request.data.copy()
+                    mutable_data["device"] = device.id
+                    request._full_data = mutable_data
+                except Device.DoesNotExist:
+                    return Response(
+                        {"device": "Device with this name does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            proposalname = request.data.get("proposalname")
+            obj = self.get_object()
+            if proposalname and IkeProposal.objects.filter(proposalname=proposalname).exclude(pk=obj.pk).exists():
                 return Response(
-                    {"device": "Device with this name does not exist."},
+                    {"error": "Proposal name must be unique. This name already exists."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        print(request.data)
-        proposalname = request.data.get("proposalname")
-        obj = self.get_object()
-        if proposalname and IkeProposal.objects.filter(proposalname=proposalname).exclude(pk=obj.pk).exists():
+            if request.data.get("is_sendtodevice"):
+                payload = [
+                    request.data.get("proposalname"),
+                    request.data.get("authentication_method"),
+                    request.data.get("dh_group"),
+                    request.data.get("authentication_algorithm"),
+                    request.data.get("encryption_algorithm"),
+                    request.data.get("lifetime_seconds"),
+                ]
+                device_id = request.data.get("device")
+                old_proposals = list(
+                    IkeProposal.objects.filter(device_id=device_id)
+                    .exclude(pk=obj.pk)
+                    .values_list("proposalname", flat=True)
+                )
+                config = serialized_ikeproposal(payload, old_proposals)
+                device = Device.objects.get(pk=device_id)
+                success, result = push_junos_config(
+                    device.ip_address,
+                    device.username,
+                    device.password,
+                    config 
+                )
+                if not success:
+                    return Response(
+                        {"error": f"Failed to push config to device: {result}"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                    )
+            return super().update(request, *args, **kwargs)
+        except Exception as e:
+            traceback.print_exc()  
             return Response(
-                {"error": "Proposal name must be unique. This name already exists."},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-        return super().update(request, *args, **kwargs)
-
 ikeproposal_update_view = IkeProposalUpdateView.as_view()
 
 class IkeProposalDestroyView(DestroyAPIView):

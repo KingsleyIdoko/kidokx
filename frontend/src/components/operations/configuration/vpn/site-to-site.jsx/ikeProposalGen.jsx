@@ -96,6 +96,12 @@ function IkeProposalConfig() {
         encryption_algorithm: formData.encryption_algorithm,
         lifetime_seconds: formData.lifetime_seconds || '86400',
       };
+
+      if (editingData) {
+        transformedData.is_published = false;
+        transformedData.is_sendtodevice = false;
+      }
+
       const finalPayload = {
         ...transformedData,
         device: selectedDevice,
