@@ -20,6 +20,7 @@ import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
 export default function VpnConfigList() {
   const [updatedData, setUpdatedData] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [pendingRedirect, setPendingRedirect] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,6 +40,7 @@ export default function VpnConfigList() {
       return;
     }
 
+    setLoading(true);
     const urlPath = `${BaseUrl}/api/ipsec/${configtype}/?device=${selectedDevice}`;
     try {
       const vpndata = await axios.get(urlPath);
@@ -52,8 +54,11 @@ export default function VpnConfigList() {
       }
     } catch (err) {
       setError([`Error fetching data: ${err.message}`]);
+    } finally {
+      setLoading(false);
     }
   };
+
   const handleEdit = (item) => {
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
@@ -61,9 +66,33 @@ export default function VpnConfigList() {
     navigate(`/vpn/site-to-site/config/${configtype}/edit/${item.id}/`);
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [selectedDevice, configtype, dispatch]);
+  const handleDelete = async (id) => {
+    const item = updatedData.find((p) => p.id === id);
+    const payload = {
+      device: item.device,
+      proposalname:
+        item.proposalname ||
+        item.policyname ||
+        item.gatewayname ||
+        item.proposal_name ||
+        item.policy_name ||
+        item.vpn_name,
+    };
+
+    try {
+      const response = await axios.delete(
+        `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
+        { data: payload },
+      );
+      if (response.status === 204 || response.status === 200) {
+        setUpdatedData((prevData) =>
+          prevData.filter((proposal) => proposal.id !== id),
+        );
+      }
+    } catch (err) {
+      console.error('Error deleting proposal:', err.message);
+    }
+  };
 
   const handleDeploy = async (item) => {
     const deployData = {
@@ -80,21 +109,6 @@ export default function VpnConfigList() {
     } catch (err) {
       console.error('Post/Put failed:', err.message);
       dispatch(setValidated(false));
-    }
-  };
-
-  const handleDelete = async (id) => {
-    try {
-      const response = await axios.delete(
-        `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
-      );
-      if (response.status === 204 || response.status === 200) {
-        setUpdatedData((prevData) =>
-          prevData.filter((proposal) => proposal.id !== id),
-        );
-      }
-    } catch (err) {
-      console.error('Error deleting proposal:', err.message);
     }
   };
 
@@ -122,6 +136,10 @@ export default function VpnConfigList() {
 
   const isSamePath =
     location.pathname === `/vpn/site-to-site/config/${configtype}/`;
+
+  useEffect(() => {
+    fetchData();
+  }, [selectedDevice, configtype, dispatch]);
 
   useEffect(() => {
     if (
@@ -172,86 +190,110 @@ export default function VpnConfigList() {
         {`Create ${configtype ? configtype : 'Ike Proposal'}`}
       </button>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left bg-white border border-gray-200">
-          <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
-            <tr>
-              <th className="py-3 px-6 border-b w-[10rem]">#</th>
-              <th className="py-3 px-6 border-b w-[10rem]">Device Name</th>
-              <th className="py-3 px-6 border-b w-[10rem]">{title}</th>
-              <th className="py-3 px-6 border-b text-center  w-[10rem]">
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody className="text-gray-700">
-            {(updatedData || []).length === 0 ? (
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <svg
+            className="animate-spin h-8 w-8 text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
+            <path
+              className="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-left bg-white border border-gray-200">
+            <thead className="bg-gray-100 text-gray-600 uppercase text-sm leading-normal">
               <tr>
-                <td colSpan="4" className="text-center py-6 text-gray-400">
-                  No {configtype} data found.
-                </td>
+                <th className="py-3 px-6 border-b w-[10rem]">#</th>
+                <th className="py-3 px-6 border-b w-[10rem]">Device Name</th>
+                <th className="py-3 px-6 border-b w-[10rem]">{title}</th>
+                <th className="py-3 px-6 border-b text-center w-[10rem]">
+                  Action
+                </th>
               </tr>
-            ) : (
-              updatedData
-                .sort((a, b) => b.id - a.id)
-                .map((item, index) => {
-                  return (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="py-3 px-6 border-b">{index + 1}</td>
-                      <td className="py-3 px-6 border-b">
-                        <button>{item.device}</button>
-                      </td>
-                      <td className="py-3 px-6 border-b">
-                        <button
-                          onClick={() => handleEdit(item)}
-                          className="hover:underline"
-                        >
-                          {configtype === 'ikeproposal'
-                            ? item.proposalname
-                            : configtype === 'ikepolicy'
-                            ? item.policyname
-                            : configtype === 'ikegateway'
-                            ? item.gatewayname
-                            : configtype === 'ipsecproposal'
-                            ? item.proposal_name
-                            : configtype === 'ipsecpolicy'
-                            ? item.policy_name
-                            : configtype === 'ipsecvpn'
-                            ? item.vpn_name
-                            : ''}
-                        </button>
-                      </td>
-                      <td className="py-3 px-6 border-b">
-                        <div className="flex flex-col items-center">
-                          <div className="flex space-x-6 justify-center items-center">
-                            <button onClick={() => handleEdit(item)}>
-                              <FontAwesomeIcon icon={faEdit} />
-                            </button>
-                            <button onClick={() => handleDelete(item.id)}>
-                              <FontAwesomeIcon icon={faTrash} />
-                            </button>
-
-                            <button
-                              onClick={() => handleDeploy(item)}
-                              disabled={item.is_published}
-                              className={`w-[5rem] text-gray-600 ${
-                                item.is_published
-                                  ? 'bg-gray-200 opacity-70 cursor-not-allowed'
-                                  : 'bg-sky-400 text-white hover:opacity-70'
-                              } py-1 rounded-lg`}
-                            >
-                              {item.is_published ? 'Deployed' : 'Deploy'}
-                            </button>
+            </thead>
+            <tbody className="text-gray-700">
+              {(updatedData || []).length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="text-center py-6 text-gray-400">
+                    No {configtype} data found.
+                  </td>
+                </tr>
+              ) : (
+                updatedData
+                  .sort((a, b) => b.id - a.id)
+                  .map((item, index) => {
+                    return (
+                      <tr key={item.id} className="hover:bg-gray-50">
+                        <td className="py-3 px-6 border-b">{index + 1}</td>
+                        <td className="py-3 px-6 border-b">
+                          <button>{item.device}</button>
+                        </td>
+                        <td className="py-3 px-6 border-b">
+                          <button
+                            onClick={() => handleEdit(item)}
+                            className="hover:underline"
+                          >
+                            {configtype === 'ikeproposal'
+                              ? item.proposalname
+                              : configtype === 'ikepolicy'
+                              ? item.policyname
+                              : configtype === 'ikegateway'
+                              ? item.gatewayname
+                              : configtype === 'ipsecproposal'
+                              ? item.proposal_name
+                              : configtype === 'ipsecpolicy'
+                              ? item.policy_name
+                              : configtype === 'ipsecvpn'
+                              ? item.vpn_name
+                              : ''}
+                          </button>
+                        </td>
+                        <td className="py-3 px-6 border-b">
+                          <div className="flex flex-col items-center">
+                            <div className="flex space-x-6 justify-center items-center">
+                              <button onClick={() => handleEdit(item)}>
+                                <FontAwesomeIcon icon={faEdit} />
+                              </button>
+                              <button onClick={() => handleDelete(item.id)}>
+                                <FontAwesomeIcon icon={faTrash} />
+                              </button>
+                              <button
+                                onClick={() => handleDeploy(item)}
+                                disabled={item.is_published}
+                                className={`w-[5rem] text-gray-600 ${
+                                  item.is_published
+                                    ? 'bg-gray-200 opacity-70 cursor-not-allowed'
+                                    : 'bg-sky-400 text-white hover:opacity-70'
+                                } py-1 rounded-lg`}
+                              >
+                                {item.is_published ? 'Deployed' : 'Deploy'}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })
-            )}
-          </tbody>
-        </table>
-      </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

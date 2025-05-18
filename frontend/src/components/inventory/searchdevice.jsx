@@ -49,19 +49,18 @@ export function SearchDevice() {
   const selectedsite = watch('site');
   const watchDevice = watch('device');
   const watchConfig = watch('config');
-  const watchSite = watch('site');
-
-  useEffect(() => {
-    if (watchDevice) dispatch(setSelectedDevice(watchDevice));
-  }, [watchDevice, dispatch]);
 
   useEffect(() => {
     if (watchConfig) dispatch(setConfigType(watchConfig));
   }, [watchConfig, dispatch]);
 
   useEffect(() => {
-    if (watchSite) dispatch(setSite(watchSite));
-  }, [watchSite, dispatch]);
+    if (selectedsite) dispatch(setSite(selectedsite));
+  }, [selectedsite, dispatch]);
+
+  useEffect(() => {
+    if (watchDevice) dispatch(setSelectedDevice(watchDevice));
+  }, [watchDevice, dispatch]);
 
   // Load sitenames once at mount
   useEffect(() => {
@@ -176,7 +175,7 @@ export function SearchDevice() {
         >
           <option value="">Select Device</option>
           {filteredDevice.map((device) => (
-            <option key={device.id} value={device.name}>
+            <option key={device.id} value={device.device_name}>
               {device.device_name}
             </option>
           ))}
