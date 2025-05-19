@@ -5,8 +5,8 @@ from  ipsecs.models import IkeProposal
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from ipsecs.serializers.ikeProposalSerializers import IkeProposalSerializer
-from ipsecs.netconf.netconf_client import get_junos_ike_proposals,normalize_device_proposal
-from ipsecs.netconf.serialized_xml import serialized_ikeproposal,push_junos_config,serialized_delete_ikeproposal
+from ipsecs.scripts.ikeproposal.getproposals import get_junos_ike_proposals,normalize_device_proposal
+from ipsecs.scripts.ikeproposal.serialized_data import serialized_ikeproposal,push_junos_config,serialized_delete_ikeproposal
 from inventories.models import Device
 from rest_framework import status
 import traceback
@@ -75,8 +75,6 @@ class IkeProposalCreateView(CreateAPIView):
 
     def create(self, request, *args, **kwargs):
         device_value = request.data.get("device")
-
-        # If device is a string (assumed to be device_name), resolve to ID
         if isinstance(device_value, str) and not device_value.isdigit():
             try:
                 device = Device.objects.get(device_name=device_value)
@@ -88,8 +86,6 @@ class IkeProposalCreateView(CreateAPIView):
                     {"device": "Device with this name does not exist."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-
-        # Check for uniqueness
         proposalname = request.data.get("proposalname")
         if proposalname and IkeProposal.objects.filter(proposalname=proposalname).exists():
             return Response(
@@ -195,6 +191,16 @@ ikeproposal_delete_view = IkeProposalDestroyView.as_view()
 
 class IkeProposalListNames(APIView):
     def get(self, request):
-        names = IkeProposal.objects.values_list('proposalname', flat=True)
-        return Response(names)  
+        device_name = request.query_params.get("device")
+        if device_name:
+            try:
+                device = Device.objects.get(device_name=device_name)
+                names = IkeProposal.objects.filter(device=device).values_list('proposalname', flat=True)
+            except Device.DoesNotExist:
+                return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            names = IkeProposal.objects.values_list('proposalname', flat=True)
+
+        return Response(names)
+
 ikeproposal_names_view = IkeProposalListNames.as_view()

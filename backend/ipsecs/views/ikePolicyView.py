@@ -1,11 +1,14 @@
 
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
-from ipsecs.models import IkePolicy
+from ipsecs.models import IkePolicy, IkeProposal
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from inventories.models import Device
 from ipsecs.serializers.ikePolicySerializers import IkePolicySerializer
+from ipsecs.scripts.ikepolicy.getpolicies import get_junos_ike_policies, normalize_device_policies
+from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicies,push_junos_config,serialized_delete_ikepolicies
 
 class IkePolicyListView(ListAPIView):
     queryset = IkePolicy.objects.all()
@@ -21,14 +24,27 @@ class IkePolicyListView(ListAPIView):
                 return IkePolicy.objects.none()
         return IkePolicy.objects.none()
 
+class IkePolicyListView(ListAPIView):
+    serializer_class = IkePolicySerializer
+    def get_queryset(self):
+        device_name = self.request.query_params.get("device")
+        if device_name:
+            try:
+                device = Device.objects.get(device_name=device_name)
+                return IkePolicy.objects.filter(device=device)
+            except Device.DoesNotExist:
+                return IkePolicy.objects.none()
+        return IkePolicy.objects.none()
+
     def list(self, request, *args, **kwargs):
         device_name = request.query_params.get("device")
         if not device_name:
-            return Response({"error": "Device is required"}, status=400)
+            return Response({"error": "Device is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
             device = Device.objects.get(device_name=device_name)
         except Device.DoesNotExist:
-            return Response({"error": "Device not found"}, status=404)
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 
         queryset = self.get_queryset()
         db_serialized = self.get_serializer(queryset, many=True).data
@@ -44,25 +60,40 @@ class IkePolicyListView(ListAPIView):
         except Exception:
             return Response(db_serialized)
 
-        normalized_policies = [normalize_device_policy(p) for p in raw_device_data]
+        normalized_policies = [normalize_device_policies(p) for p in raw_device_data]
+        print(normalized_policies)
         db_names = {item["policyname"] for item in db_serialized}
         device_names = {p["policyname"] for p in normalized_policies}
         missing_names = device_names - db_names
         missing_policies = [p for p in normalized_policies if p["policyname"] in missing_names]
 
         created = []
+
         for p in missing_policies:
-            serializer = IkePolicySerializer(data={**p, "device": device.id})
+            proposal_obj = IkeProposal.objects.filter(proposalname=p["proposals"],device=device).first()
+            if not proposal_obj:
+                print(f"Missing proposal object for '{p['proposals']}' — skipping policy '{p['policyname']}'")
+                continue
+
+            serializer = IkePolicySerializer(data={
+                "policyname": p["policyname"],
+                "device": device.device_name,  # matches slug_field in serializer
+                "mode": p["mode"],
+                "proposals": proposal_obj.proposalname,  # matches slug_field in serializer
+                "pre_shared_key": p["pre_shared_key"],
+                "is_published": p["is_published"],
+            })
+
             if serializer.is_valid():
                 serializer.save()
                 created.append(p["policyname"])
             else:
-                print("Serializer errors:", serializer.errors)
+                print(f"Serializer errors for policy '{p['policyname']}':", serializer.errors)
 
         final_queryset = IkePolicy.objects.filter(device=device)
         serialized = self.get_serializer(final_queryset, many=True).data
         return Response(serialized)
-
+    
 ikepolicy_list_view = IkePolicyListView.as_view()
 
 

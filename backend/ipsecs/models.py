@@ -93,11 +93,13 @@ class IkePolicy(models.Model):
     proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
     is_published = models.BooleanField(default=False)
-    updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
-    timestamp = models.DateTimeField(auto_now_add=True)  
+    updated = models.DateTimeField(auto_now=True, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.policyname
+
+
 
 
 class IkeGateway(models.Model):

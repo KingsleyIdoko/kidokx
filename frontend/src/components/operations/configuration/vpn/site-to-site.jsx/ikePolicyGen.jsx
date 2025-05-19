@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setIkePolicyData,
   setEditing,
   setConfigType,
   setValidated,
-} from '../../../../store/reducers/vpnReducer';
-import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
-import { useForm } from 'react-hook-form';
+} from "../../../../store/reducers/vpnReducer";
+import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
+import { useForm } from "react-hook-form";
 
 export default function IkePolicyConfig() {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ export default function IkePolicyConfig() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({ mode: 'onChange' });
+  } = useForm({ mode: "onChange" });
 
   useEffect(() => {
     if (editingData && editeddata && ikeProposalNames.length > 0) {
@@ -36,20 +36,22 @@ export default function IkePolicyConfig() {
       reset(ikePolicyData);
     }
   }, [ikePolicyData, editingData, editeddata, ikeProposalNames, reset]);
+
   useEffect(() => {
     const fetchIkeProposalNames = async () => {
+      if (!selectedDevice) return;
       try {
         const response = await axios.get(
-          'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
+          `http://127.0.0.1:8000/api/ipsec/ikeproposal/names/?device=${selectedDevice}`
         );
         setIkeProposalNames(response.data);
       } catch (err) {
-        console.error('Error fetching IKE Proposal data:', err);
+        console.error("Error fetching IKE Proposal data:", err);
       }
     };
 
     fetchIkeProposalNames();
-  }, []);
+  }, [selectedDevice]);
 
   const submitForm = async (values) => {
     const finalPayload = { ...values, device: selectedDevice };
@@ -57,13 +59,13 @@ export default function IkePolicyConfig() {
     try {
       if (!editingData) {
         await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ikepolicy/create/',
-          finalPayload,
+          "http://127.0.0.1:8000/api/ipsec/ikepolicy/create/",
+          finalPayload
         );
       } else {
         await axios.put(
           `http://127.0.0.1:8000/api/ipsec/ikepolicy/${editeddata?.id}/update/`,
-          finalPayload,
+          finalPayload
         );
         dispatch(setEditing(false));
       }
@@ -72,23 +74,23 @@ export default function IkePolicyConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error('Post/Put failed:', err.message);
+      console.error("Post/Put failed:", err.message);
       dispatch(setValidated(false));
     }
   };
 
   useEffect(() => {
-    if (saveconfiguration && configtype === 'ikepolicy') {
+    if (saveconfiguration && configtype === "ikepolicy") {
       handleSubmit(submitForm)();
     }
   }, [saveconfiguration, configtype, handleSubmit]);
 
   const ikePolicyLabels = [
-    'IKE Policy Name',
-    'IKE Mode',
-    'IKE Proposal',
-    'Authentication Method',
-    'Pre_Shared_Key',
+    "IKE Policy Name",
+    "IKE Mode",
+    "IKE Proposal",
+    "Authentication Method",
+    "Pre_Shared_Key",
   ];
 
   return (
@@ -113,13 +115,13 @@ export default function IkePolicyConfig() {
         <div className="w-[20rem] flex flex-col space-y-5">
           <div className="h-[4rem] flex flex-col justify-between">
             <input
-              {...register('policyname', {
-                required: 'Policy Name is required',
+              {...register("policyname", {
+                required: "Policy Name is required",
               })}
               type="text"
               placeholder="Enter Name"
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
-                errors.policyname ? 'border-red-500' : 'border-gray-300'
+                errors.policyname ? "border-red-500" : "border-gray-300"
               }`}
             />
             {errors.policyname && (
@@ -131,9 +133,9 @@ export default function IkePolicyConfig() {
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register('mode', { required: 'Select IKE Mode' })}
+              {...register("mode", { required: "Select IKE Mode" })}
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
-                errors.mode ? 'border-red-500' : 'border-gray-300'
+                errors.mode ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="">Select Mode</option>
@@ -149,10 +151,10 @@ export default function IkePolicyConfig() {
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register('proposals', { required: 'Select a Proposal Name' })}
-              defaultValue={editeddata?.proposals || ''}
+              {...register("proposals", { required: "Select a Proposal Name" })}
+              defaultValue={editeddata?.proposals || ""}
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
-                errors.proposals ? 'border-red-500' : 'border-gray-300'
+                errors.proposals ? "border-red-500" : "border-gray-300"
               }`}
             >
               <option value="">Select a Proposal</option>
@@ -171,13 +173,13 @@ export default function IkePolicyConfig() {
 
           <div className="h-[4rem] flex flex-col justify-between">
             <select
-              {...register('authentication_method', {
-                required: 'Select Authentication Method',
+              {...register("authentication_method", {
+                required: "Select Authentication Method",
               })}
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
                 errors.authentication_method
-                  ? 'border-red-500'
-                  : 'border-gray-300'
+                  ? "border-red-500"
+                  : "border-gray-300"
               }`}
             >
               <option value="">Select Auth Method</option>
@@ -193,13 +195,13 @@ export default function IkePolicyConfig() {
 
           <div className="h-[4rem] flex flex-col justify-between">
             <input
-              {...register('pre_shared_key', {
-                required: 'Preshared Key is required',
+              {...register("pre_shared_key", {
+                required: "Preshared Key is required",
               })}
               type="text"
               placeholder="Enter Preshared Key"
               className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
-                errors.pre_shared_key ? 'border-red-500' : 'border-gray-300'
+                errors.pre_shared_key ? "border-red-500" : "border-gray-300"
               }`}
             />
             {errors.pre_shared_key && (
