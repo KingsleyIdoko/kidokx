@@ -8,7 +8,9 @@ from rest_framework import status
 from inventories.models import Device
 from ipsecs.serializers.ikePolicySerializers import IkePolicySerializer
 from ipsecs.scripts.ikepolicy.getpolicies import get_junos_ike_policies, normalize_device_policies
-from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicies,push_junos_config,serialized_delete_ikepolicies
+from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicy,push_junos_config,serialized_delete_ikepolicies
+import traceback
+
 
 class IkePolicyListView(ListAPIView):
     queryset = IkePolicy.objects.all()
@@ -61,7 +63,6 @@ class IkePolicyListView(ListAPIView):
             return Response(db_serialized)
 
         normalized_policies = [normalize_device_policies(p) for p in raw_device_data]
-        print(normalized_policies)
         db_names = {item["policyname"] for item in db_serialized}
         device_names = {p["policyname"] for p in normalized_policies}
         missing_names = device_names - db_names
@@ -109,10 +110,79 @@ class IkePolicyDetailView(RetrieveAPIView):
 
 ikepolicy_detail_view = IkePolicyDetailView.as_view()
 
+
 class IkePolicyUpdateView(UpdateAPIView):  
     queryset = IkePolicy.objects.all()
     serializer_class = IkePolicySerializer
     lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        try:
+            device = None
+            device_value = request.data.get("device")
+
+            if isinstance(device_value, str) and not device_value.isdigit():
+                try:
+                    device = Device.objects.get(device_name=device_value)
+                    request.data["device"] = device.device_name  # keep consistent with serializer
+                except Device.DoesNotExist:
+                    return Response(
+                        {"device": "Device with this name does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+            elif str(device_value).isdigit():
+                device = Device.objects.filter(id=device_value).first()
+                if not device:
+                    return Response(
+                        {"device": "Device with this ID does not exist."},
+                        status=status.HTTP_400_BAD_REQUEST,
+                    )
+
+            obj = self.get_object()
+            policyname = request.data.get("policyname")
+            if policyname and IkePolicy.objects.filter(policyname=policyname).exclude(pk=obj.pk).exists():
+                return Response(
+                    {"error": "Policy name must be unique. This name already exists."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if request.data.get("is_sendtodevice"):
+                payload = [
+                    request.data.get("policyname"),
+                    request.data.get("mode"),
+                    request.data.get("proposals"),
+                    request.data.get("pre_shared_key"),
+                ]
+                device_id = device.id 
+                old_policies = list(
+                    IkePolicy.objects.filter(device_id=device_id)
+                    .exclude(pk=obj.pk)
+                    .values_list("policyname", flat=True)
+                )
+                if payload[0] not in old_policies:
+                    config = serialized_ikepolicy(payload)
+                    print(config)
+                    success, result = push_junos_config(
+                        device.ip_address,
+                        device.username,
+                        device.password,
+                        config
+                    )
+                    if not success:
+                        return Response(
+                            {"error": f"Failed to push config to device: {result}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                        )
+
+            return super().update(request, *args, **kwargs)
+
+        except Exception as e:
+            traceback.print_exc()
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 ikepolicy_update_view = IkePolicyUpdateView.as_view()
 
 class IkePolicyDestroyView(DestroyAPIView):

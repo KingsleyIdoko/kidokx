@@ -19,6 +19,7 @@ export default function IkePolicyConfig() {
     editingData,
     editeddata,
   } = useSelector((state) => state.vpn);
+  console.log(editeddata);
   const { selectedDevice } = useSelector((state) => state.inventories);
   const [ikeProposalNames, setIkeProposalNames] = useState([]);
 
@@ -55,7 +56,6 @@ export default function IkePolicyConfig() {
 
   const submitForm = async (values) => {
     const finalPayload = { ...values, device: selectedDevice };
-    console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
@@ -89,7 +89,6 @@ export default function IkePolicyConfig() {
     "IKE Policy Name",
     "IKE Mode",
     "IKE Proposal",
-    "Authentication Method",
     "Pre_Shared_Key",
   ];
 
@@ -170,29 +169,6 @@ export default function IkePolicyConfig() {
               </p>
             )}
           </div>
-
-          <div className="h-[4rem] flex flex-col justify-between">
-            <select
-              {...register("authentication_method", {
-                required: "Select Authentication Method",
-              })}
-              className={`px-4 py-3 bg-gray-100 border rounded-lg text-left focus:outline-none ${
-                errors.authentication_method
-                  ? "border-red-500"
-                  : "border-gray-300"
-              }`}
-            >
-              <option value="">Select Auth Method</option>
-              <option value="pre-shared-key">Pre-Shared Key</option>
-              <option value="rsa">RSA</option>
-            </select>
-            {errors.authentication_method && (
-              <p className="text-xs text-red-500 font-medium flex items-center">
-                {errors.authentication_method.message}
-              </p>
-            )}
-          </div>
-
           <div className="h-[4rem] flex flex-col justify-between">
             <input
               {...register("pre_shared_key", {

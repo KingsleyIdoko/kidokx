@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import SearchDevice from '../../../../../inventory/searchdevice';
-import { BaseUrl } from '../api/postikeproposal';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import SearchDevice from "../../../../../inventory/searchdevice";
+import { BaseUrl } from "../api/postikeproposal";
 import {
   setEditedData,
   setValidated,
@@ -13,9 +13,9 @@ import {
   setEditing,
   setCreateVpnData,
   setIpsecVpnData,
-} from '../../../../../store/reducers/vpnReducer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash } from '@fortawesome/free-solid-svg-icons';
+} from "../../../../../store/reducers/vpnReducer";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 export default function VpnConfigList() {
   const [updatedData, setUpdatedData] = useState([]);
@@ -35,7 +35,7 @@ export default function VpnConfigList() {
   const { selectedDevice } = useSelector((state) => state.inventories);
 
   const fetchData = async () => {
-    if (!selectedDevice || selectedDevice.trim() === '') {
+    if (!selectedDevice || selectedDevice.trim() === "") {
       setUpdatedData([]);
       return;
     }
@@ -45,10 +45,13 @@ export default function VpnConfigList() {
     try {
       const vpndata = await axios.get(urlPath);
       if (Array.isArray(vpndata.data)) {
-        const modified_data = vpndata.data.map(({ device_name, ...rest }) => ({
-          ...rest,
-          device: device_name,
-        }));
+        const modified_data = vpndata.data.map((item) => {
+          if ("device_name" in item && !("device" in item)) {
+            const { device_name, ...rest } = item;
+            return { ...rest, device: device_name };
+          }
+          return item;
+        });
         setUpdatedData(modified_data);
         dispatch(setIpsecVpnData(vpndata.data));
       }
@@ -82,15 +85,15 @@ export default function VpnConfigList() {
     try {
       const response = await axios.delete(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
-        { data: payload },
+        { data: payload }
       );
       if (response.status === 204 || response.status === 200) {
         setUpdatedData((prevData) =>
-          prevData.filter((proposal) => proposal.id !== id),
+          prevData.filter((proposal) => proposal.id !== id)
         );
       }
     } catch (err) {
-      console.error('Error deleting proposal:', err.message);
+      console.error("Error deleting proposal:", err.message);
     }
   };
 
@@ -100,14 +103,15 @@ export default function VpnConfigList() {
       is_published: true,
       is_sendtodevice: true,
     };
+    console.log(deployData);
     try {
       await axios.put(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,
-        deployData,
+        deployData
       );
       await fetchData();
     } catch (err) {
-      console.error('Post/Put failed:', err.message);
+      console.error("Post/Put failed:", err.message);
       dispatch(setValidated(false));
     }
   };
@@ -167,15 +171,15 @@ export default function VpnConfigList() {
   ]);
 
   const titleMap = {
-    ikeproposal: 'IKEPROPOSAL NAME',
-    ikepolicy: 'IKEPOLICY NAME',
-    ikegateway: 'IKEGATEWAY NAME',
-    ipsecproposal: 'IPSECPROPOSAL NAME',
-    ipsecpolicy: 'IPSECPOLICY NAME',
-    ipsecvpn: 'IPSECVPN NAME',
+    ikeproposal: "IKEPROPOSAL NAME",
+    ikepolicy: "IKEPOLICY NAME",
+    ikegateway: "IKEGATEWAY NAME",
+    ipsecproposal: "IPSECPROPOSAL NAME",
+    ipsecpolicy: "IPSECPOLICY NAME",
+    ipsecvpn: "IPSECVPN NAME",
   };
 
-  const title = titleMap[configtype] || 'IKEPROPOSAL NAME';
+  const title = titleMap[configtype] || "IKEPROPOSAL NAME";
 
   return (
     <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-8 shadow-md mt-10">
@@ -187,7 +191,7 @@ export default function VpnConfigList() {
         className="w-[12rem] mb-6 bg-sky-400 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         onClick={handleCreateBtn}
       >
-        {`Create ${configtype ? configtype : 'Ike Proposal'}`}
+        {`Create ${configtype ? configtype : "Ike Proposal"}`}
       </button>
 
       {loading ? (
@@ -248,19 +252,19 @@ export default function VpnConfigList() {
                             onClick={() => handleEdit(item)}
                             className="hover:underline"
                           >
-                            {configtype === 'ikeproposal'
+                            {configtype === "ikeproposal"
                               ? item.proposalname
-                              : configtype === 'ikepolicy'
+                              : configtype === "ikepolicy"
                               ? item.policyname
-                              : configtype === 'ikegateway'
+                              : configtype === "ikegateway"
                               ? item.gatewayname
-                              : configtype === 'ipsecproposal'
+                              : configtype === "ipsecproposal"
                               ? item.proposal_name
-                              : configtype === 'ipsecpolicy'
+                              : configtype === "ipsecpolicy"
                               ? item.policy_name
-                              : configtype === 'ipsecvpn'
+                              : configtype === "ipsecvpn"
                               ? item.vpn_name
-                              : ''}
+                              : ""}
                           </button>
                         </td>
                         <td className="py-3 px-6 border-b">
@@ -277,11 +281,11 @@ export default function VpnConfigList() {
                                 disabled={item.is_published}
                                 className={`w-[5rem] text-gray-600 ${
                                   item.is_published
-                                    ? 'bg-gray-200 opacity-70 cursor-not-allowed'
-                                    : 'bg-sky-400 text-white hover:opacity-70'
+                                    ? "bg-gray-200 opacity-70 cursor-not-allowed"
+                                    : "bg-sky-400 text-white hover:opacity-70"
                                 } py-1 rounded-lg`}
                               >
-                                {item.is_published ? 'Deployed' : 'Deploy'}
+                                {item.is_published ? "Deployed" : "Deploy"}
                               </button>
                             </div>
                           </div>

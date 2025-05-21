@@ -28,15 +28,16 @@ def push_junos_config(host, username, password, config_set_string):
         return False, f"Connection Error: {str(ce)}"
 
 
-def serialized_ikepolicies(payload, old_policies):
-    policyname, _= payload
+def serialized_ikepolicy(payload):
+    policyname, main, proposal, pre_shared_key = payload
 
     set_config = [
-        f"set security ike policy {policyname} mode main",
-        f"set security ike policy {policyname} proposals {policyname}",  # assumes proposal is same as policy name, adjust if needed
-        f"set security ike policy {policyname} pre-shared-key ascii-text \"secret-key\""
+        f"set security ike policy {policyname} mode {main}",
+        f"set security ike policy {policyname} proposals {proposal}",
+        f"set security ike policy {policyname} pre-shared-key ascii-text \"{pre_shared_key}\""
     ]
     return "\n".join(set_config)
+
 
 
 def serialized_delete_ikepolicies(payload):
