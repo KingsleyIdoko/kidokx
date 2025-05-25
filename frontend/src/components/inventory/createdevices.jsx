@@ -130,14 +130,7 @@ export default function CreateDevice() {
                         required: item.params_name !== "model",
                       })}
                       id={item.params_name}
-                      className={`w-full py-2 px-4 border rounded focus:outline-none focus:ring focus:border-gray-400 ${
-                        editedData && item.params_name === "Device Name"
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-100"
-                      }`}
-                      disabled={
-                        editedData && item.params_name === "Device Name"
-                      }
+                      className={`w-full py-2 px-4 border rounded focus:outline-none focus:ring focus:border-gray-40 bg-gray-100"`}
                       placeholder={`Enter ${item.params_name}`}
                     />
                   )}

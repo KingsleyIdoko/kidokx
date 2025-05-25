@@ -8,7 +8,7 @@ from rest_framework import status
 from inventories.models import Device
 from ipsecs.serializers.ikePolicySerializers import IkePolicySerializer
 from ipsecs.scripts.ikepolicy.getpolicies import get_junos_ike_policies, normalize_device_policies
-from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicy,push_junos_config,serialized_delete_ikepolicies
+from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicy,push_junos_config,serialized_delete_ikepolicy
 import traceback
 
 
@@ -58,18 +58,16 @@ class IkePolicyListView(ListAPIView):
                 password=device.password
             )
             if not raw_device_data:
+
                 return Response(db_serialized)
         except Exception:
             return Response(db_serialized)
-
         normalized_policies = [normalize_device_policies(p) for p in raw_device_data]
         db_names = {item["policyname"] for item in db_serialized}
         device_names = {p["policyname"] for p in normalized_policies}
         missing_names = device_names - db_names
         missing_policies = [p for p in normalized_policies if p["policyname"] in missing_names]
-
         created = []
-
         for p in missing_policies:
             proposal_obj = IkeProposal.objects.filter(proposalname=p["proposals"],device=device).first()
             if not proposal_obj:
@@ -84,7 +82,6 @@ class IkePolicyListView(ListAPIView):
                 "pre_shared_key": p["pre_shared_key"],
                 "is_published": p["is_published"],
             })
-
             if serializer.is_valid():
                 serializer.save()
                 created.append(p["policyname"])
@@ -173,7 +170,6 @@ class IkePolicyUpdateView(UpdateAPIView):
                             {"error": f"Failed to push config to device: {result}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR
                         )
-
             return super().update(request, *args, **kwargs)
 
         except Exception as e:
@@ -182,7 +178,6 @@ class IkePolicyUpdateView(UpdateAPIView):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
 ikepolicy_update_view = IkePolicyUpdateView.as_view()
 
 class IkePolicyDestroyView(DestroyAPIView):
@@ -190,6 +185,20 @@ class IkePolicyDestroyView(DestroyAPIView):
     serializer_class = IkePolicySerializer
     lookup_field = 'pk'
 
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        device = obj.device
+        policyname = obj.policyname
+        config = serialized_delete_ikepolicy((policyname, None))
+        success, result = push_junos_config(
+            device.ip_address,
+            device.username,
+            device.password,
+            config
+        )
+        if success:
+            return super().delete(request, *args, **kwargs)
+        return Response({"detail": "Failed to delete proposal from device", "error": result}, status=400)
 ikepolicy_delete_view = IkePolicyDestroyView.as_view()
 
 

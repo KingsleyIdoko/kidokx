@@ -1,22 +1,22 @@
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import { useSelector } from 'react-redux';
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CreateSite() {
   const { sitedata } = useSelector((state) => state.site);
   const navigate = useNavigate();
   const formData = [
-    { name: 'Site Name', value: '' },
-    { name: 'Location', value: '' },
-    { name: 'Address', value: '' },
+    { name: "Site Name", value: "" },
+    { name: "Location", value: "" },
+    { name: "Address", value: "" },
   ];
 
   const fieldMapping = {
-    'Site Name': 'site_name',
-    Location: 'location',
-    Address: 'description',
+    "Site Name": "site_name",
+    Location: "location",
+    Address: "description",
   };
 
   const {
@@ -24,14 +24,14 @@ export default function CreateSite() {
     handleSubmit,
     register,
     formState: { errors },
-  } = useForm({ mode: 'onChange' });
+  } = useForm({ mode: "onChange" });
 
   useEffect(() => {
     if (sitedata && Object.keys(sitedata).length > 0) {
       const reverseMappedData = {
-        'Site Name': sitedata.site_name || '',
-        Location: sitedata.location || '',
-        Address: sitedata.description || '',
+        "Site Name": sitedata.site_name || "",
+        Location: sitedata.location || "",
+        Address: sitedata.description || "",
       };
       reset(reverseMappedData);
     }
@@ -48,24 +48,25 @@ export default function CreateSite() {
       if (sitedata && sitedata.id) {
         response = await axios.put(
           `http://127.0.0.1:8000/api/inventories/sites/${sitedata.id}/update/`,
-          payload,
+          payload
         );
-        if (response.status === 201) {
-          navigate('/inventory/sites/list/');
+        console.log(response.status);
+        if (response.status === 200) {
+          navigate("/inventory/sites/list/");
         }
       } else {
         // Create new site (POST request)
         response = await axios.post(
-          'http://127.0.0.1:8000/api/inventories/sites/create/',
-          payload,
+          "http://127.0.0.1:8000/api/inventories/sites/create/",
+          payload
         );
         if (response.status === 201) {
-          navigate('/inventory/sites/list/');
+          navigate("/inventory/sites/list/");
         }
       }
       reset({});
     } catch (err) {
-      console.error('API request failed:', err.message);
+      console.error("API request failed:", err.message);
     }
   };
 
@@ -73,7 +74,7 @@ export default function CreateSite() {
     <div className="max-w-[60rem] min-h-[40rem] bg-white rounded-lg mx-auto mt-12 p-10">
       <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="font-bold text-3xl text-center mb-12 uppercase">
-          {sitedata?.id ? 'Edit Site' : 'Create Site'}
+          {sitedata?.id ? "Edit Site" : "Create Site"}
         </h1>
 
         <div className="space-y-8">
@@ -110,7 +111,7 @@ export default function CreateSite() {
             type="submit"
             className="bg-sky-500 text-white px-10 py-3 rounded-md hover:opacity-80 transition"
           >
-            {sitedata?.id ? 'Update' : 'Submit'}
+            {sitedata?.id ? "Update" : "Submit"}
           </button>
         </div>
       </form>

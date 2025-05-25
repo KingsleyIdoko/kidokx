@@ -13,7 +13,6 @@ def get_junos_ike_policies(host, username, password):
         look_for_keys=False,
         allow_agent=False,
     ) as m:
-
         filter_xml = """
         <configuration>
             <security>
@@ -23,14 +22,12 @@ def get_junos_ike_policies(host, username, password):
             </security>
         </configuration>
         """
-
         response = m.get_config(source="candidate", filter=("subtree", filter_xml))
         try:
             parsed = xmltodict.parse(response.data_xml)
         except Exception as e:
             print("XML parsing failed:", str(e))
             raise
-
         policies = (
             parsed.get("rpc-reply", {})
                   .get("data", {})
@@ -39,11 +36,9 @@ def get_junos_ike_policies(host, username, password):
                   .get("ike", {})
                   .get("policy", [])
         )
-        # Always return a list
         if isinstance(policies, dict):
             return [policies]
         return policies
-
     
 def normalize_device_policies(raw):
     return {
@@ -53,8 +48,6 @@ def normalize_device_policies(raw):
         "pre_shared_key": raw.get("pre-shared-key", {}).get("ascii-text", ""),
         "is_published": True,
     }
-
-
 
 def sync_ike_policies(device, db_serialized, device_policies_raw):
     from ipsecs.models import IkePolicy  # adjust path if needed

@@ -12,6 +12,7 @@ import { useForm } from "react-hook-form";
 
 function IkeGatewayConfig() {
   const dispatch = useDispatch();
+  const [interfaces, setInterfaces] = useState([]);
   const { selectedDevice } = useSelector((state) => state.inventories);
   const {
     saveconfiguration,
@@ -20,10 +21,7 @@ function IkeGatewayConfig() {
     ikeGatewayData,
     editeddata,
   } = useSelector((state) => state.vpn);
-
   const ikeVersions = ["v1-only", "v2-only"];
-
-  console.log(editeddata);
   const [ikePolicyNames, setIkePolicyNames] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -63,6 +61,22 @@ function IkeGatewayConfig() {
       reset(ikeGatewayData);
     }
   }, [ikeGatewayData, editingData, editeddata, ikePolicyNames, reset]);
+
+  useEffect(() => {
+    const fetchInterfaces = async () => {
+      if (!selectedDevice) return; // guard clause
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/interfaces/names/?device=${selectedDevice}`
+        );
+        setInterfaces(response.data);
+      } catch (error) {
+        console.error("Failed to fetch interfaces:", error);
+      }
+    };
+
+    fetchInterfaces();
+  }, [selectedDevice]); // 👈 now responds to changes in selectedDevice
 
   const onSubmit = async (data) => {
     const payload = { ...data, device: selectedDevice };
@@ -166,9 +180,11 @@ function IkeGatewayConfig() {
               })}
             >
               <option value="">Select Interface</option>
-              <option value="ge-0/0/0">ge-0/0/0</option>
-              <option value="ge-0/0/1">ge-0/0/1</option>
-              <option value="ge-0/0/2">ge-0/0/2</option>
+              {interfaces.map((intf, index) => (
+                <option key={index} value={intf}>
+                  {intf}
+                </option>
+              ))}
             </select>
             {errors.external_interface && (
               <p className="text-red-500 text-sm">

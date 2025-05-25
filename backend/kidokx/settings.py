@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     #projects
     'inventories',
     'ipsecs',
+    'interfaces',
 ]
 
 MIDDLEWARE = [
@@ -57,7 +58,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'kidokx.urls'
-CORS_URLS_REGEX = r"^/(api/ipsec|api/inventories)/.*$"
+CORS_URLS_REGEX = r"^/api/(ipsec|inventories|interfaces)/.*$"
 FIELD_ENCRYPTION_KEY = 'iTe2amQwm4GwCQL4GTGL8pVr2GPd5_nQaqvWFWVdmdw='
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",

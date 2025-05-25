@@ -87,7 +87,7 @@ class IkeProposal(models.Model):
 
 
 class IkePolicy(models.Model):
-    policyname = models.CharField(max_length=100, unique=True)
+    policyname = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     mode = models.CharField(max_length=50, choices=ipsecConfiguationItems.Mode.choices)
     proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)

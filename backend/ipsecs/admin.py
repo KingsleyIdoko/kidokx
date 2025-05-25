@@ -13,6 +13,7 @@ class IkeProposalAdmin(admin.ModelAdmin):
 class IkePolicyAdmin(admin.ModelAdmin):
     list_display = ('id', 'device', 'policyname')
     search_fields = ('policyname', 'authentication_method')
+    list_filter = ('device',)
 
 
 @admin.register(IkeGateway)

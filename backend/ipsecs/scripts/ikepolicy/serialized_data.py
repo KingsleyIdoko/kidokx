@@ -40,8 +40,7 @@ def serialized_ikepolicy(payload):
 
 
 
-def serialized_delete_ikepolicies(payload):
+def serialized_delete_ikepolicy(payload):
     policyname, _ = payload
     set_config = f"delete security ike policy {policyname}"
-    print(set_config)
     return set_config

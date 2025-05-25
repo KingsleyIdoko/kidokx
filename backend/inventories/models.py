@@ -39,6 +39,7 @@ class Device(models.Model):
     password = EncryptedCharField(max_length=100) 
     device_type = models.CharField(max_length=50, choices=DEVICE_TYPES, default='router')
     vendor_name = models.CharField(max_length=50, choices=VENDOR_TYPES, default='cisco')
+    intefaces = models
     ip_address = models.GenericIPAddressField()
     device_model = models.CharField(max_length=50, blank=True, null=True)
     connection_protocol = models.CharField(max_length=20, choices=PROTOCOL_CHOICES, default='snmp', blank=True, null=True)
@@ -47,3 +48,4 @@ class Device(models.Model):
 
     def __str__(self):
         return self.device_name
+
