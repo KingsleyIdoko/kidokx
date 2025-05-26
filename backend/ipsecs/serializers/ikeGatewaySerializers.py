@@ -4,7 +4,7 @@ from inventories.models import Device
 
 class IkeGatewaySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
-    ike_policy = serializers.SlugRelatedField(slug_field='policyname', queryset=IkePolicy.objects.all())
+    ike_policy = serializers.SlugRelatedField(slug_field='policyname', queryset=IkePolicy.objects.none())
 
     class Meta:
         model = IkeGateway
@@ -12,10 +12,30 @@ class IkeGatewaySerializer(serializers.ModelSerializer):
             'id',
             'gatewayname',
             'device',
+            'ike_policy',
             'remote_address',
-            'ike_version',
             'local_address',
             'external_interface',
-            'ike_policy',
+            'ike_version',
             'is_published',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if not hasattr(self, "initial_data"):
+            return
+
+        if isinstance(self.initial_data, list):
+            return  # skip bulk create
+
+        device_name = (
+            self.initial_data.get("device")
+            if isinstance(self.initial_data, dict)
+            else getattr(getattr(self.instance, "device", None), "device_name", None)
+        )
+
+        if device_name:
+            device = Device.objects.filter(device_name=device_name).first()
+            if device:
+                self.fields["ike_policy"].queryset = IkePolicy.objects.filter(device=device)

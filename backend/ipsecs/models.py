@@ -103,7 +103,7 @@ class IkePolicy(models.Model):
 
 
 class IkeGateway(models.Model):
-    gatewayname = models.CharField(max_length=100, unique=True)
+    gatewayname = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     remote_address = models.GenericIPAddressField()
     local_address = models.GenericIPAddressField()
