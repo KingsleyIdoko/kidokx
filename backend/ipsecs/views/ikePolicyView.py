@@ -158,7 +158,6 @@ class IkePolicyUpdateView(UpdateAPIView):
                 )
                 if payload[0] not in old_policies:
                     config = serialized_ikepolicy(payload)
-                    print(config)
                     success, result = push_junos_config(
                         device.ip_address,
                         device.username,
@@ -189,7 +188,7 @@ class IkePolicyDestroyView(DestroyAPIView):
         obj = self.get_object()
         device = obj.device
         policyname = obj.policyname
-        config = serialized_delete_ikepolicy((policyname, None))
+        config = serialized_delete_ikepolicy((policyname))
         success, result = push_junos_config(
             device.ip_address,
             device.username,

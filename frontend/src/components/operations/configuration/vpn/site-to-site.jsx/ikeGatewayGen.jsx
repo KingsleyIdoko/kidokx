@@ -55,12 +55,21 @@ function IkeGatewayConfig() {
   }, []);
 
   useEffect(() => {
-    if (editingData && editeddata && ikePolicyNames.length > 0) {
+    if (interfaces.length === 0 || ikePolicyNames.length === 0) return;
+
+    if (editingData && editeddata) {
       reset(editeddata);
-    } else if (ikeGatewayData && ikePolicyNames.length > 0) {
+    } else if (ikeGatewayData) {
       reset(ikeGatewayData);
     }
-  }, [ikeGatewayData, editingData, editeddata, ikePolicyNames, reset]);
+  }, [
+    interfaces,
+    ikePolicyNames,
+    ikeGatewayData,
+    editeddata,
+    editingData,
+    reset,
+  ]);
 
   useEffect(() => {
     const fetchInterfaces = async () => {
@@ -76,7 +85,7 @@ function IkeGatewayConfig() {
     };
 
     fetchInterfaces();
-  }, [selectedDevice]); // 👈 now responds to changes in selectedDevice
+  }, [selectedDevice]);
 
   const onSubmit = async (data) => {
     const payload = { ...data, device: selectedDevice };

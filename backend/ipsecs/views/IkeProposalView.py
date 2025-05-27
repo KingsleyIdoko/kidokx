@@ -174,13 +174,15 @@ class IkeProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device  
         proposalname = obj.proposalname
-        config = serialized_delete_ikeproposal((proposalname, None))
+        config = serialized_delete_ikeproposal((proposalname))
+        print(config)
         success, result = push_junos_config(
             device.ip_address,
             device.username,
             device.password,
             config
         )
+        print(result)
         if success:
             return super().delete(request, *args, **kwargs)
         return Response({"detail": "Failed to delete proposal from device", "error": result}, status=400)

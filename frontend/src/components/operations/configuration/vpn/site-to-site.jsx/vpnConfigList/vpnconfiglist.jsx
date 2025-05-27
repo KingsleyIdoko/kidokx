@@ -73,7 +73,7 @@ export default function VpnConfigList() {
     const item = updatedData.find((p) => p.id === id);
     const payload = {
       device: item.device,
-      proposalname:
+      ikename:
         item.proposalname ||
         item.policyname ||
         item.gatewayname ||
