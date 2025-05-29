@@ -197,5 +197,9 @@ export const createDeviceFormItems = async () => {
       params_name: "vendor",
       value: ["cisco", "juniper", "arista", "nokia", "fortinet"],
     },
+    {
+      params_name: "keepalive",
+      value: "",
+    },
   ];
 };

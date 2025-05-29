@@ -37,6 +37,7 @@ export default function CreateDevice() {
         Protocol: editedData.connection_protocol,
         username: editedData.username,
         password: editedData.password,
+        keepalive: editedData.keepalive,
       };
       reset(formValues);
     }
@@ -53,6 +54,7 @@ export default function CreateDevice() {
       Protocol: "connection_protocol",
       username: "username",
       password: "password",
+      keepalive: "keepalive",
     };
 
     const normalizedData = {};
@@ -122,6 +124,19 @@ export default function CreateDevice() {
                         </option>
                       ))}
                     </select>
+                  ) : item.params_name === "keepalive" ? (
+                    <input
+                      type="number"
+                      min="1"
+                      autoComplete="off"
+                      {...register(item.params_name, {
+                        required: true,
+                        min: { value: 1, message: "Must be 1 or greater" },
+                      })}
+                      id={item.params_name}
+                      className="w-full py-2 px-4 border rounded focus:outline-none focus:ring focus:border-gray-400 bg-gray-100"
+                      placeholder={`Enter ${item.params_name}`}
+                    />
                   ) : (
                     <input
                       type="text"

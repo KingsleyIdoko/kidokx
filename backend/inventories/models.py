@@ -21,6 +21,12 @@ PROTOCOL_CHOICES = [
     ('netconf-ssh', 'netconf-ssh'),
 ]
 
+STATUS_CHOICES = [
+    ('up', 'Up'),            
+    ('unknown', 'Unknown'),   
+    ('down', 'Down'),        
+]
+
 class Site(models.Model):
     site_name = models.CharField(max_length=50, unique=True)
     location = models.CharField(max_length=50)
@@ -35,14 +41,16 @@ class Site(models.Model):
 class Device(models.Model):
     site = models.ForeignKey('Site', on_delete=models.CASCADE)
     device_name = models.CharField(max_length=100, unique=True)
+    status = status = models.CharField(max_length=10,choices=STATUS_CHOICES,default='down')
     username = models.CharField(max_length=50)
     password = EncryptedCharField(max_length=100) 
     device_type = models.CharField(max_length=50, choices=DEVICE_TYPES, default='router')
     vendor_name = models.CharField(max_length=50, choices=VENDOR_TYPES, default='cisco')
-    intefaces = models
     ip_address = models.GenericIPAddressField()
     device_model = models.CharField(max_length=50, blank=True, null=True)
     connection_protocol = models.CharField(max_length=20, choices=PROTOCOL_CHOICES, default='snmp', blank=True, null=True)
+    keepalive = models.IntegerField(default=60)
+    last_checked = models.DateTimeField(null=True, blank=True)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
 

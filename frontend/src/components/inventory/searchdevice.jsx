@@ -1,17 +1,17 @@
-import axios from 'axios';
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import axios from "axios";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import {
   setIsSelectedDevice,
   setSelectedDevice,
-} from '../store/reducers/inventoryReducers';
+} from "../store/reducers/inventoryReducers";
 import {
   setConfigType,
   setValidSearchComponent,
-} from '../store/reducers/vpnReducer';
-import { setGetSiteName, setSite } from '../store/reducers/siteReducer';
+} from "../store/reducers/vpnReducer";
+import { setGetSiteName, setSite } from "../store/reducers/siteReducer";
 
 export function SearchDevice() {
   const dispatch = useDispatch();
@@ -19,7 +19,7 @@ export function SearchDevice() {
   const { configtype, saveconfiguration, editingData, createvpndata } =
     useSelector((state) => state.vpn);
   const { selectedDevice, inventories } = useSelector(
-    (state) => state.inventories,
+    (state) => state.inventories
   );
   const sitenames = useSelector((state) => state.site.sitenames);
   const site = useSelector((state) => state.site.site);
@@ -37,18 +37,18 @@ export function SearchDevice() {
     setValue,
     formState: { errors },
   } = useForm({
-    mode: 'onChange',
+    mode: "onChange",
     defaultValues: {
-      device: '',
-      config: '',
-      site: '',
-      vendor: '',
+      device: "",
+      config: "",
+      site: "",
+      vendor: "",
     },
   });
 
-  const selectedsite = watch('site');
-  const watchDevice = watch('device');
-  const watchConfig = watch('config');
+  const selectedsite = watch("site");
+  const watchDevice = watch("device");
+  const watchConfig = watch("config");
 
   useEffect(() => {
     if (watchConfig) dispatch(setConfigType(watchConfig));
@@ -66,13 +66,13 @@ export function SearchDevice() {
   useEffect(() => {
     if (!sitenames || !sitenames.length) {
       axios
-        .get('http://127.0.0.1:8000/api/inventories/sites/names/')
+        .get("http://127.0.0.1:8000/api/inventories/sites/names/")
         .then(({ data }) => {
           dispatch(setGetSiteName(data));
           setLoadingSites(false);
         })
         .catch((err) => {
-          console.error('Site fetch error:', err);
+          console.error("Site fetch error:", err);
           setLoadingSites(false);
         });
     } else {
@@ -84,13 +84,13 @@ export function SearchDevice() {
   useEffect(() => {
     if (!inventories || !inventories.length) {
       axios
-        .get('http://127.0.0.1:8000/api/inventories/devices/')
+        .get("http://127.0.0.1:8000/api/inventories/devices/")
         .then(({ data }) => {
           setDevices(data);
           setLoadingDevices(false);
         })
         .catch((error) => {
-          console.error('Error fetching device data:', error);
+          console.error("Error fetching device data:", error);
           setError(error);
           setLoadingDevices(false);
         });
@@ -100,11 +100,25 @@ export function SearchDevice() {
     }
   }, [inventories]);
 
+  useEffect(() => {
+    if (selectedsite) {
+      const currentDevice = getValues("device");
+      const isDeviceValid = devices.some(
+        (device) =>
+          device.device_name === currentDevice && device.site === selectedsite
+      );
+      if (!isDeviceValid) {
+        setValue("device", "");
+        dispatch(setSelectedDevice(""));
+      }
+    }
+  }, [selectedsite, devices, setValue, dispatch, getValues]);
+
   // Sync Redux default values into form once they're available
   useEffect(() => {
-    if (selectedDevice) setValue('device', selectedDevice);
-    if (configtype) setValue('config', configtype);
-    if (site) setValue('site', site);
+    if (selectedDevice) setValue("device", selectedDevice);
+    if (configtype) setValue("config", configtype);
+    if (site) setValue("site", site);
   }, [selectedDevice, configtype, site, setValue]);
 
   // Filter devices by site
@@ -115,7 +129,7 @@ export function SearchDevice() {
   useEffect(() => {
     if (saveconfiguration || createvpndata) {
       (async () => {
-        const isValid = await trigger(['device', 'config', 'site', 'vendor']);
+        const isValid = await trigger(["device", "config", "site", "vendor"]);
         if (isValid) {
           const { device, config, vendor } = getValues();
           dispatch(setConfigType(config.toLowerCase()));
@@ -147,9 +161,9 @@ export function SearchDevice() {
     <form className="flex py-3 justify-between mx-auto items-start gap-3">
       <div className="w-full flex flex-col">
         <select
-          {...register('site', { required: 'Select site' })}
+          {...register("site", { required: "Select site" })}
           className={`w-full py-3 px-3 border rounded focus:outline-none capitalize ${
-            editingData ? 'opacity-50 cursor-not-allowed' : ''
+            editingData ? "opacity-50 cursor-not-allowed" : ""
           }
           `}
         >
@@ -167,10 +181,10 @@ export function SearchDevice() {
 
       <div className="w-full flex flex-col">
         <select
-          {...register('device', { required: 'Select device' })}
+          {...register("device", { required: "Select device" })}
           className={`w-full py-3 px-3 border rounded focus:outline-none ${
-            errors.device ? 'border-red-500' : ''
-          } ${editingData ? 'opacity-50 cursor-not-allowed' : ''}`}
+            errors.device ? "border-red-500" : ""
+          } ${editingData ? "opacity-50 cursor-not-allowed" : ""}`}
           disabled={editingData}
         >
           <option value="">Select Device</option>
@@ -187,9 +201,9 @@ export function SearchDevice() {
 
       <div className="w-full flex flex-col">
         <select
-          {...register('config', { required: 'Select config type' })}
+          {...register("config", { required: "Select config type" })}
           className={`w-full py-3 px-3 border rounded focus:outline-none ${
-            editingData ? 'opacity-50 cursor-not-allowed' : ''
+            editingData ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           <option value="">Select Config</option>
@@ -204,9 +218,9 @@ export function SearchDevice() {
 
       <div className="w-full flex flex-col">
         <select
-          {...register('vendor')}
+          {...register("vendor")}
           className={`w-full py-3 px-3 border rounded focus:outline-none ${
-            editingData ? 'opacity-50 cursor-not-allowed' : ''
+            editingData ? "opacity-50 cursor-not-allowed" : ""
           }`}
         >
           <option value="">Vendor</option>

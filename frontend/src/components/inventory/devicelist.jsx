@@ -9,6 +9,7 @@ import { useDispatch } from "react-redux";
 export default function DeviceInventory() {
   const dispatch = useDispatch();
   const [backendData, setBackendData] = useState([]);
+  const [deviceStatuses, setDeviceStatuses] = useState([]);
   const navigate = useNavigate();
 
   const handleEdit = (device) => {
@@ -16,17 +17,17 @@ export default function DeviceInventory() {
     navigate("/inventory/devices/create/");
   };
 
-  const handleDelete = (deviceId) => {
-    const updatedData = backendData.filter((device) => device.id !== deviceId);
-    setBackendData(updatedData);
+  const handleDelete = async (deviceId) => {
+    setBackendData((prev) => prev.filter((device) => device.id !== deviceId));
     try {
-      axios.delete(
+      await axios.delete(
         `http://127.0.0.1:8000/api/inventories/devices/${deviceId}/delete/`
       );
     } catch (err) {
-      console.log("An error has occured: ", err);
+      console.error("An error occurred: ", err);
     }
   };
+
   const handleCreateDevice = () => {
     dispatch(setEditedData(null));
     navigate("/inventory/devices/create/");
@@ -40,10 +41,32 @@ export default function DeviceInventory() {
         );
         setBackendData(response.data);
       } catch (err) {
-        console.error("Failed to fetch backend data:", err);
+        console.error("Failed to fetch devices:", err);
       }
     };
+
     fetchDeviceList();
+  }, []);
+
+  useEffect(() => {
+    const fetchDeviceStatuses = async () => {
+      try {
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/inventories/devices/monitor/"
+        );
+        setDeviceStatuses(response.data);
+      } catch (err) {
+        console.error("Failed to fetch statuses:", err);
+      }
+    };
+
+    // Initial fetch
+    fetchDeviceStatuses();
+
+    // Fetch every 60 seconds
+    const interval = setInterval(fetchDeviceStatuses, 30000);
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -56,6 +79,7 @@ export default function DeviceInventory() {
           Add New
         </button>
       </div>
+
       <div className="bg-white shadow-sm rounded-md overflow-x-auto">
         <table className="w-full table-fixed text-sm text-left">
           <thead className="bg-gray-100 text-gray-700 border-y">
@@ -63,6 +87,7 @@ export default function DeviceInventory() {
               <th className="px-4 py-3 font-medium w-[4rem]">#</th>
               <th className="px-4 py-3 font-medium w-[10rem]">Site</th>
               <th className="px-4 py-3 font-medium w-[14rem]">IPv4 Address</th>
+              <th className="px-4 py-3 font-medium w-[14rem]">Status</th>
               <th className="px-4 py-3 font-medium w-[16rem]">Device Name</th>
               <th className="px-4 py-3 font-medium w-[14rem]">Device Type</th>
               <th className="px-4 py-3 font-medium w-[12rem]">Vendor</th>
@@ -70,13 +95,44 @@ export default function DeviceInventory() {
               <th className="px-4 py-3 font-medium w-[10rem]">Action</th>
             </tr>
           </thead>
+
           <tbody className="divide-y text-gray-800">
             {backendData.map((device, index) => {
+              const statusInfo = deviceStatuses.find(
+                (status) => status.device_name === device.device_name
+              );
+
+              const deviceStatus = statusInfo?.status || "unknown";
+
+              const getStatusColor = (status) => {
+                switch (status) {
+                  case "up":
+                    return { ping: "bg-green-400", dot: "bg-green-500" };
+                  case "unknown":
+                    return { ping: "bg-yellow-400", dot: "bg-yellow-500" };
+                  default:
+                    return { ping: "bg-red-400", dot: "bg-red-500" };
+                }
+              };
+
+              const colors = getStatusColor(deviceStatus);
+
               return (
                 <tr key={device.id || index} className="hover:bg-gray-50">
                   <td className="px-4 py-2">{index + 1}</td>
                   <td className="px-4 py-2">{device.site}</td>
                   <td className="px-4 py-2">{device.ip_address}</td>
+                  <td className="px-4 py-2 capitalize flex items-center">
+                    {deviceStatus}
+                    <span className="relative flex size-3 ml-2">
+                      <span
+                        className={`absolute inline-flex h-full w-full animate-ping rounded-full ${colors.ping} opacity-75`}
+                      ></span>
+                      <span
+                        className={`relative inline-flex size-3 rounded-full ${colors.dot}`}
+                      ></span>
+                    </span>
+                  </td>
                   <td
                     className="px-4 py-2 hover:underline cursor-pointer"
                     onClick={() => handleEdit(device)}
