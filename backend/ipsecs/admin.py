@@ -24,8 +24,8 @@ class IkeGatewayAdmin(admin.ModelAdmin):
 
 @admin.register(IpsecProposal)
 class IpsecProposalAdmin(admin.ModelAdmin):
-    list_display = ('id', 'device', 'proposal_name', 'authentication_algorithm', 'encryption_algorithm')
-    search_fields = ('proposal_name', 'authentication_algorithm', 'encryption_algorithm')
+    list_display = ('id', 'device', 'proposalname', 'authentication_algorithm', 'encryption_algorithm')
+    search_fields = ('proposalname', 'authentication_algorithm', 'encryption_algorithm')
     list_filter = ('authentication_algorithm', 'encryption_algorithm')
 
 

@@ -9,7 +9,7 @@ class IpsecProposalSerializer(serializers.ModelSerializer):
         model = IpsecProposal
         fields = [
             'id',  
-            'proposal_name',
+            'proposalname',
             'device',  
             'dh_group',
             'authentication_algorithm',

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
@@ -17,6 +17,13 @@ function IkeProposalConfig() {
     useSelector((store) => store.vpn);
   const { selectedDevice } = useSelector((store) => store.inventories);
 
+  const transformedEditedData = useMemo(() => {
+    if (editeddata?.id && editeddata?.proposalname) {
+      return { ...editeddata, proposal_name: editeddata.proposalname };
+    }
+    return null;
+  }, [editeddata]);
+
   const defaultValues = vpnproposalforms.reduce((acc, curr) => {
     const fieldName = curr.name.toLowerCase().replace(/\s+/g, '_');
     acc[fieldName] = curr.value instanceof Array ? '' : curr.value;
@@ -31,27 +38,31 @@ function IkeProposalConfig() {
   } = useForm({ mode: 'onChange', defaultValues });
 
   useEffect(() => {
-    if (editeddata?.id) {
-      reset(editeddata);
+    if (transformedEditedData) {
+      reset(transformedEditedData);
     }
-  }, [editeddata, reset]);
+  }, [transformedEditedData, reset]);
 
   const submitForm = async (formData) => {
+    const { proposal_name, ...rest } = formData;
     const finalPayload = {
-      ...formData,
+      ...rest,
       device: selectedDevice,
+      proposalname: proposal_name,
+      is_published: false,
+      is_sendtodevice: false,
     };
     console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
           'http://127.0.0.1:8000/api/ipsec/ipsecproposal/create/',
-          finalPayload,
+          finalPayload
         );
       } else {
         await axios.put(
           `http://127.0.0.1:8000/api/ipsec/ipsecproposal/${editeddata?.id}/update/`,
-          finalPayload,
+          finalPayload
         );
         dispatch(setEditing(false));
       }
@@ -84,7 +95,7 @@ function IkeProposalConfig() {
           const fieldName = formItem.name.toLowerCase().replace(/\s+/g, '_');
           const isTextInput = typeof formItem.value === 'string';
           const fieldErrorClass = `text-black bg-gray-100 border rounded-lg focus:outline-none w-full ${errorClass(
-            fieldName,
+            fieldName
           )}`;
 
           return (

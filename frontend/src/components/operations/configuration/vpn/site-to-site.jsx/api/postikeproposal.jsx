@@ -8,7 +8,7 @@ export const vpnproposalforms = [
   },
   {
     name: 'Authentication Algorithm',
-    value: ['md5', 'sha1', 'sha256', 'sha384', 'sha512'],
+    value: ['hmac-md5-96','hmac-sha-256-128','hmac-sha1-96'],
   },
   {
     name: 'DH Group',

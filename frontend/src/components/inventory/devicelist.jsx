@@ -49,23 +49,23 @@ export default function DeviceInventory() {
   }, []);
 
   useEffect(() => {
+    let isFetching = false;
+  
     const fetchDeviceStatuses = async () => {
+      if (isFetching) return;
+      isFetching = true;
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/inventories/devices/monitor/"
-        );
+        const response = await axios.get("http://127.0.0.1:8000/api/inventories/devices/monitor/");
         setDeviceStatuses(response.data);
       } catch (err) {
         console.error("Failed to fetch statuses:", err);
+      } finally {
+        isFetching = false;
       }
     };
-
-    // Initial fetch
+  
     fetchDeviceStatuses();
-
-    // Fetch every 60 seconds
     const interval = setInterval(fetchDeviceStatuses, 30000);
-
     return () => clearInterval(interval);
   }, []);
 

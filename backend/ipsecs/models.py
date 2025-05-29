@@ -4,9 +4,9 @@ from django.core.exceptions import ValidationError
 
 class ipsecConfiguationItems:
     class dh_group(models.TextChoices):
-        GROUP1 = 'group1', 'Group 1'
-        GROUP2 = 'group2', 'Group 2'
-        GROUP5 = 'group5', 'Group 5'
+        GROUP1  = 'group1', 'Group 1'
+        GROUP2  = 'group2', 'Group 2'
+        GROUP5  = 'group5', 'Group 5'
         GROUP14 = 'group14', 'Group 14'
         GROUP15 = 'group15', 'Group 15'
         GROUP16 = 'group16', 'Group 16'
@@ -18,6 +18,11 @@ class ipsecConfiguationItems:
     class Protocol(models.TextChoices):
         ESP = 'esp', 'ESP'
         AH = 'ah', 'AH'
+
+    class IPsecAuthenticationMethod(models.TextChoices):
+        MD5 = 'hmac-md5-96'     
+        SHA = 'hmac-sha-256-128'
+        SHA1 = 'hmac-sha1-96'    
 
     class Mode(models.TextChoices):
         MAIN = 'main','Main'
@@ -100,8 +105,6 @@ class IkePolicy(models.Model):
         return self.policyname
 
 
-
-
 class IkeGateway(models.Model):
     gatewayname = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
@@ -123,10 +126,11 @@ class IkeGateway(models.Model):
 
 
 class IpsecProposal(models.Model):
-    proposal_name = models.CharField(max_length=100, unique=True)
+    proposalname = models.CharField(max_length=100, unique=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
-        max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices
+        max_length=50, choices=ipsecConfiguationItems.IPsecAuthenticationMethod.choices,
+        default=ipsecConfiguationItems.IPsecAuthenticationMethod.SHA
     )
     encryption_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.EncryptionAlgorithm.choices
@@ -145,7 +149,7 @@ class IpsecProposal(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)  
 
     def __str__(self):
-        return self.proposal_name
+        return self.proposalname
 
 
 class IpsecPolicy(models.Model):
@@ -172,11 +176,8 @@ class IpsecVpn(models.Model):
     ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.CASCADE)
     ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE)
     bind_interface = models.CharField(max_length=50, default='g0/0/0')
-    establish_tunnel = models.CharField(
-        max_length=50,
-        choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
-        default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,
-    )
+    establish_tunnel = models.CharField(max_length=50,choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
+        default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  

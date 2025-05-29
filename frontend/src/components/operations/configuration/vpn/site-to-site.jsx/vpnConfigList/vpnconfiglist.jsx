@@ -63,6 +63,7 @@ export default function VpnConfigList() {
   };
 
   const handleEdit = (item) => {
+    console.log(item)
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
     dispatch(setEditedData(item));
@@ -259,7 +260,7 @@ export default function VpnConfigList() {
                               : configtype === "ikegateway"
                               ? item.gatewayname
                               : configtype === "ipsecproposal"
-                              ? item.proposal_name
+                              ? item.proposalname
                               : configtype === "ipsecpolicy"
                               ? item.policy_name
                               : configtype === "ipsecvpn"
