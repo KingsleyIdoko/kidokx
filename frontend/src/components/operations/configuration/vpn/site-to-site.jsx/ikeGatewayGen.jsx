@@ -88,7 +88,8 @@ function IkeGatewayConfig() {
   }, [selectedDevice]);
 
   const onSubmit = async (data) => {
-    const payload = { ...data, device: selectedDevice };
+    let payload = { ...data, device: selectedDevice, is_published: false };
+    console.log(payload);
     try {
       if (!editingData) {
         await axios.post(

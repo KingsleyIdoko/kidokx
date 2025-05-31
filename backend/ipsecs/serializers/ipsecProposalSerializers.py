@@ -11,9 +11,12 @@ class IpsecProposalSerializer(serializers.ModelSerializer):
             'id',  
             'proposalname',
             'device',  
-            'dh_group',
             'authentication_algorithm',
             'encryption_algorithm',
             'encapsulation_protocol',
             'is_published',
         ]
+
+        extra_kwargs = {
+            'authentication_algorithm':{'required':False, 'allow_null':True}
+        }

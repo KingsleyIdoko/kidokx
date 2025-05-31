@@ -38,12 +38,7 @@ export function SearchDevice() {
     formState: { errors },
   } = useForm({
     mode: "onChange",
-    defaultValues: {
-      device: "",
-      config: "",
-      site: "",
-      vendor: "",
-    },
+    defaultValues: { device: "", config: "", site: "", vendor: "" },
   });
 
   const selectedsite = watch("site");
@@ -62,9 +57,8 @@ export function SearchDevice() {
     if (watchDevice) dispatch(setSelectedDevice(watchDevice));
   }, [watchDevice, dispatch]);
 
-  // Load sitenames once at mount
   useEffect(() => {
-    if (!sitenames || !sitenames.length) {
+    if (!sitenames?.length) {
       axios
         .get("http://127.0.0.1:8000/api/inventories/sites/names/")
         .then(({ data }) => {
@@ -75,14 +69,11 @@ export function SearchDevice() {
           console.error("Site fetch error:", err);
           setLoadingSites(false);
         });
-    } else {
-      setLoadingSites(false);
-    }
+    } else setLoadingSites(false);
   }, [sitenames, dispatch]);
 
-  // Load devices once at mount
   useEffect(() => {
-    if (!inventories || !inventories.length) {
+    if (!inventories?.length) {
       axios
         .get("http://127.0.0.1:8000/api/inventories/devices/")
         .then(({ data }) => {
@@ -101,27 +92,24 @@ export function SearchDevice() {
   }, [inventories]);
 
   useEffect(() => {
-    if (selectedsite) {
-      const currentDevice = getValues("device");
-      const isDeviceValid = devices.some(
-        (device) =>
-          device.device_name === currentDevice && device.site === selectedsite
+    if (devices.length && selectedDevice) {
+      const validDevice = devices.find(
+        (d) => d.device_name === selectedDevice && d.site === selectedsite
       );
-      if (!isDeviceValid) {
+      if (validDevice) setValue("device", selectedDevice);
+      else {
         setValue("device", "");
         dispatch(setSelectedDevice(""));
       }
     }
-  }, [selectedsite, devices, setValue, dispatch, getValues]);
+  }, [devices, selectedDevice, selectedsite, dispatch, setValue]);
 
-  // Sync Redux default values into form once they're available
   useEffect(() => {
     if (selectedDevice) setValue("device", selectedDevice);
     if (configtype) setValue("config", configtype);
     if (site) setValue("site", site);
   }, [selectedDevice, configtype, site, setValue]);
 
-  // Filter devices by site
   const filteredDevice = selectedsite
     ? devices.filter((device) => device.site === selectedsite)
     : devices;
@@ -131,15 +119,13 @@ export function SearchDevice() {
       (async () => {
         const isValid = await trigger(["device", "config", "site", "vendor"]);
         if (isValid) {
-          const { device, config, vendor } = getValues();
+          const { device, config } = getValues();
           dispatch(setConfigType(config.toLowerCase()));
           dispatch(setSelectedDevice(device));
           dispatch(setSite(selectedsite));
           dispatch(setIsSelectedDevice(true));
           dispatch(setValidSearchComponent(true));
-        } else {
-          dispatch(setIsSelectedDevice(false));
-        }
+        } else dispatch(setIsSelectedDevice(false));
       })();
     }
   }, [
@@ -153,7 +139,6 @@ export function SearchDevice() {
 
   if (error)
     return <p className="text-red-500">Error fetching data: {error.message}</p>;
-
   if (loadingDevices || loadingSites)
     return <p className="text-gray-500">Loading data...</p>;
 
@@ -185,7 +170,7 @@ export function SearchDevice() {
           className={`w-full py-3 px-3 border rounded focus:outline-none ${
             errors.device ? "border-red-500" : ""
           } ${editingData ? "opacity-50 cursor-not-allowed" : ""}`}
-          disabled={editingData}
+          // disabled={editingData}
         >
           <option value="">Select Device</option>
           {filteredDevice.map((device) => (

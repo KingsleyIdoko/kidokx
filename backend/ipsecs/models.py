@@ -126,11 +126,11 @@ class IkeGateway(models.Model):
 
 
 class IpsecProposal(models.Model):
-    proposalname = models.CharField(max_length=100, unique=True)
+    proposalname = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.IPsecAuthenticationMethod.choices,
-        default=ipsecConfiguationItems.IPsecAuthenticationMethod.SHA
+        default=ipsecConfiguationItems.IPsecAuthenticationMethod.SHA, blank=True, null=True
     )
     encryption_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.EncryptionAlgorithm.choices
@@ -139,10 +139,6 @@ class IpsecProposal(models.Model):
         max_length=50,
         choices=ipsecConfiguationItems.Protocol.choices,
         default=ipsecConfiguationItems.Protocol.ESP
-    )
-    dh_group = models.CharField(
-        max_length=20, choices=ipsecConfiguationItems.dh_group.choices,
-        default=ipsecConfiguationItems.dh_group.GROUP14
     )
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
@@ -153,7 +149,7 @@ class IpsecProposal(models.Model):
 
 
 class IpsecPolicy(models.Model):
-    policy_name = models.CharField(max_length=100, unique=True)
+    policy_name = models.CharField(max_length=100)
     description = models.CharField(max_length=100, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     ike_proposal = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
@@ -171,7 +167,7 @@ class IpsecPolicy(models.Model):
 
 
 class IpsecVpn(models.Model):
-    vpn_name = models.CharField(max_length=100, unique=True)
+    vpn_name = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.CASCADE)
     ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE)

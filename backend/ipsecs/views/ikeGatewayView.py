@@ -179,7 +179,6 @@ class IkeGatewayDestroyView(DestroyAPIView):
             device.password,
             config
         )
-        print(result)
         if success:
             return super().delete(request, *args, **kwargs)
         return Response(
