@@ -18,7 +18,7 @@ export function SearchDevice() {
 
   const { configtype, saveconfiguration, editingData, createvpndata } =
     useSelector((state) => state.vpn);
-  const { selectedDevice, inventories } = useSelector(
+  const { selectedDevice, inventories, trackdevicestatus } = useSelector(
     (state) => state.inventories
   );
   const sitenames = useSelector((state) => state.site.sitenames);
@@ -169,8 +169,15 @@ export function SearchDevice() {
           {...register("device", { required: "Select device" })}
           className={`w-full py-3 px-3 border rounded focus:outline-none ${
             errors.device ? "border-red-500" : ""
-          } ${editingData ? "opacity-50 cursor-not-allowed" : ""}`}
-          // disabled={editingData}
+          } ${editingData ? "opacity-50 cursor-not-allowed" : ""}
+          ${
+            trackdevicestatus === "down"
+              ? "border-red-500"
+              : trackdevicestatus === "unknown"
+              ? "border-yellow-500"
+              : ""
+          }`}
+          disabled={editingData}
         >
           <option value="">Select Device</option>
           {filteredDevice.map((device) => (

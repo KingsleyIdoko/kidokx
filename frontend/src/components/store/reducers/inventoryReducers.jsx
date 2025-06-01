@@ -1,14 +1,15 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   inventories: [],
-  selectedDevice: '',
+  selectedDevice: "",
   isSelectedDevice: false,
   editeddata: null,
+  trackdevicestatus: "down",
 };
 
 const inventorySlice = createSlice({
-  name: 'inventory',
+  name: "inventory",
   initialState,
   reducers: {
     setDeviceInventories: (state, action) => {
@@ -23,6 +24,9 @@ const inventorySlice = createSlice({
     setEditedData: (state, action) => {
       state.editeddata = action.payload;
     },
+    trackDeviceStatus: (state, action) => {
+      state.trackdevicestatus = action.payload;
+    },
   },
 });
 
@@ -31,6 +35,7 @@ export const {
   setSelectedDevice,
   setIsSelectedDevice,
   setEditedData,
+  trackDeviceStatus,
 } = inventorySlice.actions;
 
 export default inventorySlice.reducer;

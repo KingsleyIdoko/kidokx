@@ -7,6 +7,7 @@ from rest_framework import status
 from ipsecs.serializers.ipsecProposalSerializers import IpsecProposalSerializer
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
 from ipsecs.scripts.ipsecproposal.getipsecproposal import get_ipsecproposals,serialized_ipsecproposals_policies
+from ipsecs.scripts.ipsecproposal.serialized_data import format_set,push_junos_config,generate_delete_proposal
 
 class ipsecProposalListView(ListAPIView):
     queryset = IpsecProposal.objects.all()
@@ -87,11 +88,69 @@ class ipsecProposalUpdateView(UpdateAPIView):
     queryset = IpsecProposal.objects.all()
     serializer_class = IpsecProposalSerializer
     lookup_field = 'pk'
+
+    def update(self, request, *args, **kwargs):
+        device_name = request.data.get('device')
+        if not device_name:
+            return Response({'error': "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            device = Device.objects.get(device_name=device_name)
+        except Device.DoesNotExist:
+            return Response({'error': "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        obj = self.get_object()
+        proposalname = request.data.get('proposalname')
+        if not proposalname:
+            return Response({"error": "Proposal name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if IpsecProposal.objects.filter(proposalname=proposalname).exclude(pk=obj.pk).exists():
+            return Response({"error": "Proposal name must be unique. This name already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate the data but do not save yet
+        serializer = self.get_serializer(obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+
+        # If config must be pushed, do it before saving
+        if request.data.get('is_sendtodevice'):
+            print(request.data)
+            config = format_set(request.data)
+            success, result = push_junos_config(
+                host=device.ip_address,
+                username=device.username,
+                password=device.password,
+                config_set_string=config
+            )
+            if not success:
+                print("Push to device failed:", result)
+                return Response({"error": result}, status=status.HTTP_400_BAD_REQUEST)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+
 ipsecproposal_update_view = ipsecProposalUpdateView.as_view()
 
 class ipsecProposalDestroyView(DestroyAPIView):
     queryset = IpsecProposal.objects.all()
     serializer_class = IpsecProposalSerializer
     lookup_field = 'pk'
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()  
+        device = obj.device
+        proposalname = obj.proposalname
+        print(device.ip_address)
+        config = generate_delete_proposal(proposalname)
+        print(config)
+        success, result = push_junos_config(
+            device.ip_address,
+            device.username,
+            device.password,
+            config
+        )
+        if success:
+            return super().delete(request, *args, **kwargs)
+        return Response({"detail": "Failed to delete gateway from device", "error": result},
+            status=status.HTTP_400_BAD_REQUEST)
 
 ipsecproposal_delete_view = ipsecProposalDestroyView.as_view()

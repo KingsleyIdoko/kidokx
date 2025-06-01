@@ -3,7 +3,10 @@ import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { setEditedData } from "../store/reducers/inventoryReducers";
+import {
+  setEditedData,
+  trackDeviceStatus,
+} from "../store/reducers/inventoryReducers";
 import { useDispatch } from "react-redux";
 
 export default function DeviceInventory() {
@@ -50,20 +53,23 @@ export default function DeviceInventory() {
 
   useEffect(() => {
     let isFetching = false;
-  
+
     const fetchDeviceStatuses = async () => {
       if (isFetching) return;
       isFetching = true;
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/inventories/devices/monitor/");
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/inventories/devices/monitor/"
+        );
         setDeviceStatuses(response.data);
+        dispatch(trackDeviceStatus(response.data));
       } catch (err) {
         console.error("Failed to fetch statuses:", err);
       } finally {
         isFetching = false;
       }
     };
-  
+
     fetchDeviceStatuses();
     const interval = setInterval(fetchDeviceStatuses, 30000);
     return () => clearInterval(interval);

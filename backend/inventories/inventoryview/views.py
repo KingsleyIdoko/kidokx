@@ -9,7 +9,6 @@ from threading import Thread
 from django.utils import timezone
 from inventories.inventoryview.utils import update_device_status
 
-
 class DeviceListView(ListAPIView):
     queryset = Device.objects.all()
     serializer_class = InventoriesSerializer
@@ -66,9 +65,7 @@ class MonitorDevices(APIView):
                     'status': device.status,
                     'last_checked': device.last_checked,
                 })
-
         return Response(device_list)
-
 
 device_names_view = MonitorDevices.as_view()
 

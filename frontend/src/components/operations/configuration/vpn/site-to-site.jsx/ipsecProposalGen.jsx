@@ -1,15 +1,15 @@
-import { useEffect, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form';
-import axios from 'axios';
-import { vpnproposalforms } from './api/postikeproposal';
+import { useEffect, useMemo } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useForm } from "react-hook-form";
+import axios from "axios";
+import { vpnproposalforms } from "./api/postikeproposal";
 import {
   setConfigType,
   setIpsecProposalData,
   setValidated,
   setEditing,
-} from '../../../../store/reducers/vpnReducer';
-import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
+} from "../../../../store/reducers/vpnReducer";
+import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 
 function IkeProposalConfig() {
   const dispatch = useDispatch();
@@ -25,8 +25,8 @@ function IkeProposalConfig() {
   }, [editeddata]);
 
   const defaultValues = vpnproposalforms.reduce((acc, curr) => {
-    const fieldName = curr.name.toLowerCase().replace(/\s+/g, '_');
-    acc[fieldName] = curr.value instanceof Array ? '' : curr.value;
+    const fieldName = curr.name.toLowerCase().replace(/\s+/g, "_");
+    acc[fieldName] = curr.value instanceof Array ? "" : curr.value;
     return acc;
   }, {});
 
@@ -35,7 +35,7 @@ function IkeProposalConfig() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm({ mode: 'onChange', defaultValues });
+  } = useForm({ mode: "onChange", defaultValues });
 
   useEffect(() => {
     if (transformedEditedData) {
@@ -56,7 +56,7 @@ function IkeProposalConfig() {
     try {
       if (!editingData) {
         await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ipsecproposal/create/',
+          "http://127.0.0.1:8000/api/ipsec/ipsecproposal/create/",
           finalPayload
         );
       } else {
@@ -71,29 +71,29 @@ function IkeProposalConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error('Post/Put failed:', err.message);
+      console.error("Post/Put failed:", err.message);
       dispatch(setValidated(false));
     }
   };
 
   useEffect(() => {
-    if (saveconfiguration && configtype === 'ipsecproposal') {
+    if (saveconfiguration && configtype === "ipsecproposal") {
       handleSubmit(submitForm)();
     }
   }, [saveconfiguration, configtype, handleSubmit]);
 
   const errorClass = (field) =>
-    errors[field] ? 'border-red-500' : 'border-gray-300';
+    errors[field] ? "border-red-500" : "border-gray-300";
 
   return (
     <div className="w-[44rem] mx-auto bg-white rounded-lg p-6">
       <form
-        className="grid grid-cols-2 space-y-4 gap-x-10 gap-y-4 items-center"
+        className="grid grid-cols-2  gap-x-10 gap-y-4 items-center"
         onSubmit={handleSubmit(submitForm)}
       >
         {vpnproposalforms.map((formItem) => {
-          const fieldName = formItem.name.toLowerCase().replace(/\s+/g, '_');
-          const isTextInput = typeof formItem.value === 'string';
+          const fieldName = formItem.name.toLowerCase().replace(/\s+/g, "_");
+          const isTextInput = typeof formItem.value === "string";
           const fieldErrorClass = `text-black bg-gray-100 border rounded-lg focus:outline-none w-full ${errorClass(
             fieldName
           )}`;
@@ -105,7 +105,7 @@ function IkeProposalConfig() {
             >
               <button
                 type="button"
-                className="text-black font-normal text-left bg-gray-100 px-4 py-3 border rounded-lg"
+                className="text-black font-normal text-left bg-gray-100 px-4 py-2 border rounded-lg"
               >
                 {formItem.name}
               </button>
@@ -113,23 +113,30 @@ function IkeProposalConfig() {
                 {isTextInput ? (
                   <input
                     {...register(fieldName, {
-                      required: `${formItem.name} is required`,
+                      required:
+                        formItem.name === "lifetime-seconds"
+                          ? false
+                          : `${formItem.name} is required`,
                     })}
                     type="text"
-                    placeholder={formItem.name}
-                    className={`${fieldErrorClass} px-4 py-3 ${
-                      editingData && fieldName === 'proposal_name'
-                        ? 'bg-gray-200 opacity-70 cursor-not-allowed'
-                        : ''
+                    placeholder={
+                      formItem.name === "lifetime-seconds"
+                        ? "Default 86400"
+                        : formItem.name
+                    }
+                    className={`${fieldErrorClass} px-4 py-2 ${
+                      editingData && fieldName === "proposal_name"
+                        ? "bg-gray-200 opacity-70 cursor-not-allowed"
+                        : ""
                     }`}
-                    disabled={editingData && fieldName === 'proposal_name'}
+                    disabled={editingData && fieldName === "proposal_name"}
                   />
                 ) : (
                   <select
                     {...register(fieldName, {
                       required: `${formItem.name} is required`,
                     })}
-                    className={`${fieldErrorClass} px-4 py-4`}
+                    className={`${fieldErrorClass} px-4 py-2`}
                   >
                     <option value="">Select {formItem.name}</option>
                     {formItem.value.map((option, i) => (

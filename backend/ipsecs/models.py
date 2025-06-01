@@ -140,6 +140,7 @@ class IpsecProposal(models.Model):
         choices=ipsecConfiguationItems.Protocol.choices,
         default=ipsecConfiguationItems.Protocol.ESP
     )
+    lifetime_seconds = models.PositiveIntegerField(default=86400)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  

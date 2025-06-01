@@ -28,23 +28,21 @@ def push_junos_config(host, username, password, config_set_string):
         return False, f"Connection Error: {str(ce)}"
 
 
-def serialized_ipsecproposal(payload):
-    gatewayname = payload.get("gatewayname")
-    ike_policy = payload.get("ike_policy")
-    remote_address = payload.get("remote_address")
-    local_address = payload.get("local_address")
-    external_interface = payload.get("external_interface")
-    ike_version = payload.get("ike_version")
-
+def format_set(payload):
+    name = payload.get("proposalname")
+    protocol = payload.get("encapsulation_protocol")
+    authentication_algorithm = payload.get("authentication_algorithm")
+    encryption_algorithm = payload.get("encryption_algorithm")
+    lifetime_seconds = payload.get("lifetime_seconds")
     set_config = [
-        f"set security ike gateway {gatewayname} ike-policy {ike_policy}",
-        f"set security ike gateway {gatewayname} address {remote_address}",
-        f"set security ike gateway {gatewayname} external-interface {external_interface}",
-        f"set security ike gateway {gatewayname} local-address {local_address}",
-        f"set security ike gateway {gatewayname} version {ike_version}",
+        f"set security ipsec proposal {name} protocol {protocol}",
+        f"set security ipsec proposal {name} authentication-algorithm {authentication_algorithm}",
+        f"set security ipsec proposal {name} encryption-algorithm {encryption_algorithm}",
+        f"set security ipsec proposal {name} lifetime-seconds {lifetime_seconds}",
     ]
     return "\n".join(set_config)
 
-def serialized_delete_gateway(gatewayname):
-    return f"delete security ike gateway {gatewayname}"
+
+def generate_delete_proposal(proposalname):
+    return f"delete security ipsec proposal {proposalname}"
 
