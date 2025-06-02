@@ -1,7 +1,7 @@
 from ncclient import manager
 import xmltodict
 
-def get_ipsecproposals(host, username, password):
+def get_ipsecpolicies(host, username, password):
     with manager.connect(
         host=host,
         port=830,
@@ -14,12 +14,12 @@ def get_ipsecproposals(host, username, password):
     ) as m:
         xml_filter = """
             <configuration>
-                <security>
-                    <ipsec>
-                        <proposal>
-                        </proposal>  
-                    </ipsec>
-                </security>
+                    <security>
+                        <ipsec>
+                            <policy>
+                            </policy>
+                        </ipsec>
+                    </security>
             </configuration>
         """
         response = m.get_config(source='candidate', filter=('subtree', xml_filter))
@@ -30,25 +30,24 @@ def get_ipsecproposals(host, username, password):
             print("XML parse failed: " + str(e))
             raise
 
-        ipsecproposal_dict = (
+        ipsecpolicy_dict = (
             parsed_data.get('rpc-reply', {})
                        .get('data', {})
                        .get('configuration', {})
                        .get('security', {})
                        .get('ipsec', {})
-                       .get('proposal')
+                       .get('policy')
         )
 
-        if isinstance(ipsecproposal_dict, dict):
-            return [ipsecproposal_dict]
-        return ipsecproposal_dict or []
+        if isinstance(ipsecpolicy_dict, dict):
+            return [ipsecpolicy_dict]
+        return ipsecpolicy_dict or []
 
-def serialized_ipsecproposals_policies(gw):
+def normalized_policies(policy):
     return {
-        "proposalname": gw.get("name"),
-        "encapsulation_protocol": gw.get("protocol"),
-        "authentication_algorithm": gw.get("authentication-algorithm"),
-        "encryption_algorithm": gw.get("encryption-algorithm"),
-        'lifetime-seconds': gw.get('lifetime-seconds'),
-        "is_published": True  
+        'policy_name': policy.get("name"),
+        'description': policy.get("description"),
+        'ike_proposal': policy.get("proposals"),
+        'pfs_group': (policy.get("perfect-forward-secrecy") or {}).get("keys"),
+        'is_published': True,
     }
