@@ -52,7 +52,6 @@ function IkeProposalConfig() {
       is_published: false,
       is_sendtodevice: false,
     };
-    console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
@@ -79,6 +78,7 @@ function IkeProposalConfig() {
   useEffect(() => {
     if (saveconfiguration && configtype === "ipsecproposal") {
       handleSubmit(submitForm)();
+      console.log(handleSubmit(submitForm)());
     }
   }, [saveconfiguration, configtype, handleSubmit]);
 

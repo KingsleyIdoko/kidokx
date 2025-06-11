@@ -3,6 +3,8 @@ import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import SearchDevice from "../../../../../inventory/searchdevice";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { BaseUrl } from "../api/postikeproposal";
 import {
   setEditedData,
@@ -25,7 +27,6 @@ export default function VpnConfigList() {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-
   const {
     configtype,
     editeddata,
@@ -39,7 +40,6 @@ export default function VpnConfigList() {
       setUpdatedData([]);
       return;
     }
-
     setLoading(true);
     const urlPath = `${BaseUrl}/api/ipsec/${configtype}/?device=${selectedDevice}`;
     try {
@@ -53,17 +53,15 @@ export default function VpnConfigList() {
           return item;
         });
         setUpdatedData(modified_data);
-        dispatch(setIpsecVpnData(vpndata.data));
       }
     } catch (err) {
-      setError([`Error fetching data: ${err.message}`]);
+      toast.error(`Error fetching data: ${err.message}`);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEdit = (item) => {
-    console.log(item)
     dispatch(setEditing(true));
     dispatch(setSaveConfiguration(false));
     dispatch(setEditedData(item));
@@ -94,7 +92,7 @@ export default function VpnConfigList() {
         );
       }
     } catch (err) {
-      console.error("Error deleting proposal:", err.message);
+      toast.error(`Error fetching data: ${err.message}`);
     }
   };
 
@@ -104,7 +102,6 @@ export default function VpnConfigList() {
       is_published: true,
       is_sendtodevice: true,
     };
-    console.log(deployData);
     try {
       await axios.put(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,
@@ -170,7 +167,6 @@ export default function VpnConfigList() {
     isSamePath,
     validsearchcomponent,
   ]);
-
   const titleMap = {
     ikeproposal: "IKEPROPOSAL NAME",
     ikepolicy: "IKEPOLICY NAME",
@@ -179,13 +175,22 @@ export default function VpnConfigList() {
     ipsecpolicy: "IPSECPOLICY NAME",
     ipsecvpn: "IPSECVPN NAME",
   };
-
   const title = titleMap[configtype] || "IKEPROPOSAL NAME";
-
   return (
     <div className="max-w-[96rem] mx-auto bg-white rounded-lg p-8 shadow-md mt-10">
-      {error && <p className="text-red-500 mb-4">Error: {error}</p>}
       <div className="w-[90rem] justify-between items-start gap-3 mb-4">
+        <ToastContainer
+          position="top-center" // change this to "top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
         <SearchDevice />
       </div>
       <button
@@ -194,7 +199,6 @@ export default function VpnConfigList() {
       >
         {`Create ${configtype ? configtype : "Ike Proposal"}`}
       </button>
-
       {loading ? (
         <div className="flex justify-center items-center h-32">
           <svg

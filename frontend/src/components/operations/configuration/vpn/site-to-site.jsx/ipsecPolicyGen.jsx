@@ -1,26 +1,20 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setIpsecPolicyData,
   setEditing,
   setConfigType,
   setValidated,
-} from '../../../../store/reducers/vpnReducer';
-import { setSelectedDevice } from '../../../../store/reducers/inventoryReducers';
-import { useForm } from 'react-hook-form';
+} from "../../../../store/reducers/vpnReducer";
+import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
+import { useForm } from "react-hook-form";
 
 export default function IpsecPolicyConfig() {
   const dispatch = useDispatch();
-  const {
-    ipsecPolicyData,
-    saveconfiguration,
-    editeddata,
-    editingData,
-    configtype,
-  } = useSelector((state) => state.vpn);
+  const { saveconfiguration, editeddata, editingData, configtype } =
+    useSelector((state) => state.vpn);
   const { selectedDevice } = useSelector((state) => state.inventories);
-
   const [ipsecProposalNames, setIpsecProposalNames] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -31,61 +25,72 @@ export default function IpsecPolicyConfig() {
     handleSubmit,
     trigger,
     formState: { errors },
-  } = useForm({ mode: 'onChange' });
+  } = useForm({ mode: "onChange" });
 
   const ipsecPolicyLabels = [
-    'IPSec Policy Name',
-    'Description',
-    'Perfect Forward Secrecy (PFS)',
-    'IPSec Proposal',
+    "IPSec Policy Name",
+    "Description",
+    "Perfect Forward Secrecy (PFS)",
+    "IPSec Proposal",
   ];
+
+  useEffect(() => {
+    if (editingData && editeddata && ipsecProposalNames.length > 0) {
+      reset({
+        policy_name: editeddata.policy_name || "",
+        description: editeddata.description || "",
+        pfs_group: editeddata.pfs_group || "",
+        ipsec_proposal: editeddata.ipsec_proposal || "",
+      });
+    }
+  }, [editingData, editeddata, ipsecProposalNames, reset]);
 
   const submitForm = async (formData) => {
     const finalPayload = {
       ...formData,
       device: selectedDevice,
     };
-
     try {
-      if (!editingData) {
-        await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ipsecpolicy/create/',
-          finalPayload,
-        );
-      } else {
+      if (editingData && editeddata?.id) {
         await axios.put(
-          `http://127.0.0.1:8000/api/ipsec/ipsecpolicy/${editeddata?.id}/update/`,
-          finalPayload,
+          `http://127.0.0.1:8000/api/ipsec/ipsecpolicy/${editeddata.id}/update/`,
+          finalPayload
         );
         dispatch(setEditing(false));
+      } else {
+        await axios.post(
+          "http://127.0.0.1:8000/api/ipsec/ipsecpolicy/create/",
+          finalPayload
+        );
       }
-
       dispatch(setIpsecPolicyData(finalPayload));
       dispatch(setConfigType(configtype));
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error('Post/Put failed:', err.message);
+      console.error("Post/Put failed:", err.message);
       dispatch(setValidated(false));
     }
   };
+
   useEffect(() => {
-    if (saveconfiguration && configtype === 'ipsecpolicy') {
+    if (saveconfiguration && configtype === "ipsecpolicy") {
       handleSubmit(submitForm)();
     }
   }, [saveconfiguration, configtype, handleSubmit]);
+
   const fetchIpsecProposalNames = async () => {
     setLoading(true);
     let errorMessages = [];
 
     try {
       const response = await axios.get(
-        'http://127.0.0.1:8000/api/ipsec/ikeproposal/names/',
+        `http://127.0.0.1:8000/api/ipsec/ipsecproposal/names/?device=${selectedDevice}`
       );
       setIpsecProposalNames(response.data);
     } catch (err) {
       errorMessages.push(`Error fetching IPSec Proposal data: ${err.message}`);
-      console.error('Error fetching IPSec Proposal data:', err);
+      console.error("Error fetching IPSec Proposal data:", err);
     } finally {
       setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
@@ -116,35 +121,35 @@ export default function IpsecPolicyConfig() {
 
         <div className="w-[20rem] flex flex-col space-y-5">
           <input
-            {...register('policy_name', {
-              required: 'Policy Name is required',
+            {...register("policy_name", {
+              required: "Policy Name is required",
             })}
             type="text"
             placeholder="Enter IPSec Policy Name"
             className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.policy_name ? 'border-red-500' : 'border-gray-300'
+              errors.policy_name ? "border-red-500" : "border-gray-300"
             }`}
           />
 
           <input
-            {...register('ipsecpolicy_description', {
-              required: 'Description field is required',
+            {...register("description", {
+              required: "Description field is required",
             })}
             type="text"
             placeholder="Enter Description"
             className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
               errors.ipsecpolicy_description
-                ? 'border-red-500'
-                : 'border-gray-300'
+                ? "border-red-500"
+                : "border-gray-300"
             }`}
           />
 
           <select
-            {...register('pfs_group', {
-              required: 'PFS Group is required',
+            {...register("pfs_group", {
+              required: "PFS Group is required",
             })}
             className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.pfs_group ? 'border-red-500' : 'border-gray-300'
+              errors.pfs_group ? "border-red-500" : "border-gray-300"
             }`}
           >
             <option value="">Select PFS Group</option>
@@ -156,11 +161,11 @@ export default function IpsecPolicyConfig() {
           </select>
 
           <select
-            {...register('ike_proposal', {
-              required: 'IPSec Proposal is required',
+            {...register("ipsec_proposal", {
+              required: "IPSec Proposal is required",
             })}
             className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.ike_proposal ? 'border-red-500' : 'border-gray-300'
+              errors.ipsec_proposal ? "border-red-500" : "border-gray-300"
             }`}
           >
             <option value="">Select IPSec Proposal</option>

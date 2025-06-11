@@ -14,12 +14,11 @@ def get_ipsecpolicies(host, username, password):
     ) as m:
         xml_filter = """
             <configuration>
-                    <security>
-                        <ipsec>
-                            <policy>
-                            </policy>
-                        </ipsec>
-                    </security>
+                <security>
+                    <ipsec>
+                        <policy></policy>
+                    </ipsec>
+                </security>
             </configuration>
         """
         response = m.get_config(source='candidate', filter=('subtree', xml_filter))
@@ -30,11 +29,17 @@ def get_ipsecpolicies(host, username, password):
             print("XML parse failed: " + str(e))
             raise
 
-        ipsecpolicy_dict = (
+        config_data = (
             parsed_data.get('rpc-reply', {})
                        .get('data', {})
-                       .get('configuration', {})
-                       .get('security', {})
+                       .get('configuration')
+        )
+
+        if not config_data:
+            return []
+
+        ipsecpolicy_dict = (
+            config_data.get('security', {})
                        .get('ipsec', {})
                        .get('policy')
         )
@@ -47,7 +52,7 @@ def normalized_policies(policy):
     return {
         'policy_name': policy.get("name"),
         'description': policy.get("description"),
-        'ike_proposal': policy.get("proposals"),
+        'ipsec_proposal': policy.get("proposals"),
         'pfs_group': (policy.get("perfect-forward-secrecy") or {}).get("keys"),
         'is_published': True,
     }

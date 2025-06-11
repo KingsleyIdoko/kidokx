@@ -3,6 +3,7 @@ from django.shortcuts import render
 from ipsecs.models import IpsecProposal
 from inventories.models import Device
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework import status
 from ipsecs.serializers.ipsecProposalSerializers import IpsecProposalSerializer
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
@@ -139,9 +140,7 @@ class ipsecProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         proposalname = obj.proposalname
-        print(device.ip_address)
         config = generate_delete_proposal(proposalname)
-        print(config)
         success, result = push_junos_config(
             device.ip_address,
             device.username,
@@ -154,3 +153,18 @@ class ipsecProposalDestroyView(DestroyAPIView):
             status=status.HTTP_400_BAD_REQUEST)
 
 ipsecproposal_delete_view = ipsecProposalDestroyView.as_view()
+
+class IpsecProposalNamesView(APIView):
+    def get(self, request):
+        device_name = request.query_params.get('device')
+        if not device_name:
+            return Response({'error': "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = Device.objects.get(device_name=device_name)
+        except Device.DoesNotExist:
+            return Response({'error': "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        ipsecproposalnames = IpsecProposal.objects.filter(device=device).values_list('proposalname', flat=True)
+        return Response(ipsecproposalnames)
+
+ipsecproposal_names_view = IpsecProposalNamesView.as_view()

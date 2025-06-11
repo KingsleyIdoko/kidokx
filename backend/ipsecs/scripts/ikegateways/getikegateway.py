@@ -14,13 +14,13 @@ def device_ikegateway_policies(host, username, password):
     ) as m:
         
         xml_filter = """
-        <configuration>
-            <security>
-                <ike>
-                    <gateway/>
-                </ike>
-            </security>
-        </configuration>
+            <configuration>
+                <security>
+                    <ike>
+                        <gateway/>
+                    </ike>
+                </security>
+            </configuration>
         """
 
         response = m.get_config(source='candidate', filter=('subtree', xml_filter))
@@ -31,11 +31,17 @@ def device_ikegateway_policies(host, username, password):
             print("XML parse failed: " + str(e))
             raise
 
-        ikegateways_dict = (
+        config_data = (
             parsed_data.get('rpc-reply', {})
                        .get('data', {})
-                       .get('configuration', {})
-                       .get('security', {})
+                       .get('configuration')
+        )
+
+        if not config_data:
+            return []
+
+        ikegateways_dict = (
+            config_data.get('security', {})
                        .get('ike', {})
                        .get('gateway')
         )
@@ -43,6 +49,7 @@ def device_ikegateway_policies(host, username, password):
         if isinstance(ikegateways_dict, dict):
             return [ikegateways_dict]
         return ikegateways_dict or []
+
 
 def serialized_ikegateway_policies(gw):
     return {

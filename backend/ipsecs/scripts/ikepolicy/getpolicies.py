@@ -1,4 +1,3 @@
-# ipsecs/netconf_client.py
 from ncclient import manager
 import xmltodict
 
@@ -14,31 +13,41 @@ def get_junos_ike_policies(host, username, password):
         allow_agent=False,
     ) as m:
         filter_xml = """
-        <configuration>
-            <security>
-                <ike>
-                    <policy/>
-                </ike>
-            </security>
-        </configuration>
+            <configuration>
+                <security>
+                    <ike>
+                        <policy/>
+                    </ike>
+                </security>
+            </configuration>
         """
         response = m.get_config(source="candidate", filter=("subtree", filter_xml))
+
         try:
             parsed = xmltodict.parse(response.data_xml)
         except Exception as e:
             print("XML parsing failed:", str(e))
             raise
-        policies = (
+
+        config_data = (
             parsed.get("rpc-reply", {})
                   .get("data", {})
-                  .get("configuration", {})
-                  .get("security", {})
-                  .get("ike", {})
-                  .get("policy", [])
+                  .get("configuration")
         )
+
+        if not config_data:
+            return []
+
+        policies = (
+            config_data.get("security", {})
+                       .get("ike", {})
+                       .get("policy")
+        )
+
         if isinstance(policies, dict):
             return [policies]
-        return policies
+        return policies or []
+
     
 def normalize_device_policies(raw):
     return {

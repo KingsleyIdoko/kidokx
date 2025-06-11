@@ -1,4 +1,3 @@
-# ipsecs/netconf_client.py
 from ncclient import manager
 import xmltodict
 
@@ -13,15 +12,14 @@ def get_junos_ike_proposals(host, username, password):
         look_for_keys=False,
         allow_agent=False,
     ) as m:
-
         filter_xml = """
-        <configuration>
-            <security>
-                <ike>
-                    <proposal/>
-                </ike>
-            </security>
-        </configuration>
+            <configuration>
+                <security>
+                    <ike>
+                        <proposal/>
+                    </ike>
+                </security>
+            </configuration>
         """
 
         response = m.get_config(source="candidate", filter=("subtree", filter_xml))
@@ -30,18 +28,26 @@ def get_junos_ike_proposals(host, username, password):
         except Exception as e:
             print("XML parsing failed:", str(e))
             raise
-        proposals = (
+
+        config_data = (
             parsed.get("rpc-reply", {})
                   .get("data", {})
-                  .get("configuration", {})
-                  .get("security", {})
-                  .get("ike", {})
-                  .get("proposal", [])
+                  .get("configuration")
         )
-        # Always return a list
+
+        if not config_data:
+            return []
+
+        proposals = (
+            config_data.get("security", {})
+                       .get("ike", {})
+                       .get("proposal")
+        )
+
         if isinstance(proposals, dict):
             return [proposals]
-        return proposals
+        return proposals or []
+
     
 def normalize_device_proposal(raw):
     return {

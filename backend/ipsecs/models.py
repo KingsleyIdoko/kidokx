@@ -153,7 +153,7 @@ class IpsecPolicy(models.Model):
     policy_name = models.CharField(max_length=100)
     description = models.CharField(max_length=100, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    ike_proposal = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
+    ipsec_proposal = models.ForeignKey(IpsecProposal, on_delete=models.CASCADE, null=True, blank=True)
     pfs_group = models.CharField(
         max_length=20,
         choices=ipsecConfiguationItems.dh_group.choices,
@@ -171,10 +171,10 @@ class IpsecVpn(models.Model):
     vpn_name = models.CharField(max_length=100)
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.CASCADE)
-    ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE)
-    bind_interface = models.CharField(max_length=50, default='g0/0/0')
+    ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE, blank=True, null=True)
+    bind_interface = models.CharField(max_length=50, blank=True, null=True)
     establish_tunnel = models.CharField(max_length=50,choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
-        default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately,)
+        default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  

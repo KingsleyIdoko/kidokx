@@ -108,7 +108,7 @@ export default function DeviceInventory() {
                 (status) => status.device_name === device.device_name
               );
 
-              const deviceStatus = statusInfo?.status || "unknown";
+              const deviceStatus = statusInfo?.status || "up";
 
               const getStatusColor = (status) => {
                 switch (status) {

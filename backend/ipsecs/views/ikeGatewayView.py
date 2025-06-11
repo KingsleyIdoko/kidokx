@@ -187,11 +187,13 @@ class IkeGatewayDestroyView(DestroyAPIView):
         )
 ikegateway_delete_view = IkeGatewayDestroyView.as_view()
 
-
-
 class IkeGatewayNamesView(APIView):
     def get(self, request):
-        ikegatewaynames = IkeGateway.objects.values_list('gatewayname', flat=True)
-        return Response(ikegatewaynames )  
+        device = request.query_params.get("device")
+        obj = Device.objects.get(device_name=device)
+        if not device:
+            return Response({"error": "Missing 'device' query parameter"}, status=400)
+        ikegatewaynames = IkeGateway.objects.filter(device=obj.id).values_list("gatewayname", flat=True)
+        return Response(ikegatewaynames)
 ikegateway_names_view = IkeGatewayNamesView.as_view()
 

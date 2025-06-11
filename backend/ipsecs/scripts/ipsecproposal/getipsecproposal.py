@@ -1,6 +1,9 @@
 from ncclient import manager
 import xmltodict
 
+from ncclient import manager
+import xmltodict
+
 def get_ipsecproposals(host, username, password):
     with manager.connect(
         host=host,
@@ -16,8 +19,7 @@ def get_ipsecproposals(host, username, password):
             <configuration>
                 <security>
                     <ipsec>
-                        <proposal>
-                        </proposal>  
+                        <proposal></proposal>
                     </ipsec>
                 </security>
             </configuration>
@@ -30,11 +32,17 @@ def get_ipsecproposals(host, username, password):
             print("XML parse failed: " + str(e))
             raise
 
-        ipsecproposal_dict = (
+        config_data = (
             parsed_data.get('rpc-reply', {})
                        .get('data', {})
-                       .get('configuration', {})
-                       .get('security', {})
+                       .get('configuration')
+        )
+
+        if not config_data:
+            return []
+
+        ipsecproposal_dict = (
+            config_data.get('security', {})
                        .get('ipsec', {})
                        .get('proposal')
         )
@@ -42,6 +50,7 @@ def get_ipsecproposals(host, username, password):
         if isinstance(ipsecproposal_dict, dict):
             return [ipsecproposal_dict]
         return ipsecproposal_dict or []
+
 
 def serialized_ipsecproposals_policies(gw):
     return {
