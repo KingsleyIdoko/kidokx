@@ -56,15 +56,14 @@ export default function CreateDevice() {
       password: "password",
       keepalive: "keepalive",
     };
-
     const normalizedData = {};
-
     Object.entries(formData).forEach(([key, value]) => {
       const internal_key = fieldMapping[key];
-      if (internal_key)
-        normalizedData[internal_key] = value ? value.toLowerCase() : value;
+      if (internal_key) {
+        normalizedData[internal_key] =
+          typeof value === "string" ? value.toLowerCase() : value;
+      }
     });
-    console.log(normalizedData);
     try {
       if (editedData) {
         response = await axios.put(

@@ -5,6 +5,7 @@ from inventories.models import Device
 class IkeGatewaySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
     ike_policy = serializers.SlugRelatedField(slug_field='policyname', queryset=IkePolicy.objects.none())
+    in_use = serializers.SerializerMethodField()
 
     class Meta:
         model = IkeGateway
@@ -18,8 +19,14 @@ class IkeGatewaySerializer(serializers.ModelSerializer):
             'external_interface',
             'ike_version',
             'is_published',
+            'in_use',
         ]
 
+    read_only_fields = ['in_use'] 
+
+    def get_in_use(self, obj):
+            return obj.ipsec_vpns_for_gateway.exists()
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

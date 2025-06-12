@@ -4,7 +4,19 @@ export const vpnproposalforms = [
   { name: "Proposal Name", value: "" },
   {
     name: "Encapsulation Protocol",
-    value: ["esp", "ah"],
+    value: ["ESP", "AH"],
+  },
+  {
+    name: "Encryption Algorithm",
+    value: [
+      "aes-128-cbc",
+      "aes-192-cbc",
+      "aes-256-cbc",
+      "aes-128-gcm",
+      "aes-192-gcm",
+      "aes-256-gcm",
+      "3des",
+    ],
   },
   {
     name: "Authentication Algorithm",
@@ -22,18 +34,6 @@ export const vpnproposalforms = [
       "group19",
       "group20",
       "group21",
-    ],
-  },
-  {
-    name: "Encryption Algorithm",
-    value: [
-      "aes-128-cbc",
-      "aes-192-cbc",
-      "aes-256-cbc",
-      "aes-128-gcm",
-      "aes-192-gcm",
-      "aes-256-gcm",
-      "3des",
     ],
   },
   {

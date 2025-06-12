@@ -140,18 +140,21 @@ class ipsecProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         proposalname = obj.proposalname
-        config = generate_delete_proposal(proposalname)
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response({"detail": "Failed to delete gateway from device", "error": result},
-            status=status.HTTP_400_BAD_REQUEST)
-
+        is_published = request.data.get("is_published", False)
+        if is_published:
+            config = generate_delete_proposal(proposalname)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if success:
+                return super().delete(request, *args, **kwargs)
+            return Response({"detail": "Failed to delete gateway from device", "error": result},
+                status=status.HTTP_400_BAD_REQUEST)
+        return super().delete(request, *args, **kwargs)
+    
 ipsecproposal_delete_view = ipsecProposalDestroyView.as_view()
 
 class IpsecProposalNamesView(APIView):

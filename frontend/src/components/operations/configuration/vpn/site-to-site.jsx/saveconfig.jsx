@@ -79,7 +79,7 @@ export default function SaveConfig({
             className="w-full capitalize font-semibold text-white bg-sky-400 rounded-lg py-2 px-6 duration-200 hover:opacity-70"
             onClick={handleSaveBtn}
           >
-            Save
+            {editingData ? "Update" : "Save"}
           </button>
         </div>
       </div>

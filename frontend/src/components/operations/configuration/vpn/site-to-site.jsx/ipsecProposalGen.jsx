@@ -34,8 +34,11 @@ function IkeProposalConfig() {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({ mode: "onChange", defaultValues });
+
+  const watchedEncryption = watch("encryption_algorithm");
 
   useEffect(() => {
     if (transformedEditedData) {
@@ -52,6 +55,7 @@ function IkeProposalConfig() {
       is_published: false,
       is_sendtodevice: false,
     };
+    console.log(finalPayload);
     try {
       if (!editingData) {
         await axios.post(
@@ -78,7 +82,6 @@ function IkeProposalConfig() {
   useEffect(() => {
     if (saveconfiguration && configtype === "ipsecproposal") {
       handleSubmit(submitForm)();
-      console.log(handleSubmit(submitForm)());
     }
   }, [saveconfiguration, configtype, handleSubmit]);
 
@@ -92,6 +95,12 @@ function IkeProposalConfig() {
         onSubmit={handleSubmit(submitForm)}
       >
         {vpnproposalforms.map((formItem) => {
+          if (
+            formItem.name === "Authentication Algorithm" &&
+            watchedEncryption?.includes("gcm")
+          ) {
+            return null;
+          }
           const fieldName = formItem.name.toLowerCase().replace(/\s+/g, "_");
           const isTextInput = typeof formItem.value === "string";
           const fieldErrorClass = `text-black bg-gray-100 border rounded-lg focus:outline-none w-full ${errorClass(

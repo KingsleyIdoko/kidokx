@@ -4,7 +4,8 @@ from inventories.models import Device
 
 class IkePolicySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name',queryset=Device.objects.all())
-    proposals = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.none()  )
+    proposals = serializers.SlugRelatedField(slug_field='proposalname',queryset=IkeProposal.objects.none())
+    in_use = serializers.SerializerMethodField()
 
     class Meta:
         model = IkePolicy
@@ -16,7 +17,12 @@ class IkePolicySerializer(serializers.ModelSerializer):
             'proposals',
             'pre_shared_key',
             'is_published',
+            'in_use',
         ]
+    read_only_fields = ['in_use'] 
+
+    def get_in_use(self, obj):
+        return obj.ike_policies.exists()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

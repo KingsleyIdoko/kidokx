@@ -25,8 +25,6 @@ def get_ipsecvpn(host, username, password):
             </configuration>
         """
         response = m.get_config(source='candidate', filter=('subtree', xml_filter))
-        print(response)
-
         try:
             parsed_data = xmltodict.parse(response.data_xml)
         except Exception as e:

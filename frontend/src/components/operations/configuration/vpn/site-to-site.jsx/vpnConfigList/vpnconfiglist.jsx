@@ -275,10 +275,50 @@ export default function VpnConfigList() {
                         <td className="py-3 px-6 border-b">
                           <div className="flex flex-col items-center">
                             <div className="flex space-x-6 justify-center items-center">
-                              <button onClick={() => handleEdit(item)}>
+                              <button
+                                onClick={() => handleEdit(item)}
+                                className="text-sky-400"
+                                title={`edit ${
+                                  configtype === "ikeproposal"
+                                    ? item.proposalname?.toLowerCase()
+                                    : configtype === "ikepolicy"
+                                    ? item.policyname?.toLowerCase()
+                                    : configtype === "ikegateway"
+                                    ? item.gatewayname?.toLowerCase()
+                                    : configtype === "ipsecproposal"
+                                    ? item.proposalname?.toLowerCase()
+                                    : configtype === "ipsecpolicy"
+                                    ? item.policy_name?.toLowerCase()
+                                    : configtype === "ipsecvpn"
+                                    ? item.vpn_name?.toLowerCase()
+                                    : ""
+                                }`}
+                              >
                                 <FontAwesomeIcon icon={faEdit} />
                               </button>
-                              <button onClick={() => handleDelete(item.id)}>
+                              <button
+                                onClick={() => handleDelete(item.id)}
+                                className={`text-sky-400 ${
+                                  item.in_use
+                                    ? "cursor-not-allowed text-gray-400"
+                                    : ""
+                                }`}
+                                title={`${item.in_use ? "In-use:" : "delete"} ${
+                                  configtype === "ikeproposal"
+                                    ? item.proposalname?.toLowerCase()
+                                    : configtype === "ikepolicy"
+                                    ? item.policyname?.toLowerCase()
+                                    : configtype === "ikegateway"
+                                    ? item.gatewayname?.toLowerCase()
+                                    : configtype === "ipsecproposal"
+                                    ? item.proposalname?.toLowerCase()
+                                    : configtype === "ipsecpolicy"
+                                    ? item.policy_name?.toLowerCase()
+                                    : configtype === "ipsecvpn"
+                                    ? item.vpn_name?.toLowerCase()
+                                    : ""
+                                }`}
+                              >
                                 <FontAwesomeIcon icon={faTrash} />
                               </button>
                               <button
@@ -286,7 +326,7 @@ export default function VpnConfigList() {
                                 disabled={item.is_published}
                                 className={`w-[5rem] text-gray-600 ${
                                   item.is_published
-                                    ? "bg-gray-200 opacity-70 cursor-not-allowed"
+                                    ? "bg-sky-200 opacity-70 cursor-not-allowed"
                                     : "bg-sky-400 text-white hover:opacity-70"
                                 } py-1 rounded-lg`}
                               >

@@ -155,17 +155,20 @@ class IkeProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         policy_name = obj.policy_name
-        config = generate_delete_ipsecPolicy(policy_name)
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response({"detail": "Failed to delete gateway from device", "error": result},
-            status=status.HTTP_400_BAD_REQUEST)
+        is_published = request.data.get("is_published", False)
+        if is_published:
+            config = generate_delete_ipsecPolicy(policy_name)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if success:
+                return super().delete(request, *args, **kwargs)
+            return Response({"detail": "Failed to delete gateway from device", "error": result},
+                status=status.HTTP_400_BAD_REQUEST)
+        return super().delete(request, *args, **kwargs)
 
 ipsecpolicy_delete_view = IkeProposalDestroyView.as_view()
 

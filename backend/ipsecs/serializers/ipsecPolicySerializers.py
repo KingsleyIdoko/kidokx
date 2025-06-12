@@ -5,6 +5,7 @@ from inventories.models import Device
 class IpsecPolicySerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
     ipsec_proposal = serializers.SlugRelatedField(slug_field='proposalname', queryset=IpsecProposal.objects.none())
+    in_use = serializers.SerializerMethodField()
 
     class Meta:
         model = IpsecPolicy
@@ -16,7 +17,13 @@ class IpsecPolicySerializer(serializers.ModelSerializer):
             'pfs_group',
             'ipsec_proposal',
             'is_published',
+            'in_use',
         ]
+
+    read_only_fields = ['in_use'] 
+    
+    def get_in_use(self, obj):
+        return obj.ipsec_vpns_for_policy.exists()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

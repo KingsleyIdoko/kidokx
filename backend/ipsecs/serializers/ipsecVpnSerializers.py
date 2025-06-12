@@ -6,6 +6,7 @@ class IpsecVpnSerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name', queryset=Device.objects.all())
     ike_gateway = serializers.SlugRelatedField(slug_field='gatewayname', queryset=IkeGateway.objects.none())
     ipsec_policy = serializers.SlugRelatedField(slug_field='policy_name', queryset=IpsecPolicy.objects.none())
+    # in_use = serializers.SerializerMethodField()
 
     class Meta:
         model = IpsecVpn
@@ -18,8 +19,14 @@ class IpsecVpnSerializer(serializers.ModelSerializer):
             'bind_interface',
             'establish_tunnel',
             'is_published',
+            # 'in_use',
         ]
 
+    read_only_fields = ['in_use'] 
+    
+    # def get_in_use(self, obj):
+    #     return obj.IpsecVpn.exists()
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

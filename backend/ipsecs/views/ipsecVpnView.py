@@ -140,16 +140,20 @@ class IPsecVpnDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         vpn_name = obj.vpn_name
-        config = generate_delete_ipsecVpn(vpn_name)
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response({"detail": "Failed to delete vpn name from device", "error": result},
-            status=status.HTTP_400_BAD_REQUEST)
+        print(request.data)
+        is_published = request.data.get("is_published", False)
+        if is_published:
+            config = generate_delete_ipsecVpn(vpn_name)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if success:
+                return super().delete(request, *args, **kwargs)
+            return Response({"detail": "Failed to delete vpn name from device", "error": result},
+                status=status.HTTP_400_BAD_REQUEST)
+        return super().delete(request, *args, **kwargs)
 
 ipsecvpn_delete_view = IPsecVpnDestroyView.as_view()

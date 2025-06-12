@@ -16,8 +16,8 @@ class ipsecConfiguationItems:
 
 
     class Protocol(models.TextChoices):
-        ESP = 'esp', 'ESP'
-        AH = 'ah', 'AH'
+        ESP = 'ESP', 'ESP'
+        AH = 'AH', 'AH'
 
     class IPsecAuthenticationMethod(models.TextChoices):
         MD5 = 'hmac-md5-96'     
@@ -58,7 +58,7 @@ class ipsecConfiguationItems:
 
 class IkeProposal(models.Model):
     proposalname = models.CharField(max_length=100,verbose_name="IKE Proposal Name")
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='ike_proposals')
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.AuthAlgorithm.choices , blank=True, null=True
     )
@@ -79,13 +79,19 @@ class IkeProposal(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)  
 
     class Meta:
-        ordering = ['proposalname']
+        ordering = ['-timestamp']
         verbose_name = 'IKE Proposal'
         verbose_name_plural = 'IKE Proposals'
 
     def clean(self):
         if self.lifetime_seconds < 60:
             raise ValidationError("Lifetime must be at least 60 seconds")
+        
+        existing = IkeProposal.objects.filter(proposalname__iexact=self.proposalname.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A proposal with the name '{self.proposalname}' already exists for this device.")
 
     def __str__(self):
         return self.proposalname
@@ -93,13 +99,26 @@ class IkeProposal(models.Model):
 
 class IkePolicy(models.Model):
     policyname = models.CharField(max_length=100)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='ike_policies')
     mode = models.CharField(max_length=50, choices=ipsecConfiguationItems.Mode.choices)
-    proposals = models.ForeignKey(IkeProposal, on_delete=models.CASCADE, null=True, blank=True)
+    proposals = models.ForeignKey(IkeProposal, on_delete=models.PROTECT,  null=True, blank=True, related_name='ike_policies')
     pre_shared_key = models.CharField(max_length=255, blank=True, null=True)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'IKE Policy'
+        verbose_name_plural = 'IKE Policies'
+
+    def clean(self):
+
+        existing = IkePolicy.objects.filter(policyname__iexact=self.policyname.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A IkePolicy with the name '{self.policyname}' already exists for this device.")
 
     def __str__(self):
         return self.policyname
@@ -107,11 +126,11 @@ class IkePolicy(models.Model):
 
 class IkeGateway(models.Model):
     gatewayname = models.CharField(max_length=100)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='devices')
     remote_address = models.GenericIPAddressField()
     local_address = models.GenericIPAddressField()
-    ike_policy = models.ForeignKey(IkePolicy, on_delete=models.CASCADE)
-    external_interface = models.CharField(max_length=50, default='g0/0/0')
+    ike_policy = models.ForeignKey(IkePolicy, on_delete=models.PROTECT,related_name='ike_policies')
+    external_interface = models.CharField(max_length=50)
     ike_version = models.CharField(
         max_length=50,
         choices=ipsecConfiguationItems.IkeVersions.choices,
@@ -121,13 +140,26 @@ class IkeGateway(models.Model):
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  
 
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'IKE Gateway'
+        verbose_name_plural = 'IKE Gateways'
+
+    def clean(self):
+
+        existing = IkeGateway.objects.filter(gatewayname__iexact=self.gatewayname.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A IkeGateway with the name '{self.gatewayname}' already exists for this device.")
+        
     def __str__(self):
         return f"{self.gatewayname}"
 
 
 class IpsecProposal(models.Model):
     proposalname = models.CharField(max_length=100)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT,related_name='ipsec_proposals')
     authentication_algorithm = models.CharField(
         max_length=50, choices=ipsecConfiguationItems.IPsecAuthenticationMethod.choices,
         default=ipsecConfiguationItems.IPsecAuthenticationMethod.SHA, blank=True, null=True
@@ -145,6 +177,18 @@ class IpsecProposal(models.Model):
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  
 
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'IPsec Proposal'
+        verbose_name_plural = 'IPsec Proposals'
+
+    def clean(self):
+        existing = IpsecProposal.objects.filter(proposalname__iexact=self.proposalname.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A IPsec Proposal with the name '{self.proposalname}' already exists for this device.")
+        
     def __str__(self):
         return self.proposalname
 
@@ -152,8 +196,8 @@ class IpsecProposal(models.Model):
 class IpsecPolicy(models.Model):
     policy_name = models.CharField(max_length=100)
     description = models.CharField(max_length=100, blank=True, null=True)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    ipsec_proposal = models.ForeignKey(IpsecProposal, on_delete=models.CASCADE, null=True, blank=True)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='ipsec_policies')
+    ipsec_proposal = models.ForeignKey(IpsecProposal, on_delete=models.PROTECT, null=True, blank=True, related_name='ipsec_policies_for_proposal')
     pfs_group = models.CharField(
         max_length=20,
         choices=ipsecConfiguationItems.dh_group.choices,
@@ -163,21 +207,46 @@ class IpsecPolicy(models.Model):
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
     timestamp = models.DateTimeField(auto_now_add=True)  
 
+
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'IPsec Policy'
+        verbose_name_plural = 'IPsec Policies'
+
+    def clean(self):
+        existing = IpsecPolicy.objects.filter(policy_name__iexact=self.policy_name.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A IPsec Policy with the name '{self.policy_name}' already exists for this device.")
+        
     def __str__(self):
         return self.policy_name
 
 
 class IpsecVpn(models.Model):
     vpn_name = models.CharField(max_length=100)
-    device = models.ForeignKey(Device, on_delete=models.CASCADE)
-    ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.CASCADE)
-    ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.CASCADE, blank=True, null=True)
-    bind_interface = models.CharField(max_length=50, blank=True, null=True)
+    device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='ipsec_vpns')
+    ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.PROTECT, related_name='ipsec_vpns_for_gateway')
+    ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.PROTECT, related_name='ipsec_vpns_for_policy')
+    bind_interface = models.CharField(max_length=50,  null=True, blank=True )
     establish_tunnel = models.CharField(max_length=50,choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
         default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately)
     is_published = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now=True, null=True, blank=True)  
-    timestamp = models.DateTimeField(auto_now_add=True)  
+    timestamp = models.DateTimeField(auto_now_add=True) 
 
+    class Meta:
+        ordering = ['-timestamp']
+        verbose_name = 'VPN Policy'
+        verbose_name_plural = 'VPN Policies'
+
+    def clean(self):
+        existing = IpsecVpn.objects.filter(vpn_name__iexact=self.vpn_name.strip(), device=self.device)
+        if self.pk:
+            existing.exclude(pk=self.pk)
+        if existing:
+            raise ValidationError(f"A IPsec Policy with the name '{self.vpn_name}' already exists for this device.")
+        
     def __str__(self):
         return f"{self.vpn_name}"
