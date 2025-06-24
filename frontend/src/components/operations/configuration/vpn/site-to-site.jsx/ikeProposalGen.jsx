@@ -1,9 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
-import { useCallback } from "react";
 import axios from "axios";
-
 import {
   setConfigType,
   setIkeProposalData,
@@ -13,6 +11,7 @@ import {
 } from "../../../../store/reducers/vpnReducer";
 import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 import { setSite } from "../../../../store/reducers/siteReducer";
+import { toast } from "react-toastify";
 
 const ikeproposalforms = [
   { name: "Proposal Name", value: "" },
@@ -71,6 +70,7 @@ function IkeProposalConfig() {
     handleSubmit,
     reset,
     watch,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange", defaultValues });
 
@@ -93,14 +93,23 @@ function IkeProposalConfig() {
   const submitForm = useCallback(
     async (formData) => {
       if (!formData.lifetime_seconds) formData.lifetime_seconds = "86400";
+
+      const isGcm = formData.encryption_algorithm?.includes("gcm");
+
+      // Prepare the payload
       const transformedData = {
         proposalname: formData.proposal_name,
         encryption_algorithm: formData.encryption_algorithm,
-        authentication_algorithm: formData.authentication_algorithm,
         authentication_method: formData.authentication_method,
         dh_group: formData.dh_group,
         lifetime_seconds: formData.lifetime_seconds || "86400",
       };
+
+      // Only include authentication_algorithm if GCM is not used
+      if (!isGcm) {
+        transformedData.authentication_algorithm =
+          formData.authentication_algorithm;
+      }
 
       if (editingData) {
         transformedData.is_published = false;
@@ -111,7 +120,7 @@ function IkeProposalConfig() {
         ...transformedData,
         device: selectedDevice,
       };
-
+      console.log(finalPayload);
       try {
         if (!editingData) {
           await axios.post(
@@ -132,7 +141,15 @@ function IkeProposalConfig() {
         dispatch(setSite(site));
         dispatch(setValidated(true));
       } catch (err) {
-        console.error("Post/Put failed:", err.message);
+        const fieldErrors = err.response?.data;
+
+        if (fieldErrors?.proposalname) {
+          setError("proposal_name", {
+            type: "server",
+            message: fieldErrors.proposalname[0],
+          });
+        }
+
         dispatch(setValidated(false));
       } finally {
         dispatch(setSaveConfiguration(false));
@@ -217,11 +234,14 @@ function IkeProposalConfig() {
                     ))}
                   </select>
                 )}
-                {errors[fieldName] && (
-                  <p className="text-xs text-red-500 font-medium flex items-center">
-                    {errors[fieldName].message}
-                  </p>
-                )}
+                <div className="h-1">
+                  {" "}
+                  {errors[fieldName] && (
+                    <p className="text-xs text-red-500 font-medium flex items-center">
+                      {errors[fieldName].message}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           );

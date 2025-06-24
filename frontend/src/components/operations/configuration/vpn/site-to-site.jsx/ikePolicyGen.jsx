@@ -7,7 +7,10 @@ import {
   setConfigType,
   setValidated,
 } from "../../../../store/reducers/vpnReducer";
-import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
+import {
+  setEditedData,
+  setSelectedDevice,
+} from "../../../../store/reducers/inventoryReducers";
 import { useForm } from "react-hook-form";
 
 export default function IkePolicyConfig() {
@@ -68,6 +71,7 @@ export default function IkePolicyConfig() {
           finalPayload
         );
         dispatch(setEditing(false));
+        dispatch(setEditedData({}));
       }
       dispatch(setIkePolicyData(finalPayload));
       dispatch(setConfigType(configtype));

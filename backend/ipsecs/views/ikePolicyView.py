@@ -134,15 +134,7 @@ class IkePolicyUpdateView(UpdateAPIView):
                         {"device": "Device with this ID does not exist."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-
             obj = self.get_object()
-            policyname = request.data.get("policyname")
-            if policyname and IkePolicy.objects.filter(policyname=policyname).exclude(pk=obj.pk).exists():
-                return Response(
-                    {"error": "Policy name must be unique. This name already exists."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
             if request.data.get("is_sendtodevice"):
                 payload = [
                     request.data.get("policyname"),

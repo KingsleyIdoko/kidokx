@@ -23,6 +23,25 @@ class IkePolicySerializer(serializers.ModelSerializer):
 
     def get_in_use(self, obj):
         return obj.ike_policies.exists()
+    
+    def validate_policyname(self, value):
+        device = self.initial_data.get('device')
+        if self.instance and self.instance.policyname == value:
+            return value
+        if isinstance(device, str) and not device.isdigit():
+            try:
+                device = Device.objects.get(device_name=device).id
+            except Device.DoesNotExist:
+                raise serializers.ValidationError("Invalid referenced Device")
+        queryset = IkePolicy.objects.filter(policyname=value, device=device)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.id)
+        if queryset.exists():
+            raise serializers.ValidationError("Policyname already exist")
+        return value
+
+
+
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

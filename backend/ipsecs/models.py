@@ -83,15 +83,7 @@ class IkeProposal(models.Model):
         verbose_name = 'IKE Proposal'
         verbose_name_plural = 'IKE Proposals'
 
-    def clean(self):
-        if self.lifetime_seconds < 60:
-            raise ValidationError("Lifetime must be at least 60 seconds")
-        
-        existing = IkeProposal.objects.filter(proposalname__iexact=self.proposalname.strip(), device=self.device)
-        if self.pk:
-            existing.exclude(pk=self.pk)
-        if existing:
-            raise ValidationError(f"A proposal with the name '{self.proposalname}' already exists for this device.")
+
 
     def __str__(self):
         return self.proposalname
@@ -111,18 +103,6 @@ class IkePolicy(models.Model):
         ordering = ['-timestamp']
         verbose_name = 'IKE Policy'
         verbose_name_plural = 'IKE Policies'
-
-    def clean(self):
-
-        existing = IkePolicy.objects.filter(policyname__iexact=self.policyname.strip(), device=self.device)
-        if self.pk:
-            existing.exclude(pk=self.pk)
-        if existing:
-            raise ValidationError(f"A IkePolicy with the name '{self.policyname}' already exists for this device.")
-
-    def __str__(self):
-        return self.policyname
-
 
 class IkeGateway(models.Model):
     gatewayname = models.CharField(max_length=100)

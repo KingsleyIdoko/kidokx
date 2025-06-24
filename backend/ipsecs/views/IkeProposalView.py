@@ -45,9 +45,9 @@ class IKEProposalListView(ListAPIView):
                 password=device.password
             )
             if not raw_device_data:
-                return Response(db_serialized)  # Device reachable but no proposals
+                return Response(db_serialized)  
         except Exception as e:
-            return Response(db_serialized)  # Device not reachable
+            return Response(db_serialized)  
 
         normalized_proposals = [normalize_device_proposal(p) for p in raw_device_data]
         db_names = {item["proposalname"] for item in db_serialized}
@@ -80,19 +80,14 @@ class IkeProposalCreateView(CreateAPIView):
                 device = Device.objects.get(device_name=device_value)
                 mutable_data = request.data.copy()
                 mutable_data["device"] = device.id
-                request._full_data = mutable_data  # Replace request data
+                request._full_data = mutable_data
             except Device.DoesNotExist:
                 return Response(
                     {"device": "Device with this name does not exist."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        proposalname = request.data.get("proposalname")
-        if proposalname and IkeProposal.objects.filter(proposalname=proposalname).exists():
-            return Response(
-                {"error": "Proposal name must be unique. This name already exists."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
         return super().create(request, *args, **kwargs)
+    
 ikeproposal_create_view = IkeProposalCreateView.as_view()
 
 class IkeProposalDetailView(RetrieveAPIView):
@@ -151,6 +146,7 @@ class IkeProposalUpdateView(UpdateAPIView):
                     device.password,
                     config 
                 )
+                print(result, success)
                 if not success:
                     return Response(
                         {"error": f"Failed to push config to device: {result}"},

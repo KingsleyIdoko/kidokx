@@ -303,6 +303,7 @@ export default function VpnConfigList() {
                                     ? "cursor-not-allowed text-gray-400"
                                     : ""
                                 }`}
+                                disabled={item.in_use}
                                 title={`${item.in_use ? "In-use:" : "delete"} ${
                                   configtype === "ikeproposal"
                                     ? item.proposalname?.toLowerCase()

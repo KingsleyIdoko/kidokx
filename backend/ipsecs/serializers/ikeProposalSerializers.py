@@ -32,19 +32,26 @@ class IkeProposalSerializer(serializers.ModelSerializer):
 
     def get_in_use(self, obj):
         return obj.ike_policies.exists()
-
-    def validate(self, data):
-        instance = IkeProposal(**data)
-        instance.clean()  
-        return data
+    
     
     def validate_proposalname(self, value):
+        device = self.initial_data.get("device")
+        # Skip check if this is an update and the name hasn't changed
+        if self.instance and self.instance.proposalname == value:
+            return value
+        # If the device is coming as a name, resolve its ID
+        if isinstance(device, str) and not device.isdigit():
+            try:
+                device = Device.objects.get(device_name=device).id
+            except Device.DoesNotExist:
+                raise serializers.ValidationError("Invalid device reference.")
+
+        queryset = IkeProposal.objects.filter(proposalname=value, device=device)
+
         if self.instance:
-            # Editing: exclude current instance from uniqueness check
-            if IkeProposal.objects.exclude(pk=self.instance.pk).filter(proposalname=value).exists():
-                raise serializers.ValidationError("Proposal name already exists.")
-        else:
-            # Creating
-            if IkeProposal.objects.filter(proposalname=value).exists():
-                raise serializers.ValidationError("Proposal name already exists.")
+            queryset = queryset.exclude(pk=self.instance.pk)
+
+        if queryset.exists():
+            raise serializers.ValidationError("Proposal name already exists for this device.")
+        
         return value
