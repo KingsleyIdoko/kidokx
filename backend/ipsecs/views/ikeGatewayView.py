@@ -129,35 +129,26 @@ class IkeGatewayUpdateView(UpdateAPIView):
                 return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 
         obj = self.get_object()
-        gatewayname = request.data.get('gatewayname')
-        if not gatewayname:
-            return Response({"error": "Gateway name is required"}, status=status.HTTP_400_BAD_REQUEST)
-        if IkeGateway.objects.filter(gatewayname=gatewayname).exclude(pk=obj.pk).exists():
-            return Response({"error": "Gateway name must be unique. This name already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
         response = super().update(request, *args, **kwargs)
 
         if request.data.get('is_sendtodevice'):
             updated_gateway = {
-                "gatewayname": gatewayname,
+                "gatewayname": request.data.get("gatewayname"),
                 "ike_policy": request.data.get('ike_policy'),
                 "remote_address": request.data.get('remote_address'),
                 "local_address": request.data.get('local_address'),
                 "external_interface": request.data.get('external_interface'),
                 "ike_version": request.data.get('ike_version'),
             }
-            old_gateways = IkeGateway.objects.filter(device=device).exclude(pk=obj.pk).values_list('gatewayname', flat=True)
-            if gatewayname not in old_gateways:
-                config = serialized_ikegateway(updated_gateway)
-                success, result = push_junos_config(
-                    device.ip_address, device.username, device.password, config
+            config = serialized_ikegateway(updated_gateway)
+            success, result = push_junos_config(
+                device.ip_address, device.username, device.password, config
+            )
+            if not success:
+                return Response(
+                    {"error": f"Failed to push config to device: {result}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-                if not success:
-                    return Response(
-                        {"error": f"Failed to push config to device: {result}"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                    )
-
         return response
 ikegateway_update_view = IkeGatewayUpdateView.as_view()
 
@@ -168,32 +159,35 @@ class IkeGatewayDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
     def delete(self, request, *args, **kwargs):
-        obj = self.get_object()  
+        obj = self.get_object()
         device = obj.device
         gatewayname = obj.gatewayname
-        print(device.ip_address)
-        config = serialized_delete_gateway(gatewayname)
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response(
-            {"detail": "Failed to delete gateway from device", "error": result},
-            status=status.HTTP_400_BAD_REQUEST
-        )
+
+        if obj.is_published:
+            config = serialized_delete_gateway(gatewayname)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if not success:
+                return Response(
+                    {"detail": "Failed to delete gateway from device", "error": result},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return super().delete(request, *args, **kwargs)
 ikegateway_delete_view = IkeGatewayDestroyView.as_view()
 
 class IkeGatewayNamesView(APIView):
     def get(self, request):
         device = request.query_params.get("device")
+        print(device)
         obj = Device.objects.get(device_name=device)
         if not device:
             return Response({"error": "Missing 'device' query parameter"}, status=400)
         ikegatewaynames = IkeGateway.objects.filter(device=obj.id).values_list("gatewayname", flat=True)
+        print(ikegatewaynames)
         return Response(ikegatewaynames)
 ikegateway_names_view = IkeGatewayNamesView.as_view()
 

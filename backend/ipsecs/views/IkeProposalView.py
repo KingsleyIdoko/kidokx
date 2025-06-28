@@ -52,7 +52,12 @@ class IKEProposalListView(ListAPIView):
         normalized_proposals = [normalize_device_proposal(p) for p in raw_device_data]
         db_names = {item["proposalname"] for item in db_serialized}
         device_names = {p["proposalname"] for p in normalized_proposals}
-
+        validated_db_names = [item for item in db_names if item not in device_names]
+        if validated_db_names:
+                updated_policies = IkeProposal.objects.filter(proposalname__in=validated_db_names, device=device)
+                for proposal in updated_policies:
+                    proposal.is_published = False
+                IkeProposal.objects.bulk_update(updated_policies, ['is_published'])
         missing_names = device_names - db_names
         missing_proposals = [p for p in normalized_proposals if p["proposalname"] in missing_names]
 
@@ -116,13 +121,7 @@ class IkeProposalUpdateView(UpdateAPIView):
                         {"device": "Device with this name does not exist."},
                         status=status.HTTP_400_BAD_REQUEST,
                     )
-            proposalname = request.data.get("proposalname")
             obj = self.get_object()
-            if proposalname and IkeProposal.objects.filter(proposalname=proposalname).exclude(pk=obj.pk).exists():
-                return Response(
-                    {"error": "Proposal name must be unique. This name already exists."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
             if request.data.get("is_sendtodevice"):
                 payload = [
                     request.data.get("proposalname"),
@@ -146,7 +145,6 @@ class IkeProposalUpdateView(UpdateAPIView):
                     device.password,
                     config 
                 )
-                print(result, success)
                 if not success:
                     return Response(
                         {"error": f"Failed to push config to device: {result}"},
@@ -167,25 +165,29 @@ class IkeProposalDestroyView(DestroyAPIView):
     lookup_field = 'pk'
 
     def delete(self, request, *args, **kwargs):
-        obj = self.get_object()  
-        device = obj.device  
+        obj = self.get_object()
+        device = obj.device
         proposalname = obj.proposalname
-        config = serialized_delete_ikeproposal((proposalname))
-        print(config)
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        print(result)
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response({"detail": "Failed to delete proposal from device", "error": result}, status=400)
+
+        # Only delete from device if published
+        if obj.is_published:
+            config = serialized_delete_ikeproposal(proposalname)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if not success:
+                return Response(
+                    {"detail": "Failed to delete proposal from device", "error": result},
+                    status=400
+                )
+
+        # Proceed to delete from DB
+        return super().delete(request, *args, **kwargs)
 
 ikeproposal_delete_view = IkeProposalDestroyView.as_view()
-
-
 
 class IkeProposalListNames(APIView):
     def get(self, request):
@@ -198,7 +200,5 @@ class IkeProposalListNames(APIView):
                 return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
         else:
             names = IkeProposal.objects.values_list('proposalname', flat=True)
-
         return Response(names)
-
 ikeproposal_names_view = IkeProposalListNames.as_view()

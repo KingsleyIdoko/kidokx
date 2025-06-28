@@ -1,6 +1,7 @@
 import { useEffect, useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
+import { isEqual } from "lodash";
 import axios from "axios";
 import {
   setConfigType,
@@ -96,7 +97,6 @@ function IkeProposalConfig() {
 
       const isGcm = formData.encryption_algorithm?.includes("gcm");
 
-      // Prepare the payload
       const transformedData = {
         proposalname: formData.proposal_name,
         encryption_algorithm: formData.encryption_algorithm,
@@ -105,22 +105,39 @@ function IkeProposalConfig() {
         lifetime_seconds: formData.lifetime_seconds || "86400",
       };
 
-      // Only include authentication_algorithm if GCM is not used
       if (!isGcm) {
         transformedData.authentication_algorithm =
           formData.authentication_algorithm;
       }
-
       if (editingData) {
-        transformedData.is_published = false;
-        transformedData.is_sendtodevice = false;
-      }
+        const originalData = {
+          proposalname: editeddata.proposalname,
+          encryption_algorithm: editeddata.encryption_algorithm,
+          authentication_algorithm: editeddata.authentication_algorithm || "",
+          authentication_method: editeddata.authentication_method,
+          dh_group: editeddata.dh_group,
+          lifetime_seconds: editeddata.lifetime_seconds || "86400",
+        };
 
+        const currentData = {
+          proposalname: transformedData.proposalname,
+          encryption_algorithm: transformedData.encryption_algorithm,
+          authentication_algorithm:
+            transformedData.authentication_algorithm || "",
+          authentication_method: transformedData.authentication_method,
+          dh_group: transformedData.dh_group,
+          lifetime_seconds: transformedData.lifetime_seconds || "86400",
+        };
+
+        if (!isEqual(originalData, currentData)) {
+          transformedData.is_published = false;
+          transformedData.is_sendtodevice = false;
+        }
+      }
       const finalPayload = {
         ...transformedData,
         device: selectedDevice,
       };
-      console.log(finalPayload);
       try {
         if (!editingData) {
           await axios.post(

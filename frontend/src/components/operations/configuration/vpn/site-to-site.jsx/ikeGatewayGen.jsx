@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { isEqual } from "lodash";
 import {
   setIkeGatewayData,
   setEditing,
   setConfigType,
   setValidated,
+  setSaveConfiguration,
 } from "../../../../store/reducers/vpnReducer";
 import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 import axios from "axios";
@@ -23,36 +25,33 @@ function IkeGatewayConfig() {
   } = useSelector((state) => state.vpn);
   const ikeVersions = ["v1-only", "v2-only"];
   const [ikePolicyNames, setIkePolicyNames] = useState([]);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const {
     register,
     reset,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
-  const fetchIkePolicyNames = async () => {
-    setLoading(true);
-    let errorMessages = [];
-
-    try {
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/ipsec/ikepolicy/names/"
-      );
-      setIkePolicyNames(response.data);
-    } catch (err) {
-      errorMessages.push(`Error fetching data: ${err.message}`);
-      console.error("Error fetching IKE Policy data:", err);
-    } finally {
-      setError(errorMessages.length ? errorMessages : null);
-      setLoading(false);
-    }
-  };
   useEffect(() => {
+    const fetchIkePolicyNames = async () => {
+      if (!selectedDevice) return; // guard clause
+      setLoading(true);
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/ipsec/ikepolicy/names/?device=${selectedDevice}`
+        );
+        setIkePolicyNames(response.data);
+      } catch (err) {
+        console.error("Error fetching IKE Policy data:", err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchIkePolicyNames();
-  }, []);
+  }, [selectedDevice]);
 
   useEffect(() => {
     if (interfaces.length === 0 || ikePolicyNames.length === 0) return;
@@ -88,28 +87,41 @@ function IkeGatewayConfig() {
   }, [selectedDevice]);
 
   const onSubmit = async (data) => {
-    let payload = { ...data, device: selectedDevice, is_published: false };
-    console.log(payload);
+    let payload = { ...data, device: selectedDevice };
+    let final_payload = { ...payload };
+
+    if (editingData && !isEqual(data, editeddata)) {
+      final_payload.is_published = false;
+    }
     try {
       if (!editingData) {
         await axios.post(
           "http://127.0.0.1:8000/api/ipsec/ikegateway/create/",
-          payload
+          final_payload
         );
       } else {
         await axios.put(
           `http://127.0.0.1:8000/api/ipsec/ikegateway/${editeddata?.id}/update/`,
-          payload
+          final_payload
         );
         dispatch(setEditing(false));
       }
-
       dispatch(setConfigType(configtype));
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error("Post/Put failed:", err.message);
+      const fieldErrors = err.response?.data;
+      console.log(fieldErrors);
+      if (fieldErrors?.gatewayname) {
+        setError("gatewayname", {
+          type: "server",
+          message: fieldErrors.gatewayname[0],
+        });
+      }
+
       dispatch(setValidated(false));
+    } finally {
+      dispatch(setSaveConfiguration(false));
     }
   };
 

@@ -65,6 +65,12 @@ class IkePolicyListView(ListAPIView):
         normalized_policies = [normalize_device_policies(p) for p in raw_device_data]
         db_names = {item["policyname"] for item in db_serialized}
         device_names = {p["policyname"] for p in normalized_policies}
+        validated_db_names = [item for item in db_names if item not in device_names]
+        if validated_db_names:
+            updated_policies = IkePolicy.objects.filter(policyname__in=validated_db_names, device=device)
+            for policy in updated_policies:
+                policy.is_published = False
+            IkePolicy.objects.bulk_update(updated_policies, ['is_published'])
         missing_names = device_names - db_names
         missing_policies = [p for p in normalized_policies if p["policyname"] in missing_names]
         created = []
@@ -142,25 +148,18 @@ class IkePolicyUpdateView(UpdateAPIView):
                     request.data.get("proposals"),
                     request.data.get("pre_shared_key"),
                 ]
-                device_id = device.id 
-                old_policies = list(
-                    IkePolicy.objects.filter(device_id=device_id)
-                    .exclude(pk=obj.pk)
-                    .values_list("policyname", flat=True)
+                config = serialized_ikepolicy(payload)
+                success, result = push_junos_config(
+                    device.ip_address,
+                    device.username,
+                    device.password,
+                    config
                 )
-                if payload[0] not in old_policies:
-                    config = serialized_ikepolicy(payload)
-                    success, result = push_junos_config(
-                        device.ip_address,
-                        device.username,
-                        device.password,
-                        config
+                if not success:
+                    return Response(
+                        {"error": f"Failed to push config to device: {result}"},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR
                     )
-                    if not success:
-                        return Response(
-                            {"error": f"Failed to push config to device: {result}"},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                        )
             return super().update(request, *args, **kwargs)
 
         except Exception as e:
@@ -175,26 +174,41 @@ class IkePolicyDestroyView(DestroyAPIView):
     queryset = IkePolicy.objects.all()
     serializer_class = IkePolicySerializer
     lookup_field = 'pk'
-
     def delete(self, request, *args, **kwargs):
         obj = self.get_object()
         device = obj.device
         policyname = obj.policyname
-        config = serialized_delete_ikepolicy((policyname))
-        success, result = push_junos_config(
-            device.ip_address,
-            device.username,
-            device.password,
-            config
-        )
-        if success:
-            return super().delete(request, *args, **kwargs)
-        return Response({"detail": "Failed to delete proposal from device", "error": result}, status=400)
+
+        if obj.is_published:
+            config = serialized_delete_ikepolicy(policyname)
+            success, result = push_junos_config(
+                device.ip_address,
+                device.username,
+                device.password,
+                config
+            )
+            if not success:
+                return Response(
+                    {"detail": "Failed to delete policy from device", "error": result},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        return super().delete(request, *args, **kwargs)
 ikepolicy_delete_view = IkePolicyDestroyView.as_view()
 
 
-class IkePolicylListNames(APIView):
+class IkePolicyListNames(APIView):
     def get(self, request):
-        names = IkePolicy.objects.values_list('policyname', flat=True)
-        return Response(names)  
-ikepolicy_names_view = IkePolicylListNames.as_view()
+        device_name = request.query_params.get("device")
+
+        if not device_name:
+            return Response({"error": "Device name is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            device_id = Device.objects.get(device_name=device_name).id
+        except Device.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        queryset = IkePolicy.objects.filter(device=device_id).values_list("policyname", flat=True)
+        return Response(queryset)
+
+ikepolicy_names_view = IkePolicyListNames.as_view()

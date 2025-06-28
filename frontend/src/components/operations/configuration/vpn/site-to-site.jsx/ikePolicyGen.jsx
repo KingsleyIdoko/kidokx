@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import isEqual from "lodash/isEqual";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setIkePolicyData,
   setEditing,
   setConfigType,
   setValidated,
+  setSaveConfiguration,
 } from "../../../../store/reducers/vpnReducer";
 import {
   setEditedData,
@@ -22,7 +24,6 @@ export default function IkePolicyConfig() {
     editingData,
     editeddata,
   } = useSelector((state) => state.vpn);
-  console.log(editeddata);
   const { selectedDevice } = useSelector((state) => state.inventories);
   const [ikeProposalNames, setIkeProposalNames] = useState([]);
 
@@ -30,6 +31,7 @@ export default function IkePolicyConfig() {
     register,
     handleSubmit,
     reset,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
@@ -58,7 +60,13 @@ export default function IkePolicyConfig() {
   }, [selectedDevice]);
 
   const submitForm = async (values) => {
-    const finalPayload = { ...values, device: selectedDevice };
+    const updated_data = {
+      ...values,
+      ...(editingData &&
+        !isEqual(editeddata, values) && { is_published: false }),
+    };
+
+    const finalPayload = { ...updated_data, device: selectedDevice };
     try {
       if (!editingData) {
         await axios.post(
@@ -78,8 +86,18 @@ export default function IkePolicyConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error("Post/Put failed:", err.message);
+      const fieldErrors = err.response?.data;
+
+      if (fieldErrors?.policyname) {
+        setError("policyname", {
+          type: "server",
+          message: fieldErrors.policyname[0],
+        });
+      }
+
       dispatch(setValidated(false));
+    } finally {
+      dispatch(setSaveConfiguration(false));
     }
   };
 

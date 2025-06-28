@@ -26,6 +26,24 @@ class IkeGatewaySerializer(serializers.ModelSerializer):
 
     def get_in_use(self, obj):
             return obj.ipsec_vpns_for_gateway.exists()
+        
+
+    def validate_gatewayname(self, value):
+        device = self.initial_data.get('device')
+        if self.instance and self.instance.gatewayname == value:
+            return value
+        if isinstance(device, str) and not device.isdigit():
+            try:
+                device = Device.objects.get(device_name=device).id
+            except Device.DoesNotExist:
+                raise serializers.ValidationError("Invalid referenced Device")
+        queryset = IkeGateway.objects.filter(gatewayname=value, device=device)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.exists():
+            raise serializers.ValidationError("gatewayname already exists")
+        return value
+
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
