@@ -6,9 +6,11 @@ import {
   setEditing,
   setConfigType,
   setValidated,
+  setSaveConfiguration,
 } from "../../../../store/reducers/vpnReducer";
 import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 import { useForm } from "react-hook-form";
+import { isEqual } from "lodash";
 
 export default function IpsecPolicyConfig() {
   const dispatch = useDispatch();
@@ -17,13 +19,12 @@ export default function IpsecPolicyConfig() {
   const { selectedDevice } = useSelector((state) => state.inventories);
   const [ipsecProposalNames, setIpsecProposalNames] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
 
   const {
     register,
     reset,
     handleSubmit,
-    trigger,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
@@ -46,8 +47,25 @@ export default function IpsecPolicyConfig() {
   }, [editingData, editeddata, ipsecProposalNames, reset]);
 
   const submitForm = async (formData) => {
+    const fieldsToCompare = [
+      "policy_name",
+      "description",
+      "ipsec_proposal",
+      "pfs_group",
+    ];
+    const originalData = Object.fromEntries(
+      fieldsToCompare.map((k) => [k, editeddata[k]])
+    );
+    const currentData = Object.fromEntries(
+      fieldsToCompare.map((k) => [k, formData[k]])
+    );
+
+    let payload = formData;
+    if (editingData && !isEqual(currentData, originalData)) {
+      payload = { ...formData, is_published: false };
+    }
     const finalPayload = {
-      ...formData,
+      ...payload,
       device: selectedDevice,
     };
     try {
@@ -68,8 +86,16 @@ export default function IpsecPolicyConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error("Post/Put failed:", err.message);
+      const fieldErrors = err.response?.data;
+      if (fieldErrors?.policy_name?.[0]) {
+        setError("policy_name", {
+          type: "server",
+          message: fieldErrors.policy_name[0],
+        });
+      }
       dispatch(setValidated(false));
+    } finally {
+      dispatch(setSaveConfiguration(false));
     }
   };
 
@@ -81,25 +107,21 @@ export default function IpsecPolicyConfig() {
 
   const fetchIpsecProposalNames = async () => {
     setLoading(true);
-    let errorMessages = [];
-
     try {
       const response = await axios.get(
         `http://127.0.0.1:8000/api/ipsec/ipsecproposal/names/?device=${selectedDevice}`
       );
       setIpsecProposalNames(response.data);
     } catch (err) {
-      errorMessages.push(`Error fetching IPSec Proposal data: ${err.message}`);
       console.error("Error fetching IPSec Proposal data:", err);
     } finally {
-      setError(errorMessages.length ? errorMessages : null);
       setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchIpsecProposalNames();
-  }, []);
+  }, [selectedDevice]);
 
   return (
     <form
@@ -120,62 +142,88 @@ export default function IpsecPolicyConfig() {
         </div>
 
         <div className="w-[20rem] flex flex-col space-y-5">
-          <input
-            {...register("policy_name", {
-              required: "Policy Name is required",
-            })}
-            type="text"
-            placeholder="Enter IPSec Policy Name"
-            className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.policy_name ? "border-red-500" : "border-gray-300"
-            }`}
-          />
+          <div className="flex flex-col space-y-1">
+            <input
+              {...register("policy_name", {
+                required: "Policy Name is required",
+              })}
+              type="text"
+              placeholder="Enter IPSec Policy Name"
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none ${
+                errors.policy_name ? "border-red-500" : "border-gray-300"
+              } ${
+                editingData ? "bg-gray-200 opacity-30 cursor-not-allowed" : ""
+              }`}
+              disabled={editingData}
+            />
+            {errors.policy_name && (
+              <p className="text-sm text-red-500">
+                {errors.policy_name.message}
+              </p>
+            )}
+          </div>
 
-          <input
-            {...register("description", {
-              required: "Description field is required",
-            })}
-            type="text"
-            placeholder="Enter Description"
-            className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.ipsecpolicy_description
-                ? "border-red-500"
-                : "border-gray-300"
-            }`}
-          />
+          <div className="flex flex-col space-y-1">
+            <input
+              {...register("description", {
+                required: "Description is required",
+              })}
+              type="text"
+              placeholder="Enter Description"
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none ${
+                errors.description ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.description && (
+              <p className="text-sm text-red-500">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
 
-          <select
-            {...register("pfs_group", {
-              required: "PFS Group is required",
-            })}
-            className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.pfs_group ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Select PFS Group</option>
-            <option value="group2">Group 2</option>
-            <option value="group5">Group 5</option>
-            <option value="group14">Group 14</option>
-            <option value="group19">Group 19</option>
-            <option value="group20">Group 20</option>
-          </select>
+          <div className="flex flex-col space-y-1">
+            <select
+              {...register("pfs_group", {
+                required: "PFS Group is required",
+              })}
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none ${
+                errors.pfs_group ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">Select PFS Group</option>
+              <option value="group2">Group 2</option>
+              <option value="group5">Group 5</option>
+              <option value="group14">Group 14</option>
+              <option value="group19">Group 19</option>
+              <option value="group20">Group 20</option>
+            </select>
+            {errors.pfs_group && (
+              <p className="text-sm text-red-500">{errors.pfs_group.message}</p>
+            )}
+          </div>
 
-          <select
-            {...register("ipsec_proposal", {
-              required: "IPSec Proposal is required",
-            })}
-            className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
-              errors.ipsec_proposal ? "border-red-500" : "border-gray-300"
-            }`}
-          >
-            <option value="">Select IPSec Proposal</option>
-            {ipsecProposalNames &&
-              ipsecProposalNames.map((proposal, index) => (
+          <div className="flex flex-col space-y-1">
+            <select
+              {...register("ipsec_proposal", {
+                required: "IPSec Proposal is required",
+              })}
+              className={`px-4 py-3 bg-gray-100 text-black border rounded-lg focus:outline-none ${
+                errors.ipsec_proposal ? "border-red-500" : "border-gray-300"
+              }`}
+            >
+              <option value="">Select IPSec Proposal</option>
+              {ipsecProposalNames.map((proposal, index) => (
                 <option key={index} value={proposal}>
                   {proposal}
                 </option>
               ))}
-          </select>
+            </select>
+            {errors.ipsec_proposal && (
+              <p className="text-sm text-red-500">
+                {errors.ipsec_proposal.message}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </form>

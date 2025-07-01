@@ -30,22 +30,21 @@ def push_junos_config(host, username, password, config_set_string):
 
 def serialized_ikeproposal(payload, old_payloads):
     if len(payload) == 6:
-        proposalname, authentication_method, dh_group, authentication_algorithm, encryption_algorithm, lifetime_seconds = payload
+        proposalname,  dh_group, authentication_algorithm, encryption_algorithm, lifetime_seconds = payload
     elif len(payload) == 5:
-        proposalname, authentication_method, dh_group, encryption_algorithm, lifetime_seconds = payload
+        proposalname,  dh_group, encryption_algorithm, lifetime_seconds = payload
         authentication_algorithm = None
     else:
         raise ValueError("Invalid payload length for IKE proposal.")
     set_config = [
-        f"set security ike proposal {proposalname} authentication-method {authentication_method}",
         f"set security ike proposal {proposalname} dh-group {dh_group}",
         f"set security ike proposal {proposalname} encryption-algorithm {encryption_algorithm}",
         f"set security ike proposal {proposalname} lifetime-seconds {lifetime_seconds}"
     ]
-
-    if authentication_algorithm:
+    if authentication_algorithm and "gcm" not in encryption_algorithm.lower():
         set_config.insert(3, f"set security ike proposal {proposalname} authentication-algorithm {authentication_algorithm}")
-
+    elif encryption_algorithm and "gcm" in encryption_algorithm.lower():
+        set_config.insert(1, f"delete security ike proposal {proposalname} authentication-algorithm")
     return "\n".join(set_config)
 
 

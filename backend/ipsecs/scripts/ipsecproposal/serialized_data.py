@@ -36,10 +36,14 @@ def format_set(payload):
     lifetime_seconds = payload.get("lifetime_seconds")
     set_config = [
         f"set security ipsec proposal {name} protocol {protocol}",
-        f"set security ipsec proposal {name} authentication-algorithm {authentication_algorithm}",
         f"set security ipsec proposal {name} encryption-algorithm {encryption_algorithm}",
         f"set security ipsec proposal {name} lifetime-seconds {lifetime_seconds}",
     ]
+    if encryption_algorithm and "gcm" in encryption_algorithm.lower():
+        set_config.insert(1, f"delete security ipsec proposal {name} authentication-algorithm")
+    elif authentication_algorithm:
+        set_config.insert(3, f"set security ipsec proposal {name} authentication-algorithm {authentication_algorithm}")
+
     return "\n".join(set_config)
 
 

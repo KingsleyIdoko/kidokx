@@ -75,7 +75,6 @@ class IpsecProposalCreateView(CreateAPIView):
     queryset = IpsecProposal.objects.all()
     serializer_class = IpsecProposalSerializer
 
-
 ipsecproposal_create_view = IpsecProposalCreateView.as_view()
 
 class ipsecProposalDetailView(RetrieveAPIView):
@@ -104,17 +103,11 @@ class ipsecProposalUpdateView(UpdateAPIView):
         proposalname = request.data.get('proposalname')
         if not proposalname:
             return Response({"error": "Proposal name is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if IpsecProposal.objects.filter(proposalname=proposalname).exclude(pk=obj.pk).exists():
-            return Response({"error": "Proposal name must be unique. This name already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Validate the data but do not save yet
         serializer = self.get_serializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
 
         # If config must be pushed, do it before saving
         if request.data.get('is_sendtodevice'):
-            print(request.data)
             config = format_set(request.data)
             success, result = push_junos_config(
                 host=device.ip_address,
@@ -128,7 +121,6 @@ class ipsecProposalUpdateView(UpdateAPIView):
         self.perform_update(serializer)
         return Response(serializer.data)
 
-
 ipsecproposal_update_view = ipsecProposalUpdateView.as_view()
 
 class ipsecProposalDestroyView(DestroyAPIView):
@@ -140,7 +132,7 @@ class ipsecProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         proposalname = obj.proposalname
-        is_published = request.data.get("is_published", False)
+        is_published = obj.is_published
         if is_published:
             config = generate_delete_proposal(proposalname)
             success, result = push_junos_config(

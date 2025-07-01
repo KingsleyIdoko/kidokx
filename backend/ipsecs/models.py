@@ -16,8 +16,8 @@ class ipsecConfiguationItems:
 
 
     class Protocol(models.TextChoices):
-        ESP = 'ESP', 'ESP'
-        AH = 'AH', 'AH'
+        ESP = 'esp', 'esp'
+        AH = 'ah', 'ah'
 
     class IPsecAuthenticationMethod(models.TextChoices):
         MD5 = 'hmac-md5-96'     
@@ -162,13 +162,7 @@ class IpsecProposal(models.Model):
         verbose_name = 'IPsec Proposal'
         verbose_name_plural = 'IPsec Proposals'
 
-    def clean(self):
-        existing = IpsecProposal.objects.filter(proposalname__iexact=self.proposalname.strip(), device=self.device)
-        if self.pk:
-            existing.exclude(pk=self.pk)
-        if existing:
-            raise ValidationError(f"A IPsec Proposal with the name '{self.proposalname}' already exists for this device.")
-        
+
     def __str__(self):
         return self.proposalname
 
@@ -193,13 +187,6 @@ class IpsecPolicy(models.Model):
         verbose_name = 'IPsec Policy'
         verbose_name_plural = 'IPsec Policies'
 
-    def clean(self):
-        existing = IpsecPolicy.objects.filter(policy_name__iexact=self.policy_name.strip(), device=self.device)
-        if self.pk:
-            existing.exclude(pk=self.pk)
-        if existing:
-            raise ValidationError(f"A IPsec Policy with the name '{self.policy_name}' already exists for this device.")
-        
     def __str__(self):
         return self.policy_name
 
@@ -221,12 +208,5 @@ class IpsecVpn(models.Model):
         verbose_name = 'VPN Policy'
         verbose_name_plural = 'VPN Policies'
 
-    def clean(self):
-        existing = IpsecVpn.objects.filter(vpn_name__iexact=self.vpn_name.strip(), device=self.device)
-        if self.pk:
-            existing.exclude(pk=self.pk)
-        if existing:
-            raise ValidationError(f"A IPsec Policy with the name '{self.vpn_name}' already exists for this device.")
-        
     def __str__(self):
         return f"{self.vpn_name}"

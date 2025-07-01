@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import axios from "axios";
+import { isEqual } from "lodash";
 import { vpnproposalforms } from "./api/postikeproposal";
 import {
   setConfigType,
@@ -24,7 +25,10 @@ function IkeProposalConfig() {
     return null;
   }, [editeddata]);
 
-  const defaultValues = vpnproposalforms.reduce((acc, curr) => {
+  const filteredForms = vpnproposalforms.filter(
+    (item) => item.name !== "DH Group"
+  );
+  const defaultValues = filteredForms.reduce((acc, curr) => {
     const fieldName = curr.name.toLowerCase().replace(/\s+/g, "_");
     acc[fieldName] = curr.value instanceof Array ? "" : curr.value;
     return acc;
@@ -35,6 +39,7 @@ function IkeProposalConfig() {
     handleSubmit,
     reset,
     watch,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange", defaultValues });
 
@@ -48,14 +53,23 @@ function IkeProposalConfig() {
 
   const submitForm = async (formData) => {
     const { proposal_name, ...rest } = formData;
-    const finalPayload = {
+    let finalPayload = {
       ...rest,
       device: selectedDevice,
       proposalname: proposal_name,
-      is_published: false,
       is_sendtodevice: false,
     };
-    console.log(finalPayload);
+    const originalData = {
+      ...editeddata,
+      proposal_name: editeddata?.proposalname,
+    };
+    const currentData = {
+      ...formData,
+      proposalname: formData.proposal_name,
+    };
+    if (editingData && !isEqual(originalData, currentData)) {
+      finalPayload.is_published = false;
+    }
     try {
       if (!editingData) {
         await axios.post(
@@ -74,8 +88,17 @@ function IkeProposalConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error("Post/Put failed:", err.message);
+      const fieldErrors = err.response?.data;
+      if (fieldErrors?.proposalname?.[0]) {
+        setError("proposal_name", {
+          type: "server",
+          message: fieldErrors.proposalname[0],
+        });
+      }
+
       dispatch(setValidated(false));
+    } finally {
+      dispatch(setSaveConfiguration(false));
     }
   };
 
@@ -94,7 +117,7 @@ function IkeProposalConfig() {
         className="grid grid-cols-2  gap-x-10 gap-y-4 items-center"
         onSubmit={handleSubmit(submitForm)}
       >
-        {vpnproposalforms.map((formItem) => {
+        {filteredForms.map((formItem) => {
           if (
             formItem.name === "Authentication Algorithm" &&
             watchedEncryption?.includes("gcm")

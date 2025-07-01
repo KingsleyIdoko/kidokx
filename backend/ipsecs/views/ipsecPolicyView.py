@@ -110,19 +110,12 @@ class IkeProposalUpdateView(UpdateAPIView):
             device = Device.objects.get(device_name=device_name)
         except Device.DoesNotExist:
             return Response({'error': "Device not found"}, status=status.HTTP_404_NOT_FOUND)
-
         obj = self.get_object()
         policy_name = request.data.get('policy_name')
         if not policy_name:
             return Response({"error": "Proposal name is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-        if IpsecPolicy.objects.filter(policy_name=policy_name).exclude(pk=obj.pk).exists():
-            return Response({"error": "Proposal name must be unique. This name already exists."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Validate the data but do not save yet
         serializer = self.get_serializer(obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
-
         if request.data.get('is_sendtodevice'):
             if device.status != "up":
                 return Response(
@@ -130,7 +123,6 @@ class IkeProposalUpdateView(UpdateAPIView):
                     status=status.HTTP_400_BAD_REQUEST
                 )
             config = format_set(request.data)
-            print(config)
             success, result = push_junos_config(
                 device.ip_address,
                 device.username,
@@ -138,12 +130,9 @@ class IkeProposalUpdateView(UpdateAPIView):
                 config,
             )
             if not success:
-                print("Push to device failed:", result)
                 return Response({"error": result}, status=status.HTTP_400_BAD_REQUEST)
-
         self.perform_update(serializer)
         return Response(serializer.data)
-    
 ipsecpolicy_update_view = IkeProposalUpdateView.as_view()
 
 class IkeProposalDestroyView(DestroyAPIView):
@@ -155,7 +144,7 @@ class IkeProposalDestroyView(DestroyAPIView):
         obj = self.get_object()  
         device = obj.device
         policy_name = obj.policy_name
-        is_published = request.data.get("is_published", False)
+        is_published = obj.is_published
         if is_published:
             config = generate_delete_ipsecPolicy(policy_name)
             success, result = push_junos_config(

@@ -24,6 +24,23 @@ class IpsecPolicySerializer(serializers.ModelSerializer):
     
     def get_in_use(self, obj):
         return obj.ipsec_vpns_for_policy.exists()
+    
+    def validate_policy_name(self, value):
+        device = self.initial_data.get('device')
+        if self.instance and self.instance.policy_name == value:
+            return value
+        if isinstance(device, str) and not device.isdigit():
+            try:
+                device = Device.objects.get(device_name=device).id
+            except Device.DoesNotExist:
+                raise serializers.ValidationError("Invalid referenced Device")
+        queryset = IpsecPolicy.objects.filter(policy_name=value, device=device)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.id)
+        if queryset.exists():
+            raise serializers.ValidationError("Policyname already exist")
+        return value
+    
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

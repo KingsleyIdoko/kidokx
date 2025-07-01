@@ -4,7 +4,7 @@ export const vpnproposalforms = [
   { name: "Proposal Name", value: "" },
   {
     name: "Encapsulation Protocol",
-    value: ["ESP", "AH"],
+    value: ["esp", "ah"],
   },
   {
     name: "Encryption Algorithm",

@@ -168,8 +168,6 @@ class IkeProposalDestroyView(DestroyAPIView):
         obj = self.get_object()
         device = obj.device
         proposalname = obj.proposalname
-
-        # Only delete from device if published
         if obj.is_published:
             config = serialized_delete_ikeproposal(proposalname)
             success, result = push_junos_config(
