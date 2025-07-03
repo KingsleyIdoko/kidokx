@@ -7,8 +7,9 @@ from rest_framework.views import APIView
 from rest_framework import status
 from ipsecs.serializers.ipsecProposalSerializers import IpsecProposalSerializer
 from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, UpdateAPIView, RetrieveAPIView
+from ipsecs.scripts.utilities.push_config import push_junos_config
 from ipsecs.scripts.ipsecproposal.getipsecproposal import get_ipsecproposals,serialized_ipsecproposals_policies
-from ipsecs.scripts.ipsecproposal.serialized_data import format_set,push_junos_config,generate_delete_proposal
+from ipsecs.scripts.ipsecproposal.serialized_data import format_set,generate_delete_proposal
 
 class ipsecProposalListView(ListAPIView):
     queryset = IpsecProposal.objects.all()

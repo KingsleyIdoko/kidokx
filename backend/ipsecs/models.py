@@ -1,6 +1,7 @@
 from django.db import models
 from inventories.models import Device
 from django.core.exceptions import ValidationError
+from interfaces.models import Interface
 
 class ipsecConfiguationItems:
     class dh_group(models.TextChoices):
@@ -196,7 +197,7 @@ class IpsecVpn(models.Model):
     device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='ipsec_vpns')
     ike_gateway = models.ForeignKey(IkeGateway, on_delete=models.PROTECT, related_name='ipsec_vpns_for_gateway')
     ipsec_policy = models.ForeignKey(IpsecPolicy, on_delete=models.PROTECT, related_name='ipsec_vpns_for_policy')
-    bind_interface = models.CharField(max_length=50,  null=True, blank=True )
+    bind_interface = models.OneToOneField(Interface, on_delete=models.PROTECT, blank=True, null=True)
     establish_tunnel = models.CharField(max_length=50,choices=ipsecConfiguationItems.IpsecVpnEstablishTunnel.choices,
         default=ipsecConfiguationItems.IpsecVpnEstablishTunnel.immediately)
     is_published = models.BooleanField(default=False)

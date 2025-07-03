@@ -25,21 +25,3 @@ def push_junos_config(host, username, password, config_set_string):
     except ConnectError as ce:
         print("🚨 Connection Error:", str(ce))
         return False, f"Connection Error: {str(ce)}"
-
-
-def format_set(payload):
-    name = payload.get("policy_name")
-    description = payload.get("description")
-    pfs_group = payload.get("pfs_group")
-    proposals = payload.get("ipsec_proposal")
-    set_config = [
-        f'set security ipsec policy {name} description "{description}"',
-        f"set security ipsec policy {name} perfect-forward-secrecy keys {pfs_group}",
-        f"set security ipsec policy {name} proposals {proposals}",
-    ]
-    return "\n".join(set_config)
-
-
-def generate_delete_ipsecPolicy(policy_name):
-    return f"delete security ipsec policy {policy_name}"
-

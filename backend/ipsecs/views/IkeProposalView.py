@@ -6,7 +6,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from ipsecs.serializers.ikeProposalSerializers import IkeProposalSerializer
 from ipsecs.scripts.ikeproposal.getproposals import get_junos_ike_proposals,normalize_device_proposal
-from ipsecs.scripts.ikeproposal.serialized_data import serialized_ikeproposal,push_junos_config,serialized_delete_ikeproposal
+from ipsecs.scripts.ikeproposal.serialized_data import serialized_ikeproposal,serialized_delete_ikeproposal
+from ipsecs.scripts.utilities.push_config import push_junos_config
 from inventories.models import Device
 from rest_framework import status
 import traceback
@@ -138,6 +139,7 @@ class IkeProposalUpdateView(UpdateAPIView):
                     .values_list("proposalname", flat=True)
                 )
                 config = serialized_ikeproposal(payload, old_proposals)
+                print(config)
                 device = Device.objects.get(pk=device_id)
                 success, result = push_junos_config(
                     device.ip_address,
@@ -145,6 +147,7 @@ class IkeProposalUpdateView(UpdateAPIView):
                     device.password,
                     config 
                 )
+                print(result)
                 if not success:
                     return Response(
                         {"error": f"Failed to push config to device: {result}"},

@@ -6,10 +6,12 @@ import {
   setEditing,
   setConfigType,
   setValidated,
+  setSaveConfiguration,
 } from "../../../../store/reducers/vpnReducer";
 import { setSelectedDevice } from "../../../../store/reducers/inventoryReducers";
 import { ipsecVpnForm } from "./api/postikeproposal";
 import { useForm } from "react-hook-form";
+import { isEqual } from "lodash";
 
 function IPsecVPNConfig() {
   const dispatch = useDispatch();
@@ -23,6 +25,7 @@ function IPsecVPNConfig() {
     register,
     reset,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm({ mode: "onChange" });
 
@@ -42,11 +45,9 @@ function IPsecVPNConfig() {
     bindInterface: "bind_interface",
     establishTunnel: "establish_tunnel",
   };
-
   const reverseFieldMap = Object.fromEntries(
     Object.entries(fieldMap).map(([k, v]) => [v, k])
   );
-
   useEffect(() => {
     if (
       editingData &&
@@ -72,32 +73,71 @@ function IPsecVPNConfig() {
   ]);
 
   useEffect(() => {
-    const fetchInterfaces = async () => {
-      if (!selectedDevice) return;
+    if (!selectedDevice) return;
+
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/interfaces/names/?device=${selectedDevice}`
-        );
-        const stInterfaces = response.data.filter((iface) =>
+        const [interfacesRes, gatewayRes, policyRes] = await Promise.all([
+          axios.get(
+            `http://127.0.0.1:8000/api/interfaces/names/?device=${selectedDevice}`
+          ),
+          axios.get(
+            `http://127.0.0.1:8000/api/ipsec/ikegateway/names/?device=${selectedDevice}`
+          ),
+          axios.get(
+            `http://127.0.0.1:8000/api/ipsec/ipsecpolicy/names/?device=${selectedDevice}`
+          ),
+        ]);
+
+        const stInterfaces = interfacesRes.data.filter((iface) =>
           /^st\d+(\.0)?$/.test(iface)
         );
         setInterfaceslist(stInterfaces);
+        setIkeGatewayList(gatewayRes.data);
+        setIpsecPolicyList(policyRes.data);
       } catch (error) {
-        console.error("Failed to fetch interfaces:", error);
+        console.error("Failed to fetch VPN data:", error.message);
       }
     };
-    fetchInterfaces();
+
+    fetchData();
   }, [selectedDevice]);
 
   const onsubmit = async (formData) => {
-    let finalPayload = { device: selectedDevice };
-    for (const [key, value] of Object.entries(formData)) {
-      finalPayload[fieldMap[key] || key] = value;
+    let finalPayload = {
+      device: selectedDevice,
+      ...Object.fromEntries(
+        Object.entries(formData).map(([k, v]) => [fieldMap[k] || k, v])
+      ),
+    };
+    const fieldToCompare = [
+      "vpn_name",
+      "ike_gateway",
+      "ipsec_policy",
+      "bind_interface",
+    ];
+
+    const currentData = Object.fromEntries(
+      fieldToCompare.map((k) => [k, finalPayload[k]])
+    );
+
+    const originalData = Object.fromEntries(
+      fieldToCompare.map((k) => [k, editeddata[k]])
+    );
+    console.log(!isEqual(currentData, originalData));
+    if (editingData && !isEqual(currentData, originalData)) {
+      finalPayload.is_published = false;
+    }
+
+    if (editingData) {
+      finalPayload = {
+        ...finalPayload,
+        is_sendtodevice: false,
+      };
     }
     if (editingData) {
       finalPayload = {
         ...finalPayload,
-        is_published: false,
         is_sendtodevice: false,
       };
     }
@@ -119,8 +159,19 @@ function IPsecVPNConfig() {
       dispatch(setSelectedDevice(selectedDevice));
       dispatch(setValidated(true));
     } catch (err) {
-      console.error("Post/Put failed:", err.message);
+      const fieldError = err.response.data;
+      for (const [key, messages] of Object.entries(fieldError)) {
+        const field = reverseFieldMap[key] || key; // convert snake_case to camelCase
+        if (messages?.[0]) {
+          setError(field, {
+            type: "server",
+            message: messages[0],
+          });
+        }
+      }
       dispatch(setValidated(false));
+    } finally {
+      dispatch(setSaveConfiguration(false));
     }
   };
 
@@ -129,27 +180,6 @@ function IPsecVPNConfig() {
       handleSubmit(onsubmit)();
     }
   }, [saveconfiguration, configtype, handleSubmit]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [gatewayRes, policyRes] = await Promise.all([
-          axios.get(
-            `http://127.0.0.1:8000/api/ipsec/ikegateway/names/?device=${selectedDevice}`
-          ),
-          axios.get(
-            `http://127.0.0.1:8000/api/ipsec/ipsecpolicy/names/?device=${selectedDevice}`
-          ),
-        ]);
-        setIkeGatewayList(gatewayRes.data);
-        setIpsecPolicyList(policyRes.data);
-      } catch (err) {
-        console.error("Error fetching VPN form data:", err.message);
-      }
-    };
-
-    if (selectedDevice) fetchData();
-  }, [selectedDevice]);
 
   return (
     <form
@@ -174,6 +204,7 @@ function IPsecVPNConfig() {
             const fieldKey = normalizeKey(params.name);
             const isSelect = Array.isArray(params.value);
             let options = params.value;
+
             if (params.name === "Bind Interface") {
               options = interfacesList;
             }
@@ -181,33 +212,42 @@ function IPsecVPNConfig() {
             if (nameLower === "ike gateway") options = ikeGatewayList;
             if (nameLower === "ipsec policy") options = ipsecPolicyList;
 
-            return isSelect ? (
-              <select
-                key={index}
-                {...register(fieldKey, {
-                  required: `${params.name} field is required`,
-                })}
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              >
-                <option value="">Select {params.name}</option>
-                {options.map((option, i) => {
-                  return (
-                    <option key={i} value={option}>
-                      {option}
-                    </option>
-                  );
-                })}
-              </select>
-            ) : (
-              <input
-                key={index}
-                type="text"
-                placeholder={`Enter ${params.name}`}
-                {...register(fieldKey, {
-                  required: `${params.name} field is required`,
-                })}
-                className="px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none"
-              />
+            return (
+              <div key={index} className="flex flex-col space-y-1">
+                {isSelect ? (
+                  <select
+                    {...register(fieldKey, {
+                      required: `${params.name} field is required`,
+                    })}
+                    className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                      errors[fieldKey] ? "border-red-500" : "border-gray-300"
+                    }`}
+                  >
+                    <option value="">Select {params.name}</option>
+                    {options.map((option, i) => (
+                      <option key={i} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type="text"
+                    placeholder={`Enter ${params.name}`}
+                    {...register(fieldKey, {
+                      required: `${params.name} field is required`,
+                    })}
+                    className={`px-4 py-3 bg-gray-100 text-black border rounded-lg text-left focus:outline-none ${
+                      errors[fieldKey] ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                )}
+                {errors[fieldKey] && (
+                  <span className="text-sm text-red-500">
+                    {errors[fieldKey].message}
+                  </span>
+                )}
+              </div>
             );
           })}
         </div>

@@ -8,9 +8,11 @@ from rest_framework.generics import ListAPIView, CreateAPIView, DestroyAPIView, 
 from ipsecs.models import IpsecPolicy
 from ipsecs.serializers.ipsecPolicySerializers import IpsecPolicySerializer
 from rest_framework.views import APIView
+from ipsecs.scripts.utilities.push_config import push_junos_config
 from rest_framework.response import Response
 from ipsecs.scripts.ipsecpolicy.getipsecpolicies import get_ipsecpolicies,normalized_policies
-from ipsecs.scripts.ipsecpolicy.serialized_data import format_set,push_junos_config,generate_delete_ipsecPolicy
+from ipsecs.scripts.ipsecpolicy.serialized_data import format_set,generate_delete_ipsecPolicy
+
 
 class IpsecPolicyListView(ListAPIView):
     serializer_class = IpsecPolicySerializer
@@ -37,11 +39,13 @@ class IpsecPolicyListView(ListAPIView):
 
         queryset = self.get_queryset()
         db_serialized_data = self.get_serializer(queryset, many=True).data
+
         if device.status != "up":
             return Response(
                 {"error": f"Device status is '{device.status}'. Config push is only allowed when device is up."},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
         raw_device_data = get_ipsecpolicies(device.ip_address, device.username, device.password)
         if not raw_device_data:
             return Response(db_serialized_data)
@@ -58,12 +62,20 @@ class IpsecPolicyListView(ListAPIView):
         missing_policies = [p for p in normalized_data if p['policy_name'] in missing_names]
         required_fields = ['policy_name', 'ipsec_proposal', 'pfs_group']
         created_proposals_list = []
+
         for p in missing_policies:
             if any(p.get(field) in [None, ''] for field in required_fields):
                 print(f"Skipping invalid policy: {p['policy_name']} (missing required fields)")
                 continue
 
-            proposal_name = p.get('ipsec_proposal', '').strip()
+            raw_proposal = p.get('ipsec_proposal', '')
+            if isinstance(raw_proposal, list):
+                proposal_name = raw_proposal[0].strip() if raw_proposal else ''
+            elif isinstance(raw_proposal, str):
+                proposal_name = raw_proposal.strip()
+            else:
+                proposal_name = ''
+
             ipsec_obj = IpsecProposal.objects.filter(proposalname__iexact=proposal_name).first()
             if not ipsec_obj:
                 print(f"Skipping {p['policy_name']} - ipsec_proposal '{proposal_name}' not found in DB")
@@ -81,7 +93,7 @@ class IpsecPolicyListView(ListAPIView):
         final_query = IpsecPolicy.objects.filter(device=device.id)
         serialized_data = self.get_serializer(final_query, many=True).data
         return Response(serialized_data)
-
+    
 ipsecpolicy_list_view = IpsecPolicyListView.as_view()
 
 class IkeProposalCreateView(CreateAPIView):

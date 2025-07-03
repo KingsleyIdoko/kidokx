@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from inventories.models import Device
 from ipsecs.serializers.ikePolicySerializers import IkePolicySerializer
+from ipsecs.scripts.utilities.push_config import push_junos_config
 from ipsecs.scripts.ikepolicy.getpolicies import get_junos_ike_policies, normalize_device_policies
-from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicy,push_junos_config,serialized_delete_ikepolicy
+from ipsecs.scripts.ikepolicy.serialized_data import serialized_ikepolicy,serialized_delete_ikepolicy
 import traceback
 
 

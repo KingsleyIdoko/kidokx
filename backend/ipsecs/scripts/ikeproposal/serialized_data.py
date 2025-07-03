@@ -10,10 +10,12 @@ def push_junos_config(host, username, password, config_set_string):
                 cu = Config(dev)
                 cu.lock()
                 print("🔓 Configuration locked.")
-                cu.load(config_set_string, format="set", merge=True)
+                cu.load(config_set_string, format="set", merge=True, ignore_warning=True)
                 cu.commit(sync=True)
+                print("Commit successful")
                 return True, "Commit successful"
             except (LockError, ConfigLoadError, CommitError) as e:
+                print("Commit Unsuccessful")
                 return False, f"Config Error: {str(e)}"
             except Exception as e:
                 return False, f"Exception: {str(e)}"
@@ -30,9 +32,9 @@ def push_junos_config(host, username, password, config_set_string):
 
 def serialized_ikeproposal(payload, old_payloads):
     if len(payload) == 6:
-        proposalname,  dh_group, authentication_algorithm, encryption_algorithm, lifetime_seconds = payload
+        proposalname, authentication_method, dh_group, authentication_algorithm, encryption_algorithm, lifetime_seconds = payload
     elif len(payload) == 5:
-        proposalname,  dh_group, encryption_algorithm, lifetime_seconds = payload
+        proposalname, authentication_method, dh_group, encryption_algorithm, lifetime_seconds = payload
         authentication_algorithm = None
     else:
         raise ValueError("Invalid payload length for IKE proposal.")

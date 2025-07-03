@@ -4,6 +4,7 @@ from ipsecs.models import IkeGateway, IkePolicy
 from ipsecs.serializers.ikeGatewaySerializers import IkeGatewaySerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from ipsecs.scripts.utilities.push_config import push_junos_config
 from rest_framework import status
 from inventories.models import Device
 from ipsecs.scripts.ikegateways.getikegateway import serialized_ikegateway_policies, device_ikegateway_policies

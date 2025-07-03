@@ -80,7 +80,6 @@ export default function VpnConfigList() {
         item.policy_name ||
         item.vpn_name,
     };
-
     try {
       const response = await axios.delete(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${id}/delete/`,
@@ -102,6 +101,7 @@ export default function VpnConfigList() {
       is_published: true,
       is_sendtodevice: true,
     };
+    console.log(deployData);
     try {
       await axios.put(
         `http://127.0.0.1:8000/api/ipsec/${configtype}/${item.id}/update/`,

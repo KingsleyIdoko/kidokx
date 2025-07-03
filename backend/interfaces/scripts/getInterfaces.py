@@ -50,22 +50,23 @@ def sync_interfaces_to_db(device_name):
         description = iface.get('description', None)
         ip_address = None
 
-        # Extract unit IP address (unit might be a list or dict)
         unit = iface.get('unit')
-        if isinstance(unit, dict):
-            unit = [unit]  # wrap single unit in list
+        units = [unit] if isinstance(unit, dict) else unit or []
 
-        if isinstance(unit, list):
-            for u in unit:
-                family = u.get('family', {})
-                inet = family.get('inet', {})
-                address = inet.get('address')
-                if isinstance(address, dict):
-                    ip_address = address.get('name')
-                    break
-                elif isinstance(address, list) and address:
-                    ip_address = address[0].get('name')
-                    break
+        for u in units:
+            if not isinstance(u, dict):
+                continue
+            family = u.get('family', {})
+            inet = family.get('inet')
+            if not isinstance(inet, dict):
+                continue
+            address = inet.get('address')
+            if isinstance(address, dict):
+                ip_address = address.get('name')
+                break
+            elif isinstance(address, list) and address:
+                ip_address = address[0].get('name')
+                break
 
         Interface.objects.update_or_create(
             device=device,
@@ -73,9 +74,9 @@ def sync_interfaces_to_db(device_name):
             defaults={
                 'description': description,
                 'ip_address': ip_address,
-                'status': None,         # Can be filled using <get-interface-information>
+                'status': None,
                 'speed': None,
                 'mac_address': None,
-                'interface_type': 'physical',  # Can improve with more context
+                'interface_type': 'physical',
             }
         )

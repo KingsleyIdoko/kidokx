@@ -9,7 +9,7 @@ def push_junos_config(host, username, password, config_set_string):
                 cu = Config(dev)
                 cu.lock()
                 print("🔓 Configuration locked.")
-                cu.load(config_set_string, format="set", merge=True)
+                cu.load(config_set_string, format="set", merge=True, ignore_warning=True)
                 cu.commit(sync=True)
                 return True, "Commit successful"
             except (LockError, ConfigLoadError, CommitError) as e:
