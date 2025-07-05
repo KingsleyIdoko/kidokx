@@ -63,6 +63,10 @@ export const menuItems = [
             name: "switching",
             subItems: [{ name: "site-to-site" }, { name: "remote-access" }],
           },
+          {
+            name: "security",
+            subItems: [{ name: "zones" }, { name: "policies" }],
+          },
         ],
       },
       {

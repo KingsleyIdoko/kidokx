@@ -46,6 +46,8 @@ export default function Navbar() {
     const paths = {
       "site-to-site": "/vpn/site-to-site/sessions/list",
       "remote-access": "/vpn/remote-access/list",
+      "zones": "security/zones",
+      "policies": "security/policies",
     };
     if (paths[thirdDropDownName]) navigate(paths[thirdDropDownName]);
     store.dispatch(ThirdDropDown(thirdDropDownName));
@@ -176,9 +178,6 @@ export default function Navbar() {
                                               <div className="absolute top-0 left-full ml-6 w-40 bg-white text-gray-700 rounded-lg shadow-lg py-2 px-1">
                                                 {secondDropdown.subItems.map(
                                                   (thirdDropdown) => {
-                                                    // console.log(
-                                                    //   thirdDropdown.name,
-                                                    // );
                                                     return (
                                                       <div
                                                         key={thirdDropdown.name}
