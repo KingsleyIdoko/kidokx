@@ -65,7 +65,6 @@ export const menuItems = [
           },
           {
             name: "security",
-            subItems: [{ name: "zones" }, { name: "policies" }],
           },
         ],
       },

@@ -10,7 +10,7 @@ import VpnConfigList from "./components/operations/configuration/vpn/site-to-sit
 import DeviceIvenventory from "./components/inventory/devicelist";
 import CreateDevice from "./components/inventory/createdevices";
 import CreateSite from "./components/sites/createsite";
-import Security from "./components/security/security";
+import Security from "./components/operations/configuration/security/securityPage";
 import SiteList from "./components/sites/sitelist";
 
 function App() {

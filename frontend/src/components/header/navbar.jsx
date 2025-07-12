@@ -38,7 +38,11 @@ export default function Navbar() {
     store.dispatch(SecondDropDown(secondDropdown.name));
     const devicetype = secondDropdown.name.toLowerCase();
     if (!secondDropdown.subItems) {
-      navigate(`inventory/devices/list/${devicetype}/`);
+      if (secondDropdown.name === "All Devices") {
+        navigate(`inventory/devices/list/${devicetype}/`);
+      } else if (secondDropdown.name === "security") {
+        navigate(`security/`);
+      }
     }
   };
 
@@ -46,8 +50,6 @@ export default function Navbar() {
     const paths = {
       "site-to-site": "/vpn/site-to-site/sessions/list",
       "remote-access": "/vpn/remote-access/list",
-      "zones": "security/zones",
-      "policies": "security/policies",
     };
     if (paths[thirdDropDownName]) navigate(paths[thirdDropDownName]);
     store.dispatch(ThirdDropDown(thirdDropDownName));
