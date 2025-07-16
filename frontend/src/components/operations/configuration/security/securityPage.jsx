@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 
-import SecurityZone from "./zones";
-import SecurityPolicies from "./policies";
-import SecurityOverview from "./overview";
-
+import SecurityZone from './zones';
+import SecurityZoneConfig from './zoneconfig';
+import SecurityPolicies from './policies';
+import SecurityOverview from './overview';
 const SiteToSiteVPN = () => <div className="p-4">Site-to-Site VPN Page</div>;
 const RemoteAccessVPN = () => <div className="p-4">Remote Access VPN Page</div>;
 export default function Security() {
@@ -15,55 +15,63 @@ export default function Security() {
 
   const menu = [
     {
-      label: "Dashboard",
-      dropdownKey: "Dashboard",
+      label: 'Dashboard',
+      dropdownKey: 'Dashboard',
       items: [
-        { label: "Zones", path: "/security/zones/list/" },
+        { label: 'Zones', path: '/security/zones/list/' },
         {
-          label: "Policies",
+          label: 'Policies',
           children: [
-            { label: "Overview", path: "/security/policies/config/overview" },
-            { label: "Rewards", path: "/security/policies/config/rewards" },
+            { label: 'Overview', path: '/security/policies/config/overview' },
+            { label: 'Rewards', path: '/security/policies/config/rewards' },
           ],
         },
       ],
     },
     {
-      label: "Security",
-      dropdownKey: "security",
+      label: 'Security',
+      dropdownKey: 'security',
       items: [
-        { label: "Zones", path: "/security/zones/list/" },
+        { label: 'Zones', path: '/security/zones/list/' },
         {
-          label: "Policies",
+          label: 'Policies',
           children: [
-            { label: "Overview", path: "/security/policies/config/overview" },
-            { label: "Rewards", path: "/security/policies/config/rewards" },
+            { label: 'Overview', path: '/security/policies/config/overview' },
+            { label: 'Rewards', path: '/security/policies/config/rewards' },
           ],
         },
       ],
     },
     {
-      label: "Routing",
-      dropdownKey: "routing",
+      label: 'Routing',
+      dropdownKey: 'routing',
       items: [
-        { label: "Site-to-Site", path: "/vpn/site-to-site/" },
-        { label: "Remote Access", path: "/vpn/remote-access/" },
+        { label: 'Static', path: '/routing/static/' },
+        {
+          label: 'Dynamic',
+          children: [
+            { label: 'BGP', path: '/routing/dynamic/bgp/config' },
+            { label: 'OSPF', path: '/routing/dynamic/ospf/config' },
+            { label: 'RIP', path: '/routing/dynamic/rip/config' },
+            { label: 'EIGRP', path: '/routing/dynamic/eigrp/config' },
+          ],
+        },
       ],
     },
     {
-      label: "Switching",
-      dropdownKey: "switching",
+      label: 'Switching',
+      dropdownKey: 'switching',
       items: [
-        { label: "Site-to-Site", path: "/vpn/site-to-site/" },
-        { label: "Remote Access", path: "/vpn/remote-access/" },
+        { label: 'Site-to-Site', path: '/vpn/site-to-site/' },
+        { label: 'Remote Access', path: '/vpn/remote-access/' },
       ],
     },
     {
-      label: "VPN",
-      dropdownKey: "vpn",
+      label: 'VPN',
+      dropdownKey: 'vpn',
       items: [
-        { label: "Site-to-Site", path: "/vpn/site-to-site/" },
-        { label: "Remote Access", path: "/vpn/remote-access/" },
+        { label: 'Site-to-Site', path: '/vpn/site-to-site/' },
+        { label: 'Remote Access', path: '/vpn/remote-access/' },
       ],
     },
   ];
@@ -75,8 +83,8 @@ export default function Security() {
         setOpenSubDropdown(null);
       }
     }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -90,11 +98,7 @@ export default function Security() {
           <div key={section.dropdownKey} className="mb-4">
             <button
               onClick={() => {
-                setOpenDropdown(
-                  openDropdown === section.dropdownKey
-                    ? null
-                    : section.dropdownKey
-                );
+                setOpenDropdown(openDropdown === section.dropdownKey ? null : section.dropdownKey);
                 setOpenSubDropdown(null);
               }}
               className="text-black font-medium rounded-lg text-sm px-5 py-2.5 flex items-center justify-between w-full"
@@ -118,18 +122,14 @@ export default function Security() {
                       <li key={idx}>
                         <button
                           onClick={() =>
-                            setOpenSubDropdown(
-                              openSubDropdown === item.label ? null : item.label
-                            )
+                            setOpenSubDropdown(openSubDropdown === item.label ? null : item.label)
                           }
                           className="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-200"
                         >
                           {item.label}
                           <svg
                             className={`w-2.5 h-2.5 ml-3 transition-transform duration-200 ${
-                              openDropdown === section.dropdownKey
-                                ? "rotate-0"
-                                : ""
+                              openDropdown === section.dropdownKey ? 'rotate-0' : ''
                             }`}
                             viewBox="0 0 10 6"
                           >
@@ -180,10 +180,8 @@ export default function Security() {
           <Routes>
             <Route path="/" element={<SecurityOverview />} />
             <Route path="/zones/list/*" element={<SecurityZone />} />
-            <Route
-              path="/security/policies/config/*"
-              element={<SecurityPolicies />}
-            />
+            <Route path="/zones/config/*" element={<SecurityZoneConfig />} />
+            <Route path="/security/policies/config/*" element={<SecurityPolicies />} />
             <Route path="/vpn/site-to-site/*" element={<SiteToSiteVPN />} />
             <Route path="/vpn/remote-access/*" element={<RemoteAccessVPN />} />
           </Routes>
