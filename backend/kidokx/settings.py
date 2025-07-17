@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'inventories',
     'ipsecs',
     'interfaces',
+    'security',
 ]
 
 MIDDLEWARE = [

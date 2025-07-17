@@ -8,13 +8,12 @@ from ipsecs.scripts.utilities.push_config import push_junos_config
 from rest_framework import status
 from inventories.models import Device
 from ipsecs.scripts.ikegateways.getikegateway import serialized_ikegateway_policies, device_ikegateway_policies
-from ipsecs.scripts.ikegateways.serialized_data import push_junos_config, serialized_ikegateway,serialized_delete_gateway
+from ipsecs.scripts.ikegateways.serialized_data import  serialized_ikegateway,serialized_delete_gateway
 
 
 
 class IkeGatewayListView(ListAPIView):
     serializer_class = IkeGatewaySerializer
-
     def get_queryset(self):
         device_value = self.request.query_params.get('device')
         if device_value:

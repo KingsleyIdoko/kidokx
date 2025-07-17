@@ -1,13 +1,12 @@
-import SelectedDevice from './selectDevice';
-import { useDispatch, useSelector } from 'react-redux';
-import { setSecurityConfigType } from '../../../store/reducers/securitity';
-import { useEffect } from 'react';
-
+import SelectedDevice from "./selectDevice";
+import { useDispatch, useSelector } from "react-redux";
+import { setSecurityConfigType } from "../../../store/reducers/securitity";
+import { useEffect } from "react";
 export default function SecurityZone() {
   const dispatch = useDispatch();
   const { securityconfigtype } = useSelector((state) => state.security);
   useEffect(() => {
-    dispatch(setSecurityConfigType('zones'));
+    dispatch(setSecurityConfigType("zones"));
   }, [dispatch]);
 
   return (
@@ -41,7 +40,13 @@ export default function SecurityZone() {
           <tbody>
             <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
               <td>
-                <input type="checkbox" id="vehicle1" name="vehicle1" value="Bike" className="m-3" />
+                <input
+                  type="checkbox"
+                  id="vehicle1"
+                  name="vehicle1"
+                  value="Bike"
+                  className="m-3"
+                />
               </td>
               <td
                 scope="row"

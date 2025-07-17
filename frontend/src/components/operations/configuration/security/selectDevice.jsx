@@ -1,10 +1,13 @@
-import axios from 'axios';
-import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { setDeviceInventories } from '../../../store/reducers/inventoryReducers';
-import { setGetSiteName, setSite } from '../../../store/reducers/siteReducer';
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import {
+  setDeviceInventories,
+  setSelectedDevice,
+} from "../../../store/reducers/inventoryReducers";
+import { setGetSiteName, setSite } from "../../../store/reducers/siteReducer";
 
 export default function SelectedDevice() {
   const navigate = useNavigate();
@@ -20,13 +23,15 @@ export default function SelectedDevice() {
     trigger,
     getValues,
     formState: { errors },
-  } = useForm({ mode: 'onChange' });
+  } = useForm({ mode: "onChange" });
 
-  const selectedSite = watch('site');
+  const selectedSite = watch("site");
 
   useEffect(() => {
     if (inventories && inventories.length > 0 && selectedSite) {
-      setFilteredInventory(inventories.filter((items) => items.site === selectedSite));
+      setFilteredInventory(
+        inventories.filter((items) => items.site === selectedSite)
+      );
     } else {
       setFilteredInventory(inventories);
     }
@@ -39,13 +44,15 @@ export default function SelectedDevice() {
   useEffect(() => {
     const fetchSiteData = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/inventories/sites/names/');
+        const response = await axios.get(
+          "http://127.0.0.1:8000/api/inventories/sites/names/"
+        );
         if (response.status === 200) {
           setSiteNames(response.data);
           dispatch(setGetSiteName(response.data));
         }
       } catch (err) {
-        console.log('Error occurred fetching site names:', err);
+        console.log("Error occurred fetching site names:", err);
       }
     };
 
@@ -55,19 +62,23 @@ export default function SelectedDevice() {
   }, [siteNames, dispatch]);
 
   const handleUrlPath = async () => {
-    const isValid = await trigger(['device', 'site']);
+    const isValid = await trigger(["device", "site"]);
     if (!isValid) return;
-    const device = getValues('device');
-    const site = getValues('site');
-    if (securityconfigtype === 'zones') {
-      navigate('/security/zones/config/');
+    const device = getValues("device");
+    const site = getValues("site");
+    dispatch(setSelectedDevice(device));
+    dispatch(setSite(site));
+    if (securityconfigtype === "zones") {
+      navigate("/security/zones/config/");
     }
   };
   useEffect(() => {
     let isMounted = true;
     const fetchDeviceList = async () => {
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/inventories/devices/');
+        const res = await axios.get(
+          "http://127.0.0.1:8000/api/inventories/devices/"
+        );
         const lowerCaseData = res.data.map((device) => ({
           ...device,
           name: device.device_name.toLowerCase(),
@@ -78,7 +89,7 @@ export default function SelectedDevice() {
       } catch (err) {
         if (isMounted) {
           setError(err.message);
-          console.error('Error occurred:', err.message);
+          console.error("Error occurred:", err.message);
         }
       }
     };
@@ -101,9 +112,9 @@ export default function SelectedDevice() {
         </button>
         <div className="flex flex-col w-60">
           <select
-            {...register('site', { required: 'Select site' })}
+            {...register("site", { required: "Select site" })}
             className={`border px-4 rounded-lg h-12 focus:outline-none ${
-              errors.site ? 'border-red-500' : ''
+              errors.site ? "border-red-500" : ""
             }`}
           >
             <option value="">Select Site</option>
@@ -115,15 +126,17 @@ export default function SelectedDevice() {
           </select>
           <div className="h-6">
             {errors.site && (
-              <p className="text-xs pl-3 text-red-500 font-medium mt-2">{errors.site.message}</p>
+              <p className="text-xs pl-3 text-red-500 font-medium mt-2">
+                {errors.site.message}
+              </p>
             )}
           </div>
         </div>
         <div className="w-60  flex flex-col">
           <select
-            {...register('device', { required: 'Select device' })}
+            {...register("device", { required: "Select device" })}
             className={`border px-4 rounded-lg h-12 focus:outline-none ${
-              errors.device ? 'border-red-500' : ''
+              errors.device ? "border-red-500" : ""
             }`}
           >
             <option value="">Select Device</option>
@@ -135,7 +148,9 @@ export default function SelectedDevice() {
           </select>
           <div className="h-6">
             {errors.device && (
-              <p className="text-xs pl-3 text-red-500 font-medium mt-2">{errors.device.message}</p>
+              <p className="text-xs pl-3 text-red-500 font-medium mt-2">
+                {errors.device.message}
+              </p>
             )}
           </div>
         </div>
