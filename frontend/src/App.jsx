@@ -1,23 +1,25 @@
-import { Provider } from "react-redux";
-import store from "./components/store/store";
-import { Route, Routes } from "react-router-dom";
-import Navbar from "./components/header/navbar";
-import VPN from "./components/operations/configuration/vpn/vpn";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import SiteToSiteList from "./components/operations/configuration/vpn/site-to-site.jsx/SiteToSiteVPNList";
-import HopePage from "./components/homepage/homepage";
-import VpnConfigList from "./components/operations/configuration/vpn/site-to-site.jsx/vpnConfigList/vpnconfiglist";
-import DeviceIvenventory from "./components/inventory/devicelist";
-import CreateDevice from "./components/inventory/createdevices";
-import CreateSite from "./components/sites/createsite";
-import Security from "./components/operations/configuration/security/securityPage";
-import SiteList from "./components/sites/sitelist";
+import { Provider } from 'react-redux';
+import store from './components/store/store';
+import { Route, Routes } from 'react-router-dom';
+import Navbar from './components/header/navbar';
+import VPN from './components/operations/configuration/vpn/vpn';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import SiteToSiteList from './components/operations/configuration/vpn/site-to-site.jsx/SiteToSiteVPNList';
+import HopePage from './components/homepage/homepage';
+import VpnConfigList from './components/operations/configuration/vpn/site-to-site.jsx/vpnConfigList/vpnconfiglist';
+import DeviceIvenventory from './components/inventory/devicelist';
+import CreateDevice from './components/inventory/createdevices';
+import CreateSite from './components/sites/createsite';
+import Security from './components/operations/configuration/security/securityPage';
+import SiteList from './components/sites/sitelist';
 
 function App() {
   return (
     <Provider store={store}>
       <div className="bg-sky-100 min-h-screen">
-        <Navbar />
+        <div className="sticky top-0 z-50 bg-white shadow">
+          <Navbar />
+        </div>
         <Routes>
           <Route path="/" element={<HopePage />} />
           <Route

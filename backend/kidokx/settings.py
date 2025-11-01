@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +59,20 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+CELERY_BROKER_URL=os.getenv('REDIS_URL','redis://localhost:6379/0')
+CELERY_RESULT_BACKEND=os.getenv('REDIS_URL','redis://localhost:6379/0')
+CELERY_TIMEZONE='Europe/Amsterdam'
+CELERY_TASK_ACKS_LATE=True
+CELERY_TASK_REJECT_ON_WORKER_LOST=True
+CELERY_TASK_TRACK_STARTED=True
+CELERY_TASK_DEFAULT_QUEUE='default'
+CELERY_RESULT_EXTENDED=True
+CELERY_TASK_SOFT_TIME_LIMIT=300
+CELERY_TASK_TIME_LIMIT=330
+CELERY_BEAT_SCHEDULE={'device-health-loop':{'task':'inventories.tasks.enqueue_due_device_checks','schedule':60}}
+
+
 
 ROOT_URLCONF = 'kidokx.urls'
 CORS_URLS_REGEX = r"^/api/(ipsec|inventories|interfaces)/.*$"

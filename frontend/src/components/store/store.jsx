@@ -3,7 +3,7 @@ import Navreducer from '../header/navReducer';
 import VpnReducer from './reducers/vpnReducer';
 import InventoryReducer from './reducers/inventoryReducers';
 import siteReducer from './reducers/siteReducer';
-import SecurityReducer from './reducers/securitity';
+import SecurityReducer from './reducers/security';
 
 const rootReducer = combineReducers({
   navbar: Navreducer,

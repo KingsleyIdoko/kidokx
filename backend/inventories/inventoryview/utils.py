@@ -52,11 +52,3 @@ def update_device_status(device: Device):
     logger.info(
         f"Device '{device.device_name}' status updated from '{status_before}' to '{device.status}'."
     )
-
-# @shared_task
-# def check_all_devices():
-#     now = timezone.now()
-#     devices = Device.objects.all()
-#     for device in devices:
-#         if not device.last_checked or (now - device.last_checked).total_seconds() >= device.keepalive:
-#             update_device_status(device)

@@ -8,6 +8,8 @@ from ..serializers import InventoriesSerializer
 from threading import Thread
 from django.utils import timezone
 from inventories.inventoryview.utils import update_device_status
+from inventories.inventoryview.tasks import check_device
+
 
 class DeviceListView(ListAPIView):
     queryset = Device.objects.all()
@@ -50,22 +52,15 @@ device_names_view = DeviceNamesView.as_view()
 
 
 class MonitorDevices(APIView):
-    def get(self, request):
-        now = timezone.now()
-        valid_statuses = ['up', 'down', 'unknown']
-        device_list = []
+ def get(self,request):
+  now=timezone.now();
+  valid_statuses=['up','down','unknown'];
+  device_list=[]
+  for device in Device.objects.all():
+   if not device.last_checked or (now-device.last_checked).total_seconds()>=device.keepalive:check_device.delay(device.id)
+   if device.status in valid_statuses:device_list.append({'device_name':device.device_name,'status':device.status,'last_checked':device.last_checked})
+  return Response(device_list)
 
-        for device in Device.objects.all():
-            if not device.last_checked or (now - device.last_checked).total_seconds() >= device.keepalive:
-                update_device_status(device)
-            
-            if device.status in valid_statuses:
-                device_list.append({
-                    'device_name': device.device_name,
-                    'status': device.status,
-                    'last_checked': device.last_checked,
-                })
-        return Response(device_list)
 
 device_names_view = MonitorDevices.as_view()
 

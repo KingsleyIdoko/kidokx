@@ -59,7 +59,6 @@ class IkePolicyListView(ListAPIView):
                 password=device.password
             )
             if not raw_device_data:
-
                 return Response(db_serialized)
         except Exception:
             return Response(db_serialized)
@@ -80,7 +79,6 @@ class IkePolicyListView(ListAPIView):
             if not proposal_obj:
                 print(f"Missing proposal object for '{p['proposals']}' — skipping policy '{p['policyname']}'")
                 continue
-
             serializer = IkePolicySerializer(data={
                 "policyname": p["policyname"],
                 "device": device.device_name,  # matches slug_field in serializer

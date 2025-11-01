@@ -1,5 +1,11 @@
 function SecurityOverview() {
-  return <h1>Security Overview Page</h1>;
+  return (
+    <div>
+      <div className="flex flex-row justify-center ">
+        Security Overview Page
+      </div>
+    </div>
+  );
 }
 
 export default SecurityOverview;
