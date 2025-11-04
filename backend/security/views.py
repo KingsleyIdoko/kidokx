@@ -64,7 +64,6 @@ class SecurityZoneListAPIView(ListAPIView):
                 host=device.ip_address,
             )
         except Exception:
-            # Could not poll live device -> just return DB data
             queryset = self.get_queryset()
             serializer = self.get_serializer(queryset, many=True)
             return Response(serializer.data)
@@ -77,7 +76,7 @@ class SecurityZoneListAPIView(ListAPIView):
         if serializer.is_valid():
             serializer.save()
         else:
-            pass
+             print(serializer.errors)
         queryset = self.get_queryset()
         response_serializer = self.get_serializer(queryset, many=True)
         return Response(response_serializer.data)

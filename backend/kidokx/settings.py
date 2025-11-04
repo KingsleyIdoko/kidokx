@@ -26,7 +26,9 @@ SECRET_KEY = 'django-insecure-u%7n65#om!t67b#3w+5m6n2dkk^)ig25un$5a--h(381%^@=t@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+
+
 
 
 # Application definition
@@ -47,12 +49,13 @@ INSTALLED_APPS = [
     'ipsecs',
     'interfaces',
     'security',
+    'kidokx',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -75,7 +78,7 @@ CELERY_BEAT_SCHEDULE={'device-health-loop':{'task':'inventories.tasks.enqueue_du
 
 
 ROOT_URLCONF = 'kidokx.urls'
-CORS_URLS_REGEX = r"^/api/(ipsec|inventories|interfaces)/.*$"
+CORS_URLS_REGEX = r"^/api/.*$"
 FIELD_ENCRYPTION_KEY = 'iTe2amQwm4GwCQL4GTGL8pVr2GPd5_nQaqvWFWVdmdw='
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",

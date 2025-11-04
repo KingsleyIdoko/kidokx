@@ -1,14 +1,11 @@
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import {
-  setDeviceInventories,
-  setSelectedDevice,
-} from '../../../store/reducers/inventoryReducers';
-import { setGetSiteName, setSite } from '../../../store/reducers/siteReducer';
+import { setDeviceInventories, setSelectedDevice } from '../../../store/reducers/inventoryReducers';
 import { setCreatezone } from '../../../store/reducers/security';
+import { setGetSiteName, setSite } from '../../../store/reducers/siteReducer';
 export default function SelectedDevice() {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
@@ -26,12 +23,23 @@ export default function SelectedDevice() {
   } = useForm({ mode: 'onChange' });
 
   const selectedSite = watch('site');
+  const chosenDevice = watch('device');
+
+  // useEffect(() => {
+  //   if (chosenDevice) dispatch(setSelectedDevice(chosenDevice));
+  // }, [chosenDevice, dispatch]);
+
+  const didRun = useRef(false);
 
   useEffect(() => {
+    if (!didRun.current && chosenDevice) {
+      dispatch(setSelectedDevice(chosenDevice));
+      didRun.current = true;
+    }
+  }, [chosenDevice, dispatch]);
+  useEffect(() => {
     if (inventories && inventories.length > 0 && selectedSite) {
-      setFilteredInventory(
-        inventories.filter((items) => items.site === selectedSite),
-      );
+      setFilteredInventory(inventories.filter((items) => items.site === selectedSite));
     } else {
       setFilteredInventory(inventories);
     }
@@ -44,9 +52,7 @@ export default function SelectedDevice() {
   useEffect(() => {
     const fetchSiteData = async () => {
       try {
-        const response = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/sites/names/',
-        );
+        const response = await axios.get('http://127.0.0.1:8000/api/inventories/sites/names/');
         if (response.status === 200) {
           setSiteNames(response.data);
           dispatch(setGetSiteName(response.data));
@@ -77,9 +83,7 @@ export default function SelectedDevice() {
     let isMounted = true;
     const fetchDeviceList = async () => {
       try {
-        const res = await axios.get(
-          'http://127.0.0.1:8000/api/inventories/devices/',
-        );
+        const res = await axios.get('http://127.0.0.1:8000/api/inventories/devices/');
         const lowerCaseData = res.data.map((device) => ({
           ...device,
           name: device.device_name.toLowerCase(),
@@ -127,9 +131,7 @@ export default function SelectedDevice() {
           </select>
           <div className="h-6">
             {errors.site && (
-              <p className="text-xs pl-3 text-red-500 font-medium mt-2">
-                {errors.site.message}
-              </p>
+              <p className="text-xs pl-3 text-red-500 font-medium mt-2">{errors.site.message}</p>
             )}
           </div>
         </div>
@@ -149,9 +151,7 @@ export default function SelectedDevice() {
           </select>
           <div className="h-6">
             {errors.device && (
-              <p className="text-xs pl-3 text-red-500 font-medium mt-2">
-                {errors.device.message}
-              </p>
+              <p className="text-xs pl-3 text-red-500 font-medium mt-2">{errors.device.message}</p>
             )}
           </div>
         </div>

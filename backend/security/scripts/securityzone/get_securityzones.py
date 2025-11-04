@@ -34,6 +34,7 @@ def get_securityzones(host, username, password):
                   .get("zones", {})
                   .get("security-zone", [])
         )
+
         def names_from_list(lst):
             out = []
             for items in lst or []:
@@ -53,11 +54,11 @@ def get_securityzones(host, username, password):
             system_services  = names_from_list(hit.get('system-services',[]))
             system_protocols  = names_from_list(hit.get('protocols',[]))
             interfaces  = names_from_list(data.get('interfaces'))
-        result.append({
-            'zone_name': zone_name,
-            'description': description,
-            'system_services': system_services,
-            'system_protocols': system_services,
-            'interfaces': interfaces,
-        })
+            result.append({
+                'zone_name': zone_name,
+                'description': description,
+                'system_services': system_services,
+                'system_protocols': system_protocols,
+                'interfaces': interfaces,
+            })
         return result

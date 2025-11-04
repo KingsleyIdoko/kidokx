@@ -47,6 +47,7 @@ def sync_interfaces_to_db(device_name):
 
     for iface in interfaces:
         name = iface.get('name')
+        print(name)
         description = iface.get('description', None)
         ip_address = None
 
