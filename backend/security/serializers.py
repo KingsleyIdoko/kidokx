@@ -5,10 +5,7 @@ from security.models import SecurityZone, Address
 
 
 class SecurityZoneSerializer(serializers.ModelSerializer):
-    device = serializers.SlugRelatedField(
-        slug_field='device_name',
-        queryset=Device.objects.all()
-    )
+    device = serializers.SlugRelatedField(slug_field='device_name',queryset=Device.objects.all())
 
     # For reading (response)
     interface_names = serializers.SerializerMethodField()
@@ -45,6 +42,7 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
         """Return a list of interface names for display."""
         return [iface.name for iface in obj.interfaces.all()]
 
+
     def validate_zone_name(self, value):
         if isinstance(self.initial_data, list):
             return value
@@ -78,18 +76,13 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
             if iface_name.endswith(".0"):
                 iface_name = iface_name[:-2]
 
-            qs = Interface.objects.filter(name=iface_name)
-            if device:
-                qs = qs.filter(device=device)
-
-            iface_obj = qs.first()
+            iface_obj  = Interface.objects.filter(device=device, name=iface_name).first()
             if not iface_obj:
                 raise serializers.ValidationError(
                     f"Interface '{iface_name}' not found for this device."
                 )
-
             existing_zone = (
-                SecurityZone.objects.filter(interfaces=iface_obj)
+                SecurityZone.objects.filter(device=device, interfaces=iface_obj)
                 .exclude(pk=self.instance.pk if self.instance else None)
                 .first()
             )
@@ -116,7 +109,7 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
                 if interfaces:
                     zone.interfaces.set(interfaces)
                 zones.append(zone)
-            return zones 
+            return zones
 
         # Single create case
         interfaces = validated_data.pop("interfaces", [])

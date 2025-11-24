@@ -1,12 +1,15 @@
-import DualListSelector from './listselector';
-import { useForm, Controller } from 'react-hook-form';
-import { useSelector } from 'react-redux';
-import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
+import DualListSelector from './listselector';
 
 export default function SecurityZoneConfig() {
   const { selectedDevice } = useSelector((state) => state.inventories);
   const [Interfaces, setInterfaces] = useState([]);
+  const [Addresses, setAddresses] = useState([]);
+  const services = ['SSH', 'HTTPS', 'PING', 'DNS'];
+  const addressNames = Addresses.map((a) => a.name);
   const { register, handleSubmit, control } = useForm({
     defaultValues: {
       zoneName: '',
@@ -21,7 +24,7 @@ export default function SecurityZoneConfig() {
       if (!selectedDevice) return;
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/interfaces/names/?device=${selectedDevice}`,
+          `http://127.0.0.1:8000/api/interfaces/zones/?device=${selectedDevice}`,
         );
         setInterfaces(response.data);
       } catch (error) {
@@ -29,17 +32,29 @@ export default function SecurityZoneConfig() {
       }
     };
     fetchInterfaces();
-  }, []);
+  }, [selectedDevice]);
+
+  useEffect(() => {
+    const fetctAddresses = async () => {
+      if (!selectedDevice) return;
+      try {
+        const response = await axios.get(
+          `http://127.0.0.1:8000/api/addresses/?device=${selectedDevice}`,
+        );
+        setAddresses(response.data);
+      } catch (error) {
+        console.error('Failed to fetch interfaces:', error);
+      }
+    };
+    fetctAddresses();
+  }, [selectedDevice]);
 
   const onSubmit = async (data) => {
     const finalPayload = { ...data, device: selectedDevice };
     try {
       if (!editingData) {
         // Create a new IKE proposal
-        await axios.post(
-          'http://127.0.0.1:8000/api/ipsec/ikeproposal/create/',
-          finalPayload,
-        );
+        await axios.post('http://127.0.0.1:8000/api/ipsec/ikeproposal/create/', finalPayload);
       } else {
         // Update existing IKE proposal
         await axios.put(
@@ -59,9 +74,7 @@ export default function SecurityZoneConfig() {
       className="flex flex-col bg-white p-8 rounded-xl shadow max-w-4xl mx-auto mt-2 gap-6"
     >
       <div className="flex items-center gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700">
-          Zone Name:
-        </label>
+        <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
         <input
           type="text"
           {...register('zoneName')}
@@ -71,9 +84,7 @@ export default function SecurityZoneConfig() {
       </div>
 
       <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">
-          Interfaces:
-        </label>
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Interfaces:</label>
         <Controller
           name="interfaces"
           control={control}
@@ -83,36 +94,26 @@ export default function SecurityZoneConfig() {
         />
       </div>
       <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">
-          System Services:
-        </label>
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
         <Controller
           name="services"
           control={control}
-          render={({ field: { ref, ...rest } }) => (
-            <DualListSelector
-              items={['SSH', 'HTTPS', 'PING', 'DNS']}
-              {...rest}
-            />
-          )}
+          render={({ field: { ref, ...rest } }) => <DualListSelector items={services} {...rest} />}
         />
       </div>
 
       <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">
-          Addresses:
-        </label>
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Addresses:</label>
+
         <Controller
           name="addresses"
           control={control}
-          render={({ field: { ref, ...rest } }) => (
-            <DualListSelector
-              items={['10.0.0.0/24', '192.168.1.0/24', '172.16.0.0/16']}
-              {...rest}
-            />
-          )}
+          render={({ field: { ref, ...rest } }) => {
+            return <DualListSelector items={addressNames} {...rest} />;
+          }}
         />
       </div>
+
       <div className="flex justify-end">
         <button
           type="submit"

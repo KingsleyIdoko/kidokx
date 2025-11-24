@@ -1,9 +1,12 @@
 from django.urls import path
-from .views import interface_list_view, interface_create_view, interface_update_view, interface_delete_view, Interface_list_names
+from .views import (interface_list_view, interface_create_view,
+                    interface_update_view, interface_delete_view,
+                    Interface_list_names, Interface_zones_names)
 
 urlpatterns = [
     path('', interface_list_view),
     path('names/', Interface_list_names),
+    path('zones/', Interface_zones_names),
     path('create/', interface_create_view),
     path('update/<int:pk>/', interface_update_view),
     path('delete/<int:pk>/', interface_delete_view),

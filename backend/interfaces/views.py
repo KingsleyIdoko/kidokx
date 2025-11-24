@@ -70,3 +70,27 @@ class InterfaceListNames(APIView):
         return Response(list(names))
 
 Interface_list_names = InterfaceListNames.as_view()
+
+
+class InterfaceZone(APIView):
+    def get(self, request, *args, **kwargs):
+        device_name = request.query_params.get('device')
+        if not device_name:
+            return Response({"error": "Missing 'device' parameter"}, status=400)
+
+        try:
+            # Trigger the sync logic as done in InterfaceListView
+            sync_interfaces_to_db(device_name)
+        except Device.DoesNotExist:
+            return Response({"error": f"Device '{device_name}' not found"}, status=404)
+        except Exception as e:
+            return Response({"error": f"Failed to sync interfaces: {str(e)}"}, status=500)
+
+        # Now safely query the updated DB
+        names = (Interface.objects.filter(zones=None)
+                        .exclude(name__iexact="fxp0")
+                        .exclude(name__istartswith="fab")
+                        .values_list('name', flat=True))
+        return Response(list(names))
+
+Interface_zones_names = InterfaceZone.as_view()

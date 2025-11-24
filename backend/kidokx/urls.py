@@ -22,5 +22,6 @@ urlpatterns = [
     path('api/ipsec/', include('ipsecs.urls')),
     path('api/inventories/', include('inventories.urls')),
     path('api/interfaces/', include('interfaces.urls')),
-    path('api/security/', include('security.urls'))
+    path('api/security/', include('security.urls')),
+    path('api/addresses/', include('addresses.urls'))
 ]

@@ -25,16 +25,12 @@ export default function SelectedDevice() {
   const selectedSite = watch('site');
   const chosenDevice = watch('device');
 
-  // useEffect(() => {
-  //   if (chosenDevice) dispatch(setSelectedDevice(chosenDevice));
-  // }, [chosenDevice, dispatch]);
-
-  const didRun = useRef(false);
+  const lastDispatchedDevice = useRef(null);
 
   useEffect(() => {
-    if (!didRun.current && chosenDevice) {
+    if (chosenDevice && lastDispatchedDevice.current !== chosenDevice) {
       dispatch(setSelectedDevice(chosenDevice));
-      didRun.current = true;
+      lastDispatchedDevice.current = chosenDevice;
     }
   }, [chosenDevice, dispatch]);
   useEffect(() => {

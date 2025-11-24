@@ -1,10 +1,10 @@
-import { Routes, Route } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import SecuritySidebar from './SecuritySidebar';
 
-import SecurityZone from './zones';
-import SecurityZoneConfig from './zoneconfig';
-import SecurityPolicies from './policies';
 import SecurityOverview from './overview';
+import SecurityPolicies from './policies';
+import SecurityZoneConfig from './zoneconfig';
+import SecurityZone from './zones';
 
 const SiteToSiteVPN = () => <div className="p-4">Site-to-Site VPN Page</div>;
 const RemoteAccessVPN = () => <div className="p-4">Remote Access VPN Page</div>;
@@ -14,16 +14,7 @@ export default function Security() {
     {
       label: 'Dashboard',
       dropdownKey: 'Dashboard',
-      items: [
-        { label: 'Zones', path: '/security/zones/list/' },
-        {
-          label: 'Policies',
-          children: [
-            { label: 'Overview', path: '/security/policies/config/overview' },
-            { label: 'Rewards', path: '/security/policies/config/rewards' },
-          ],
-        },
-      ],
+      items: [{ label: 'Overviews', path: '/security/zones/list/' }],
     },
     {
       label: 'Security',
@@ -31,10 +22,10 @@ export default function Security() {
       items: [
         { label: 'Zones', path: '/security/zones/list/' },
         {
-          label: 'Policies',
+          label: 'Policies & Objects',
           children: [
-            { label: 'Overview', path: '/security/policies/config/overview' },
-            { label: 'Rewards', path: '/security/policies/config/rewards' },
+            { label: 'Policies', path: '/security/policies/config/rewards' },
+            { label: 'Objects', path: '/security/policies/config/rewards' },
           ],
         },
       ],
@@ -82,10 +73,7 @@ export default function Security() {
             <Route path="/" element={<SecurityOverview />} />
             <Route path="/zones/list/*" element={<SecurityZone />} />
             <Route path="/zones/config/*" element={<SecurityZoneConfig />} />
-            <Route
-              path="/security/policies/config/*"
-              element={<SecurityPolicies />}
-            />
+            <Route path="/security/policies/config/*" element={<SecurityPolicies />} />
             <Route path="/vpn/site-to-site/*" element={<SiteToSiteVPN />} />
             <Route path="/vpn/remote-access/*" element={<RemoteAccessVPN />} />
           </Routes>

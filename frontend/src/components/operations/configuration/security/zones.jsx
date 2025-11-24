@@ -23,7 +23,7 @@ export default function SecurityZone() {
       if (!selectedDevice) return;
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/security/zones/?device=${selectedDevice}`,
+          `http://127.0.0.1:8000/api/security/?device=${selectedDevice}`,
         );
         console.log(response.data);
         setZones(response.data);
@@ -70,7 +70,10 @@ export default function SecurityZone() {
             </thead>
             <tbody>
               {zones.map((zone, index) => (
-                <tr className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200">
+                <tr
+                  key={index}
+                  className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
+                >
                   <td>
                     <input
                       type="checkbox"
@@ -90,7 +93,27 @@ export default function SecurityZone() {
 
                   <td className="px-6 py-4">{zone.device}</td>
                   <td className="px-6 py-4">{zone.zone_name}</td>
-                  <td className="px-6 py-4">{zone.system_services}</td>
+                  <td className="px-6 py-4">
+                    {Array.isArray(zone.system_services) && zone.system_services.length > 3 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {zone.system_services.map((s, i) => (
+                          <span
+                            key={s ?? i}
+                            className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <ul className="list-disc list-inside">
+                        {(zone.system_services ?? []).map((s, i) => (
+                          <li key={s ?? i}>{s}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </td>
+
                   <td className="px-6 py-4">{zone.system_protocols}</td>
                   <td className="px-6 py-4">{zone.interface_names}</td>
                   <td className="px-6 py-4">

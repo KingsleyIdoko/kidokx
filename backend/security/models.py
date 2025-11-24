@@ -2,15 +2,7 @@
 from django.db import models
 from inventories.models import Device
 from interfaces.models import Interface
-
-
-class Address(models.Model):
-    name = models.CharField(max_length=50)
-    cidr = models.CharField(max_length=50)
-
-    def __str__(self):
-        return self.cidr
-
+from addresses.models import Address
 
 class SecurityZone(models.Model):
     zone_name = models.CharField(max_length=50)

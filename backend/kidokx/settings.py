@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'interfaces',
     'security',
     'kidokx',
+    'addresses',
 ]
 
 MIDDLEWARE = [
