@@ -1,6 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import SecuritySidebar from './SecuritySidebar';
-
+import AddressList from './addresses/addresslist';
 import SecurityOverview from './overview';
 import SecurityPolicies from './policies';
 import SecurityZoneConfig from './zoneconfig';
@@ -25,7 +25,7 @@ export default function Security() {
           label: 'Policies & Objects',
           children: [
             { label: 'Policies', path: '/security/policies/config/rewards' },
-            { label: 'Objects', path: '/security/policies/config/rewards' },
+            { label: 'Objects', path: '/security/objects/lists/' },
           ],
         },
       ],
@@ -73,7 +73,8 @@ export default function Security() {
             <Route path="/" element={<SecurityOverview />} />
             <Route path="/zones/list/*" element={<SecurityZone />} />
             <Route path="/zones/config/*" element={<SecurityZoneConfig />} />
-            <Route path="/security/policies/config/*" element={<SecurityPolicies />} />
+            <Route path="/objects/lists/*" element={<AddressList />} />
+            <Route path="/policies/config/*" element={<SecurityPolicies />} />
             <Route path="/vpn/site-to-site/*" element={<SiteToSiteVPN />} />
             <Route path="/vpn/remote-access/*" element={<RemoteAccessVPN />} />
           </Routes>

@@ -8,14 +8,74 @@ export default function SecurityZoneConfig() {
   const { selectedDevice } = useSelector((state) => state.inventories);
   const [Interfaces, setInterfaces] = useState([]);
   const [Addresses, setAddresses] = useState([]);
-  const services = ['SSH', 'HTTPS', 'PING', 'DNS'];
+  const services = [
+    'all',
+    'any-service',
+    'appqoe',
+    'bootp',
+    'dhcp',
+    'dhcpv6',
+    'dns',
+    'finger',
+    'ftp',
+    'high-availability',
+    'http',
+    'https',
+    'ident-reset',
+    'ike',
+    'lsping',
+    'lsselfping',
+    'netconf',
+    'ntp',
+    'ping',
+    'r2cp',
+    'reverse-ssh',
+    'reverse-telnet',
+    'rlogin',
+    'rpm',
+    'rsh',
+    'snmp',
+    'snmp-trap',
+    'ssh',
+    'tcp-encap',
+    'telnet',
+    'tftp',
+    'traceroute',
+    'webapi-clear-text',
+    'webapi-ssl',
+    'xnm-clear-text',
+    'xnm-ssl',
+  ];
+
+  const protocols = [
+    'all',
+    'bfd',
+    'bgp',
+    'dvmrp',
+    'igmp',
+    'ldp',
+    'msdp',
+    'nhrp',
+    'ospf',
+    'ospf3',
+    'pgm',
+    'pim',
+    'rip',
+    'ripng',
+    'router-discovery',
+    'rsvp',
+    'sap',
+    'vrrp',
+  ];
   const addressNames = Addresses.map((a) => a.name);
+  const editingData = false;
   const { register, handleSubmit, control } = useForm({
     defaultValues: {
-      zoneName: '',
+      zone_name: '',
       interfaces: [],
-      services: [],
-      addresses: [],
+      system_services: [],
+      system_protocols: [],
+      addresses_names: [],
     },
   });
 
@@ -50,22 +110,24 @@ export default function SecurityZoneConfig() {
   }, [selectedDevice]);
 
   const onSubmit = async (data) => {
+    console.log(data);
     const finalPayload = { ...data, device: selectedDevice };
+    // console.log(finalPayload);
     try {
       if (!editingData) {
         // Create a new IKE proposal
-        await axios.post('http://127.0.0.1:8000/api/ipsec/ikeproposal/create/', finalPayload);
+        await axios.post('http://127.0.0.1:8000/api/security/zones/create/', finalPayload);
       } else {
         // Update existing IKE proposal
         await axios.put(
-          `http://127.0.0.1:8000/api/ipsec/ikeproposal/${editingData?.id}/update/`,
+          `http://127.0.0.1:8000/api/security/${editingData?.id}/update/`,
           finalPayload,
         );
       }
       // Optionally trigger a UI refresh or success handler
-      onSaved();
+      // onSaved();
     } catch (error) {
-      handleError(error);
+      console.log(error);
     }
   };
   return (
@@ -77,7 +139,7 @@ export default function SecurityZoneConfig() {
         <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
         <input
           type="text"
-          {...register('zoneName')}
+          {...register('zone_name')}
           placeholder="Enter Zone Name"
           className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
         />
@@ -96,9 +158,17 @@ export default function SecurityZoneConfig() {
       <div className="flex items-start gap-4">
         <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
         <Controller
-          name="services"
+          name="system_services"
           control={control}
           render={({ field: { ref, ...rest } }) => <DualListSelector items={services} {...rest} />}
+        />
+      </div>
+      <div className="flex items-start gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Protocols:</label>
+        <Controller
+          name="system_protocols"
+          control={control}
+          render={({ field: { ref, ...rest } }) => <DualListSelector items={protocols} {...rest} />}
         />
       </div>
 
@@ -106,7 +176,7 @@ export default function SecurityZoneConfig() {
         <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Addresses:</label>
 
         <Controller
-          name="addresses"
+          name="addresses_names"
           control={control}
           render={({ field: { ref, ...rest } }) => {
             return <DualListSelector items={addressNames} {...rest} />;

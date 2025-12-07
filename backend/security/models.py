@@ -9,7 +9,7 @@ class SecurityZone(models.Model):
     description = models.CharField(max_length=80, blank=True, null=True)
     device = models.ForeignKey(Device, on_delete=models.PROTECT, related_name='security_zones')
     interfaces = models.ManyToManyField(Interface, blank=True, related_name='zones')
-    addresses = models.ManyToManyField(Address, blank=True, related_name='zones')
+    addresses = models.ManyToManyField(Address, blank=True, related_name='addresses')
     system_services = models.JSONField(default=list)
     system_protocols = models.JSONField(default=list)
     updated = models.DateTimeField(auto_now=True)

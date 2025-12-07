@@ -38,7 +38,6 @@ def parse_junos_address_book(dict_data):
                 "name": entry.get("name"),
                 "ip_prefix": entry.get("ip-prefix"),
             })
-
     return results
 
 

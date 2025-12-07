@@ -70,13 +70,16 @@ class AddressListAPIView(ListAPIView):
                 "description": item.get("description"),
                 "device": device.device_name                # FK instance (correct)
             }
-            print(device_data)
+            address_book_data = {
+                "name": item.get('address_book'),
+                "adresses": item.get('addresses'),
+                "securityzone": item.get('zone')
+                }
             # Does this Address record already exist?
             db_instance = Address.objects.filter(
                 name=device_data["name"],
                 device__device_name=device_data["device"],
             ).first()
-            print(db_instance)
             # -----------------------------
             # CREATE NEW ADDRESS
             # -----------------------------
@@ -116,7 +119,10 @@ address_list_view = AddressListAPIView.as_view()
 
 
 class AddressCreateAPIView(CreateAPIView):
-    pass
+    serializer_class = AddressSerializers
+    queryset = Address.objects.all()
+
+address_create_view = AddressCreateAPIView.as_view()
 
 class AddressUpdateAPIView(UpdateAPIView):
     pass

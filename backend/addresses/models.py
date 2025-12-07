@@ -34,10 +34,10 @@ class Address(models.Model):
         return ipaddress.ip_network(self.ip_prefix, strict=True)
 
 class AddressBook(models.Model):
-    name        = models.CharField(max_length=200, unique=True)
-    addresses   = models.ManyToManyField('addresses.Address',blank=True)
-    created_at  = models.DateTimeField(auto_now_add=True, db_index=True)
-    updated_at  = models.DateTimeField(auto_now=True)
+    name            = models.CharField(max_length=200, unique=True)
+    addresses       = models.ManyToManyField('addresses.Address',blank=True)
+    created_at      = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at      = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ["name"]

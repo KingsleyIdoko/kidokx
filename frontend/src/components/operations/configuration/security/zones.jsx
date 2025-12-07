@@ -23,7 +23,7 @@ export default function SecurityZone() {
       if (!selectedDevice) return;
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/security/?device=${selectedDevice}`,
+          `http://127.0.0.1:8000/api/security/zones/?device=${selectedDevice}`,
         );
         console.log(response.data);
         setZones(response.data);
@@ -59,6 +59,9 @@ export default function SecurityZone() {
                 </th>
                 <th scope="col" className="px-6 py-3">
                   System-Services
+                </th>
+                <th scope="col" className="px-6 py-3">
+                  Subnets
                 </th>
                 <th scope="col" className="px-6 py-3">
                   Protocols
@@ -113,9 +116,10 @@ export default function SecurityZone() {
                       </ul>
                     )}
                   </td>
-
+                  <td className="px-6 py-4">{zone.addresses_names}</td>
                   <td className="px-6 py-4">{zone.system_protocols}</td>
                   <td className="px-6 py-4">{zone.interface_names}</td>
+
                   <td className="px-6 py-4">
                     <a
                       href="#"

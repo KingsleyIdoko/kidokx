@@ -1,7 +1,8 @@
-from security.views import securityzone_list_view
+from security.views import securityzone_list_view,securityzone_create_view
 from django.urls import path,include
 urlpatterns = [
     #securityzones
-    path('',securityzone_list_view),
+    path('zones/',securityzone_list_view),
+    path('zones/create/',securityzone_create_view),
 
 ]

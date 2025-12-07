@@ -6,19 +6,12 @@ from security.models import SecurityZone, Address
 
 class SecurityZoneSerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(slug_field='device_name',queryset=Device.objects.all())
-
+    interfaces = serializers.ListField(child=serializers.CharField(),required=False,write_only=True)
     # For reading (response)
     interface_names = serializers.SerializerMethodField()
-
+    addresses_names = serializers.SerializerMethodField()
     # For writing (incoming POST)
-    interfaces = serializers.ListField(
-        child=serializers.CharField(),
-        required=False,
-        write_only=True
-    )
-
     in_use = serializers.SerializerMethodField()
-
     class Meta:
         model = SecurityZone
         fields = [
@@ -28,15 +21,21 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
             'description',
             'interface_names',  # new readable field
             'interfaces',       # write-only
-            'addresses',
+            'addresses_names',
             'system_services',
             'system_protocols',
             'in_use',
         ]
-        read_only_fields = ['in_use', 'interface_names']
+        read_only_fields = ['in_use', 'interface_names','addresses_names']
+        extra_kwargs = {
+            'interfaces': {'write_only': True},
+        }
 
     def get_in_use(self, obj):
         return obj.interfaces.exists()
+
+    def get_addresses_names(self, obj):
+        return [addr.name for addr in obj.addresses.all()]
 
     def get_interface_names(self, obj):
         """Return a list of interface names for display."""

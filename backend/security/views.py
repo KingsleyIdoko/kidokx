@@ -106,7 +106,7 @@ class SecurityZoneListAPIView(ListAPIView):
             # ✅ 4. Compare configurations
             # --------------------------------
             config_changes = compare_device_and_backend_data(device_data, backend_data)
-
+            print(config_changes)
             # --------------------------------
             # ✅ 5. Apply changes (atomic)
             # --------------------------------
@@ -152,8 +152,12 @@ class SecurityZoneListAPIView(ListAPIView):
 
 securityzone_list_view = SecurityZoneListAPIView.as_view()
 
-class SecurityZoneUpdateAPIView(CreateAPIView):
-  pass
+class SecurityZoneCreateAPIView(CreateAPIView):
+  serializer_class = SecurityZoneSerializer
+  queryset = SecurityZone.objects.all()
+
+securityzone_create_view = SecurityZoneCreateAPIView.as_view()
+
 
 class SecurityZoneUpdateAPIView(UpdateAPIView):
   pass
