@@ -28,3 +28,16 @@ class AddressSerializers(serializers.ModelSerializer):
         return net.with_prefixlen
 
 
+
+class AddressBookserializers(serializers.ModelSerializer):
+    device  =  serializers.SlugRelatedField('device_name', queryset=Device.objects.all())
+    addresses =  serializers.SlugRelatedField('name',queryset=Address.objects.all())
+
+    class Meta:
+        model: AddressBook
+        fields: [
+            'name',
+            'addresses',
+            'device',
+        ]
+

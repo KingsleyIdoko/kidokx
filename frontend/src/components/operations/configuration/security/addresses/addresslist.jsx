@@ -4,23 +4,37 @@ import { useSelector } from 'react-redux';
 import SelectedDevice from '../selectDevice';
 export default function AddressList() {
   const [addresses, setAddresses] = useState([]);
+  const [activeTab, setActiveTab] = useState('address');
   const { selectedDevice } = useSelector((state) => state.inventories);
 
+  const get_address_url = `http://127.0.0.1:8000/api/addresses/?device=${selectedDevice}`;
+  const get_addressgroup_url = `http://127.0.0.1:8000/api/addressesgroup/?device=${selectedDevice}`;
+
+  const endpointMap = {
+    address: 'addresses',
+    addressGroup: 'addressesgroup',
+  };
+
   useEffect(() => {
+    if (!selectedDevice) return;
+
     const fetchAddresses = async () => {
-      if (!selectedDevice) return;
+      console.log('clicked again');
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/addresses/?device=${selectedDevice}`,
+          `http://127.0.0.1:8000/api/${endpointMap[activeTab]}/?device=${selectedDevice}`,
         );
         setAddresses(response.data);
       } catch (err) {
-        console.error('Error fetching IKE Policy data:', err.message);
-      } finally {
+        console.error('Error fetching address data:', err);
       }
     };
     fetchAddresses();
-  }, [selectedDevice]);
+  }, [selectedDevice, activeTab]);
+
+  const baseBtnClasses = 'w-40 py-2 px-3 capitalize rounded-lg text-lg border transition-colors';
+  const activeBtnClasses = 'bg-sky-400 text-white';
+  const inactiveBtnClasses = 'hover:bg-sky-400 hover:text-white';
 
   return (
     <div className="p-4 min-h-screen">
@@ -29,13 +43,25 @@ export default function AddressList() {
       </div>
       {/* Top Buttons */}
       <div className="flex flex-row gap-6 justify-start mt-5 font-bold py-2 px-3 rounded-lg bg-white">
-        <button className="w-40 py-2 px-3 capitalize hover:bg-sky-400 hover:text-white rounded-lg text-lg border">
+        <button
+          onClick={() => setActiveTab('address')}
+          className={`${baseBtnClasses}
+        ${activeTab === 'address' ? activeBtnClasses : inactiveBtnClasses}
+        `}
+        >
           Address
         </button>
-        <button className="w-40 py-2 px-3 capitalize hover:bg-sky-400 hover:text-white rounded-lg text-lg border">
+        <button
+          onClick={() => setActiveTab('addressgroup')}
+          className={`${baseBtnClasses} ${
+            activeTab === 'addressgroup' ? activeBtnClasses : inactiveBtnClasses
+          }
+        `}
+        >
           Address Group
         </button>
       </div>
+
       {/* Address Table */}
       <div className="mt-6 bg-white shadow rounded-lg overflow-hidden">
         <table className="w-full border-collapse">

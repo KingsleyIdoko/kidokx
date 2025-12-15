@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/inventories/', include('inventories.urls')),
     path('api/interfaces/', include('interfaces.urls')),
     path('api/security/', include('security.urls')),
-    path('api/addresses/', include('addresses.urls'))
+    path('api/addresses/', include('addresses.urls')),
+    path('api/addressesgroup/', include('addresses.addressgroupurls'))
 ]
