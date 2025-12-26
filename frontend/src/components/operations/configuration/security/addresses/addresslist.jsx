@@ -12,14 +12,13 @@ export default function AddressList() {
 
   const endpointMap = {
     address: 'addresses',
-    addressGroup: 'addressesgroup',
+    addressgroup: 'addressesgroup',
   };
 
   useEffect(() => {
     if (!selectedDevice) return;
 
     const fetchAddresses = async () => {
-      console.log('clicked again');
       try {
         const response = await axios.get(
           `http://127.0.0.1:8000/api/${endpointMap[activeTab]}/?device=${selectedDevice}`,
@@ -74,6 +73,13 @@ export default function AddressList() {
                 Description
               </th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Subnet</th>
+              {activeTab === 'addressgroup' ? (
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">
+                  Security Group
+                </th>
+              ) : (
+                ''
+              )}
             </tr>
           </thead>
           <tbody>
@@ -86,7 +92,10 @@ export default function AddressList() {
                 <td className="px-4 py-3 text-sm text-gray-800">{add.device}</td>
                 <td className="px-4 py-3 text-sm text-gray-800">{add.name}</td>
                 <td className="px-4 py-3 text-sm text-gray-800">{add.description}</td>
-                <td className="px-4 py-3 text-sm text-gray-800">{add.ip_prefix}</td>
+                <td className="px-4 py-3 text-sm text-gray-800">
+                  {activeTab === 'addresses' ? add.ip_prefix : add.ip_addresses}
+                </td>
+                <td className="px-4 py-3 text-sm text-gray-800">{add.attached_zone}</td>
               </tr>
             ))}
           </tbody>

@@ -27,17 +27,7 @@ def parse_junos_address_book(dict_data):
                 .get("name")
         )
 
-        addresses = book.get("address", [])
-        if isinstance(addresses, dict):
-            addresses = [addresses]
-
-        for entry in addresses:
-            results.append({
-                "address_book": book_name,
-                "zone": zone_name,
-                "name": entry.get("name"),
-                "ip_prefix": entry.get("ip-prefix"),
-            })
+    print(results)
     return results
 
 

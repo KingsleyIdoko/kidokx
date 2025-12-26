@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from inventories.models import Device
 from interfaces.models import Interface
-from security.models import SecurityZone, Address
+from security.models import SecurityZone
 
 
 class SecurityZoneSerializer(serializers.ModelSerializer):

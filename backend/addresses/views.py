@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import json
-from .serializers import AddressSerializers
+from .serializers import AddressSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from inventories.models import Device
@@ -12,7 +12,7 @@ from django.forms.models import model_to_dict
 
 
 class AddressListAPIView(ListAPIView):
-    serializer_class = AddressSerializers
+    serializer_class = AddressSerializer
     queryset = Address.objects.none()
 
     def get_device(self):
@@ -119,7 +119,7 @@ address_list_view = AddressListAPIView.as_view()
 
 
 class AddressCreateAPIView(CreateAPIView):
-    serializer_class = AddressSerializers
+    serializer_class = AddressSerializer
     queryset = Address.objects.all()
 
 address_create_view = AddressCreateAPIView.as_view()
