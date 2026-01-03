@@ -1,22 +1,37 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useDispatch, useSelector } from 'react-redux';
-import { setSecurityConfigType } from '../../../store/reducers/security';
+import { useNavigate } from 'react-router-dom';
+import {
+  setEditSecurityZone,
+  setSecurityConfigType,
+  setSelectedZoneID,
+} from '../../../store/reducers/security';
 import SelectedDevice from './selectDevice';
-import SecurityZoneConfig from './zoneconfig';
 
 export default function SecurityZone() {
   const dispatch = useDispatch();
-  const { securityconfigtype, createzone } = useSelector((state) => state.security);
-  const [zones, setZones] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+  const { createzone } = useSelector((state) => state.security);
   const { selectedDevice } = useSelector((state) => state.inventories);
+  const navigate = useNavigate();
 
-  console.log(selectedDevice);
+  const [zones, setZones] = useState([]);
+  const { register, watch, reset } = useForm({
+    defaultValues: { selectedZoneId: '' },
+  });
+  const selectedZoneId = watch('selectedZoneId');
+  useEffect(() => {
+    dispatch(setSelectedZoneID(selectedZoneId));
+  }, [selectedZoneId]);
+
   useEffect(() => {
     dispatch(setSecurityConfigType('zones'));
   }, [dispatch]);
+
+  const handleCheckbox = (zones) => {
+    dispatch(setEditSecurityZone(zones));
+  };
 
   useEffect(() => {
     const fetchZones = async () => {
@@ -25,15 +40,14 @@ export default function SecurityZone() {
         const response = await axios.get(
           `http://127.0.0.1:8000/api/security/zones/?device=${selectedDevice}`,
         );
-        console.log(response.data);
         setZones(response.data);
+        reset({ selectedZoneId: '' });
       } catch (err) {
-        console.error('Error fetching IKE Policy data:', err.message);
-      } finally {
+        console.error('Error fetching Zones:', err.message);
       }
     };
     fetchZones();
-  }, [selectedDevice]);
+  }, [selectedDevice, reset]);
 
   return (
     <div>
@@ -41,13 +55,15 @@ export default function SecurityZone() {
         <SelectedDevice />
       </div>
       {createzone ? (
-        <SecurityZoneConfig />
+        navigate('/security/zones/create/')
       ) : (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-          <table className="w-full  text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+        <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-white">
+          <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
               <tr>
-                <th></th>
+                {/* Removed the header checkbox completely */}
+                <th className="px-2 py-3">Select</th>
+
                 <th scope="col" className="px-6 py-3">
                   SN
                 </th>
@@ -61,9 +77,6 @@ export default function SecurityZone() {
                   System-Services
                 </th>
                 <th scope="col" className="px-6 py-3">
-                  Subnets
-                </th>
-                <th scope="col" className="px-6 py-3">
                   Protocols
                 </th>
                 <th scope="col" className="px-6 py-3">
@@ -71,65 +84,41 @@ export default function SecurityZone() {
                 </th>
               </tr>
             </thead>
+
             <tbody>
-              {zones.map((zone, index) => (
-                <tr
-                  key={index}
-                  className="odd:bg-white odd:dark:bg-gray-900 even:bg-gray-50 even:dark:bg-gray-800 border-b dark:border-gray-700 border-gray-200"
-                >
-                  <td>
-                    <input
-                      type="checkbox"
-                      id="vehicle1"
-                      name="vehicle1"
-                      value="Bike"
-                      className="m-3"
-                    />
-                  </td>
+              {zones.map((zone, index) => {
+                const zoneId = String(zone.id);
 
-                  <td
-                    scope="row"
-                    className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+                return (
+                  <tr
+                    key={zone.id}
+                    className={`" border-b border-gray-400 ${
+                      zoneId && zoneId === selectedZoneId ? 'bg-sky-200' : ''
+                    }
+                      "`}
                   >
-                    {index}
-                  </td>
+                    <td className="px-2 m-3 scale-125 accent-gray-800">
+                      <input
+                        type="radio"
+                        value={zoneId}
+                        className="m-3"
+                        onClick={() => handleCheckbox(zone)}
+                        {...register('selectedZoneId')}
+                      />
+                    </td>
 
-                  <td className="px-6 py-4">{zone.device}</td>
-                  <td className="px-6 py-4">{zone.zone_name}</td>
-                  <td className="px-6 py-4">
-                    {Array.isArray(zone.system_services) && zone.system_services.length > 3 ? (
-                      <div className="flex flex-wrap gap-2">
-                        {zone.system_services.map((s, i) => (
-                          <span
-                            key={s ?? i}
-                            className="inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700"
-                          >
-                            {s}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <ul className="list-disc list-inside">
-                        {(zone.system_services ?? []).map((s, i) => (
-                          <li key={s ?? i}>{s}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">{zone.addresses_names}</td>
-                  <td className="px-6 py-4">{zone.system_protocols}</td>
-                  <td className="px-6 py-4">{zone.interface_names}</td>
+                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                      {index + 1}
+                    </td>
 
-                  <td className="px-6 py-4">
-                    <a
-                      href="#"
-                      className="font-medium text-blue-600 dark:text-blue-500 hover:underline"
-                    >
-                      Edit
-                    </a>
-                  </td>
-                </tr>
-              ))}
+                    <td className="px-6 py-4">{zone.device}</td>
+                    <td className="px-6 py-4">{zone.zone_name}</td>
+                    <td className="px-6 py-4">{(zone.system_services ?? []).join(', ')}</td>
+                    <td className="px-6 py-4">{zone.system_protocols}</td>
+                    <td className="px-6 py-4">{zone.interface_names}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

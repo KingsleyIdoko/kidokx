@@ -71,8 +71,9 @@ export default function Security() {
         <div className="bg-sky-100">
           <Routes>
             <Route path="/" element={<SecurityOverview />} />
-            <Route path="/zones/list/*" element={<SecurityZone />} />
-            <Route path="/zones/config/*" element={<SecurityZoneConfig />} />
+            <Route path="/zones/list/" element={<SecurityZone />} />
+            <Route path="/zones/create/" element={<SecurityZoneConfig />} />
+            <Route path="/zones/update/*" element={<SecurityZoneConfig />} />
             <Route path="/objects/lists/*" element={<AddressList />} />
             <Route path="/policies/config/*" element={<SecurityPolicies />} />
             <Route path="/vpn/site-to-site/*" element={<SiteToSiteVPN />} />

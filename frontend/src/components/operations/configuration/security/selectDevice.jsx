@@ -13,7 +13,10 @@ export default function SelectedDevice() {
   const { inventories = [] } = useSelector((state) => state.inventories || {});
   const [filteredInventory, setFilteredInventory] = useState([]);
   const dispatch = useDispatch();
-  const { securityconfigtype } = useSelector((state) => state.security);
+  const { securityconfigtype, getzoneid, editsecurityzone } = useSelector(
+    (state) => state.security,
+  );
+
   const {
     register,
     watch,
@@ -33,6 +36,7 @@ export default function SelectedDevice() {
       lastDispatchedDevice.current = chosenDevice;
     }
   }, [chosenDevice, dispatch]);
+
   useEffect(() => {
     if (inventories && inventories.length > 0 && selectedSite) {
       setFilteredInventory(inventories.filter((items) => items.site === selectedSite));
@@ -44,6 +48,11 @@ export default function SelectedDevice() {
   useEffect(() => {
     if (selectedSite) dispatch(setSite(selectedSite));
   }, [selectedSite, dispatch]);
+
+  const handleEdit = (data) => {
+    const zoneid = data.id;
+    if (zoneid) return navigate(`/security/zones/update/${zoneid}/`);
+  };
 
   useEffect(() => {
     const fetchSiteData = async () => {
@@ -153,16 +162,21 @@ export default function SelectedDevice() {
         </div>
         <div className="w-60 flex flex-col">
           <button
-            className="border border-gray-800 py-2 px-3 rounded-lg focus:outline-none hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={true}
+            type="button"
+            disabled={!getzoneid}
+            onClick={() => handleEdit(editsecurityzone)}
+            className={`border border-gray-800 py-3 px-3 rounded-lg focus:outline-none hover:bg-gray-100
+                ${!getzoneid ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Edit
           </button>
         </div>
         <div className="w-60 flex flex-col">
           <button
-            className="border border-gray-800 py-2 px-3 rounded-lg focus:outline-none hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={true}
+            type="button"
+            disabled={!getzoneid}
+            className={`border border-gray-800 py-3 px-3 rounded-lg focus:outline-none hover:bg-gray-100
+                ${!getzoneid ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             Delete
           </button>

@@ -9,7 +9,6 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
     interfaces = serializers.ListField(child=serializers.CharField(),required=False,write_only=True)
     # For reading (response)
     interface_names = serializers.SerializerMethodField()
-    addresses_names = serializers.SerializerMethodField()
     # For writing (incoming POST)
     in_use = serializers.SerializerMethodField()
     class Meta:
@@ -21,7 +20,6 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
             'description',
             'interface_names',  # new readable field
             'interfaces',       # write-only
-            'addresses_names',
             'system_services',
             'system_protocols',
             'in_use',
@@ -33,9 +31,6 @@ class SecurityZoneSerializer(serializers.ModelSerializer):
 
     def get_in_use(self, obj):
         return obj.interfaces.exists()
-
-    def get_addresses_names(self, obj):
-        return [addr.name for addr in obj.addresses.all()]
 
     def get_interface_names(self, obj):
         """Return a list of interface names for display."""

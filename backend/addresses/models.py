@@ -7,6 +7,7 @@ from security.models import SecurityZone
 
 class AddressBook(models.Model):
     name            = models.CharField(max_length=200)
+    description  = models.TextField(max_length=100, null=True, blank=True)
     attached_zone   = models.ForeignKey(SecurityZone,on_delete=models.CASCADE, null=True, blank=True)
     device          = models.ForeignKey(Device, on_delete=models.CASCADE, null=True, blank=True)
     created_at      = models.DateTimeField(auto_now_add=True, db_index=True)

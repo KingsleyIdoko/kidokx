@@ -87,7 +87,7 @@ class InterfaceZone(APIView):
             return Response({"error": f"Failed to sync interfaces: {str(e)}"}, status=500)
 
         # Now safely query the updated DB
-        names = (Interface.objects.filter(zones=None)
+        names = (Interface.objects.filter(device__device_name=device_name, zones__isnull=True)
                         .exclude(name__iexact="fxp0")
                         .exclude(name__istartswith="fab")
                         .values_list('name', flat=True))

@@ -49,7 +49,6 @@ class AddressListAPIView(ListAPIView):
                 username=device.username,
                 password=device.password,
             )
-            print(raw_data)
         except Exception as exc:
             # Option B: fallback to DB
             qs = self.get_queryset()
@@ -64,12 +63,10 @@ class AddressListAPIView(ListAPIView):
             )
         qs = self.get_queryset()
         existing = self.get_serializer(qs, many=True).data  # list
-        print(raw_data)
         if existing:
             missing_data = missing_from_db(raw_data, existing)  # list
-            print(missing_data)
             if missing_data:
-                serializer = self.get_serializer(data=missing_data, many=True)
+                serializer = self.get_serializer(data=missing_data, many=True, context={"device": device})
                 serializer.is_valid(raise_exception=True)
                 serializer.save()
         else:
@@ -78,7 +75,6 @@ class AddressListAPIView(ListAPIView):
             serializer.save()
         qs = self.get_queryset()
         return Response(self.get_serializer(qs, many=True).data)
-
 addressbook_view = AddressListAPIView.as_view()
 
 

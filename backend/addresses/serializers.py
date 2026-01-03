@@ -6,8 +6,6 @@ from .models import Address, AddressBook
 from security.models import SecurityZone
 
 
-
-
 class AddressSerializer(serializers.ModelSerializer):
     device = serializers.SlugRelatedField(
         slug_field="device_name",
@@ -50,7 +48,7 @@ class AddressBookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AddressBook
-        fields = ["id", "name", "device", "attached_zone", "addresses"]
+        fields = ["id", "name", 'description', "device", "attached_zone", "addresses"]
         read_only_fields = ["id"]
 
     def __init__(self, *args, **kwargs):

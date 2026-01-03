@@ -2,12 +2,17 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import DualListSelector from './listselector';
+import SelectedDevice from './selectDevice';
 
 export default function SecurityZoneConfig() {
+  const navigate = useNavigate();
   const { selectedDevice } = useSelector((state) => state.inventories);
+  const { editsecurityzone, editingdata } = useSelector((state) => state.security);
+
   const [Interfaces, setInterfaces] = useState([]);
-  const [Addresses, setAddresses] = useState([]);
+
   const services = [
     'all',
     'any-service',
@@ -67,15 +72,14 @@ export default function SecurityZoneConfig() {
     'sap',
     'vrrp',
   ];
-  const addressNames = Addresses.map((a) => a.name);
-  const editingData = false;
-  const { register, handleSubmit, control } = useForm({
+
+  const { register, handleSubmit, control, reset } = useForm({
     defaultValues: {
       zone_name: '',
+      description: '',
       interfaces: [],
       system_services: [],
       system_protocols: [],
-      addresses_names: [],
     },
   });
 
@@ -94,104 +98,121 @@ export default function SecurityZoneConfig() {
     fetchInterfaces();
   }, [selectedDevice]);
 
+  // Prefill form when editing
   useEffect(() => {
-    const fetctAddresses = async () => {
-      if (!selectedDevice) return;
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/addresses/?device=${selectedDevice}`,
-        );
-        setAddresses(response.data);
-      } catch (error) {
-        console.error('Failed to fetch interfaces:', error);
-      }
-    };
-    fetctAddresses();
-  }, [selectedDevice]);
+    if (!editingdata) {
+      // Back to create mode: clear form
+      reset({
+        zone_name: '',
+        description: '',
+        interfaces: [],
+        system_services: [],
+        system_protocols: [],
+      });
+      return;
+    }
+
+    // If editsecurityzone is FormData
+    reset({
+      zone_name: editsecurityzone.get('zone_name') ?? '',
+      description: editsecurityzone.get('description') ?? '',
+      interfaces: editsecurityzone.getAll('interfaces') ?? [],
+      system_services: editsecurityzone.getAll('system_services') ?? [],
+      system_protocols: editsecurityzone.getAll('system_protocols') ?? [], // use getAll for DualList
+    });
+  }, [editsecurityzone, reset]);
 
   const onSubmit = async (data) => {
-    console.log(data);
     const finalPayload = { ...data, device: selectedDevice };
-    // console.log(finalPayload);
+
     try {
-      if (!editingData) {
-        // Create a new IKE proposal
+      if (!editsecurityzone) {
         await axios.post('http://127.0.0.1:8000/api/security/zones/create/', finalPayload);
       } else {
-        // Update existing IKE proposal
         await axios.put(
-          `http://127.0.0.1:8000/api/security/${editingData?.id}/update/`,
+          `http://127.0.0.1:8000/api/security/zones/${editsecurityzone.get('id')}/update/`,
           finalPayload,
         );
       }
-      // Optionally trigger a UI refresh or success handler
-      // onSaved();
+
+      navigate('/security/zones/list');
     } catch (error) {
       console.log(error);
     }
   };
+
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col bg-white p-8 rounded-xl shadow max-w-4xl mx-auto mt-2 gap-6"
-    >
-      <div className="flex items-center gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
-        <input
-          type="text"
-          {...register('zone_name')}
-          placeholder="Enter Zone Name"
-          className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-        />
+    <div>
+      <div className="sticky top-14 z-10 bg-white shadow">
+        <SelectedDevice />
       </div>
 
-      <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Interfaces:</label>
-        <Controller
-          name="interfaces"
-          control={control}
-          render={({ field: { ref, ...rest } }) => (
-            <DualListSelector items={Interfaces} {...rest} />
-          )}
-        />
-      </div>
-      <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
-        <Controller
-          name="system_services"
-          control={control}
-          render={({ field: { ref, ...rest } }) => <DualListSelector items={services} {...rest} />}
-        />
-      </div>
-      <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Protocols:</label>
-        <Controller
-          name="system_protocols"
-          control={control}
-          render={({ field: { ref, ...rest } }) => <DualListSelector items={protocols} {...rest} />}
-        />
-      </div>
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col bg-white p-8 rounded-xl shadow max-w-4xl mx-auto mt-2 gap-6"
+      >
+        <div className="flex items-center gap-4">
+          <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
+          <input
+            type="text"
+            {...register('zone_name')}
+            placeholder="Enter Zone name"
+            className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
 
-      <div className="flex items-start gap-4">
-        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Addresses:</label>
+        <div className="flex items-center gap-4">
+          <label className="w-40 font-semibold text-sm text-gray-700">Description:</label>
+          <input
+            type="text"
+            {...register('description')}
+            placeholder="Enter Description"
+            className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+          />
+        </div>
 
-        <Controller
-          name="addresses_names"
-          control={control}
-          render={({ field: { ref, ...rest } }) => {
-            return <DualListSelector items={addressNames} {...rest} />;
-          }}
-        />
-      </div>
+        <div className="flex items-start gap-4">
+          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Interfaces:</label>
+          <Controller
+            name="interfaces"
+            control={control}
+            render={({ field: { ref, ...rest } }) => (
+              <DualListSelector items={Interfaces} {...rest} />
+            )}
+          />
+        </div>
 
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded text-sm font-medium"
-        >
-          Save
-        </button>
-      </div>
-    </form>
+        <div className="flex items-start gap-4">
+          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
+          <Controller
+            name="system_services"
+            control={control}
+            render={({ field: { ref, ...rest } }) => (
+              <DualListSelector items={services} {...rest} />
+            )}
+          />
+        </div>
+
+        <div className="flex items-start gap-4">
+          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Protocols:</label>
+          <Controller
+            name="system_protocols"
+            control={control}
+            render={({ field: { ref, ...rest } }) => (
+              <DualListSelector items={protocols} {...rest} />
+            )}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded text-sm font-medium"
+          >
+            Save
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

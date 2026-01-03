@@ -106,7 +106,6 @@ class SecurityZoneListAPIView(ListAPIView):
             # ✅ 4. Compare configurations
             # --------------------------------
             config_changes = compare_device_and_backend_data(device_data, backend_data)
-            print(config_changes)
             # --------------------------------
             # ✅ 5. Apply changes (atomic)
             # --------------------------------
