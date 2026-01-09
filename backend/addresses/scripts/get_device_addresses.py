@@ -13,7 +13,6 @@ def parse_junos_address_book(dict_data):
 
     # Could be dict OR list
     address_books = security.get("address-book", [])
-
     if isinstance(address_books, dict):
         address_books = [address_books]
 
@@ -26,8 +25,6 @@ def parse_junos_address_book(dict_data):
                 .get("zone", {})
                 .get("name")
         )
-
-    print(results)
     return results
 
 

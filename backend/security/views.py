@@ -154,12 +154,85 @@ securityzone_list_view = SecurityZoneListAPIView.as_view()
 class SecurityZoneCreateAPIView(CreateAPIView):
   serializer_class = SecurityZoneSerializer
   queryset = SecurityZone.objects.all()
-
 securityzone_create_view = SecurityZoneCreateAPIView.as_view()
 
 
 class SecurityZoneUpdateAPIView(UpdateAPIView):
-  pass
+    serializer_class = SecurityZoneSerializer
+    queryset = SecurityZone.objects.all()
+    lookup_field = "id"
+
+
+    # -------------------------------
+    # ✅  Validate device in request
+    # -------------------------------
+    def get_device(self):
+        device_name = self.request.data.get("device")
+
+        if not device_name:
+            return None, Response(
+                {"error": "Device parameter required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            device = Device.objects.get(device_name=device_name)
+        except Device.DoesNotExist:
+            return None, Response(
+                {"error": "Device not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return device, None
+
+    def get_queryset(self):
+        device_name = (
+            self.request.query_params.get("device")
+            or self.request.data.get("device")
+        )
+
+        if not device_name:
+            return SecurityZone.objects.none()  # or raise ValidationError
+
+        try:
+            device = Device.objects.get(device_name=device_name)
+        except Device.DoesNotExist:
+            return SecurityZone.objects.none()
+
+        return SecurityZone.objects.filter(device=device)
+
+
+    def update(self, request, *args, **kwargs):
+        response = super().update(request, *args, **kwargs)
+
+        if request.data.get("is_sendtodevice"):
+            zone = self.get_object()     # now updated
+            device = zone.device
+
+            payload = {
+                "zone": zone.zone_name,
+                "description": zone.description,
+                "interfaces": list(zone.interfaces.values_list("name", flat=True))
+                            if hasattr(zone, "interfaces") else zone.interfaces,
+                "services": zone.system_services,
+                "protocols": zone.system_protocols,
+            }
+
+            config = build_junos_zone_config(payload)
+            success, result = push_junos_config(
+                device.ip_address, device.username, device.password, config
+            )
+
+            if not success:
+                return Response(
+                    {"error": f"Failed to push config to device: {result}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+            response.data["deploy_result"] = result
+
+        return response
+securityzone_update_view = SecurityZoneUpdateAPIView.as_view()
 
 class SecurityZoneDeleteAPIView(RetrieveAPIView):
   pass

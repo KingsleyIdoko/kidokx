@@ -8,7 +8,6 @@ import {
   setSecurityConfigType,
   setSelectedZoneID,
 } from '../../../store/reducers/security';
-import SelectedDevice from './selectDevice';
 
 export default function SecurityZone() {
   const dispatch = useDispatch();
@@ -51,78 +50,79 @@ export default function SecurityZone() {
 
   return (
     <div>
-      <div className="sticky top-14 z-10 bg-white shadow">
-        <SelectedDevice />
-      </div>
-      {createzone ? (
-        navigate('/security/zones/create/')
-      ) : (
-        <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-white">
-          <table className="w-full text-sm text-left rtl:text-right text-gray-500">
-            <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-              <tr>
-                {/* Removed the header checkbox completely */}
-                <th className="px-2 py-3">Select</th>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg bg-white">
+        <table className="w-full text-sm text-left rtl:text-right text-gray-500">
+          <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              {/* Removed the header checkbox completely */}
+              <th className="px-2 py-3">Select</th>
 
-                <th scope="col" className="px-6 py-3">
-                  SN
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Device
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Zone-Name
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  System-Services
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Protocols
-                </th>
-                <th scope="col" className="px-6 py-3">
-                  Interfaces
-                </th>
-              </tr>
-            </thead>
+              <th scope="col" className="px-6 py-3">
+                SN
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Device
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Zone-Name
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Description
+              </th>
+              <th scope="col" className="px-6 py-3">
+                System-Services
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Protocols
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Interfaces
+              </th>
+              <th scope="col" className="px-6 py-3">
+                Status
+              </th>
+            </tr>
+          </thead>
 
-            <tbody>
-              {zones.map((zone, index) => {
-                const zoneId = String(zone.id);
+          <tbody>
+            {zones.map((zone, index) => {
+              const zoneId = String(zone.id);
 
-                return (
-                  <tr
-                    key={zone.id}
-                    className={`" border-b border-gray-400 ${
-                      zoneId && zoneId === selectedZoneId ? 'bg-sky-200' : ''
-                    }
+              return (
+                <tr
+                  key={zone.id}
+                  className={`" border-b border-gray-400 ${
+                    zoneId && zoneId === selectedZoneId ? 'bg-sky-200' : ''
+                  }
                       "`}
-                  >
-                    <td className="px-2 m-3 scale-125 accent-gray-800">
-                      <input
-                        type="radio"
-                        value={zoneId}
-                        className="m-3"
-                        onClick={() => handleCheckbox(zone)}
-                        {...register('selectedZoneId')}
-                      />
-                    </td>
+                >
+                  <td className="px-2 m-3 scale-125 accent-gray-800">
+                    <input
+                      type="radio"
+                      value={zoneId}
+                      className="m-3"
+                      onClick={() => handleCheckbox(zone)}
+                      {...register('selectedZoneId')}
+                    />
+                  </td>
 
-                    <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-                      {index + 1}
-                    </td>
+                  <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                    {index + 1}
+                  </td>
 
-                    <td className="px-6 py-4">{zone.device}</td>
-                    <td className="px-6 py-4">{zone.zone_name}</td>
-                    <td className="px-6 py-4">{(zone.system_services ?? []).join(', ')}</td>
-                    <td className="px-6 py-4">{zone.system_protocols}</td>
-                    <td className="px-6 py-4">{zone.interface_names}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                  <td className="px-6 py-4">{zone.device}</td>
+                  <td className="px-6 py-4">{zone.zone_name}</td>
+                  <td className="px-6 py-4">{zone.description}</td>
+                  <td className="px-6 py-4">{(zone.system_services ?? []).join(', ')}</td>
+                  <td className="px-6 py-4">{zone.system_protocols}</td>
+                  <td className="px-6 py-4">{zone.interface_names}</td>
+                  <td className="px-6 py-4">"Deployed"</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

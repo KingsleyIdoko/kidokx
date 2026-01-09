@@ -22,8 +22,18 @@ export default function SelectedDevice() {
     watch,
     trigger,
     getValues,
+    reset,
     formState: { errors },
   } = useForm({ mode: 'onChange' });
+
+  useEffect(() => {
+    dispatch(setSelectedDevice(null));
+    dispatch(setSite(null));
+    dispatch(setCreatezone(null)); // or false, whichever you use
+    reset({ site: '', device: '' });
+
+    lastDispatchedDevice.current = null;
+  }, [dispatch, reset]);
 
   const selectedSite = watch('site');
   const chosenDevice = watch('device');
@@ -83,6 +93,7 @@ export default function SelectedDevice() {
     if (securityconfigtype === 'zones') {
       const securityzoneconfig = false;
     }
+    navigate('/security/zones/create/');
   };
   useEffect(() => {
     let isMounted = true;

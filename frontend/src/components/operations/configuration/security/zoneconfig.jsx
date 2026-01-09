@@ -2,14 +2,16 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import DualListSelector from './listselector';
-import SelectedDevice from './selectDevice';
 
 export default function SecurityZoneConfig() {
   const navigate = useNavigate();
+  const { id } = useParams(); // <-- /security/zones/update/:id
+  const isEditMode = Boolean(id);
+
   const { selectedDevice } = useSelector((state) => state.inventories);
-  const { editsecurityzone, editingdata } = useSelector((state) => state.security);
+  const { editsecurityzone } = useSelector((state) => state.security);
 
   const [Interfaces, setInterfaces] = useState([]);
 
@@ -73,7 +75,7 @@ export default function SecurityZoneConfig() {
     'vrrp',
   ];
 
-  const { register, handleSubmit, control, reset } = useForm({
+  const { register, handleSubmit, control, reset, getValues } = useForm({
     defaultValues: {
       zone_name: '',
       description: '',
@@ -83,58 +85,67 @@ export default function SecurityZoneConfig() {
     },
   });
 
+  // Load available interfaces for the dual list
   useEffect(() => {
     const fetchInterfaces = async () => {
       if (!selectedDevice) return;
-      try {
-        const response = await axios.get(
-          `http://127.0.0.1:8000/api/interfaces/zones/?device=${selectedDevice}`,
-        );
-        setInterfaces(response.data);
-      } catch (error) {
-        console.error('Failed to fetch interfaces:', error);
-      }
+      const res = await axios.get(
+        `http://127.0.0.1:8000/api/interfaces/zones/?device=${selectedDevice}`,
+      );
+      setInterfaces(res.data);
     };
-    fetchInterfaces();
+
+    fetchInterfaces().catch((e) => console.error('Failed to fetch interfaces:', e));
   }, [selectedDevice]);
 
-  // Prefill form when editing
+  // ✅ Prefill logic (this is the important part)
   useEffect(() => {
-    if (!editingdata) {
-      // Back to create mode: clear form
+    const toArray = (v) => (Array.isArray(v) ? v : v ? [v] : []);
+
+    const fill = (zone) => {
       reset({
-        zone_name: '',
-        description: '',
-        interfaces: [],
-        system_services: [],
-        system_protocols: [],
+        zone_name: zone?.zone_name ?? '',
+        description: zone?.description ?? '',
+        interfaces: toArray(zone?.interface_names), // your API uses interface_names
+        system_services: toArray(zone?.system_services),
+        system_protocols: toArray(zone?.system_protocols),
       });
+
+      // Quick sanity check in console:
+      // If this shows correct values but input is empty -> something else is overwriting form state.
+      console.log('RHF values after reset:', getValues());
+    };
+
+    // Create mode -> clear
+    if (!isEditMode) {
+      fill(null);
       return;
     }
 
-    // If editsecurityzone is FormData
-    reset({
-      zone_name: editsecurityzone.get('zone_name') ?? '',
-      description: editsecurityzone.get('description') ?? '',
-      interfaces: editsecurityzone.getAll('interfaces') ?? [],
-      system_services: editsecurityzone.getAll('system_services') ?? [],
-      system_protocols: editsecurityzone.getAll('system_protocols') ?? [], // use getAll for DualList
-    });
-  }, [editsecurityzone, reset]);
+    // Edit mode -> prefer redux if it matches this id
+    if (editsecurityzone && String(editsecurityzone.id) === String(id)) {
+      fill(editsecurityzone);
+      return;
+    }
+
+    // If redux is empty (refresh) or mismatch -> fetch by id
+    (async () => {
+      const res = await axios.get(`http://127.0.0.1:8000/api/security/zones/${id}/`);
+      fill(res.data);
+    })().catch((e) => console.error('Failed to fetch zone for edit:', e));
+  }, [isEditMode, id, editsecurityzone, reset, getValues]);
+
+  const handleCloseBtn = () => navigate('/security/zones/list');
 
   const onSubmit = async (data) => {
     const finalPayload = { ...data, device: selectedDevice };
-
+    console.log(finalPayload);
     try {
-      if (!editsecurityzone) {
+      if (!isEditMode) {
         await axios.post('http://127.0.0.1:8000/api/security/zones/create/', finalPayload);
       } else {
-        await axios.put(
-          `http://127.0.0.1:8000/api/security/zones/${editsecurityzone.get('id')}/update/`,
-          finalPayload,
-        );
+        await axios.put(`http://127.0.0.1:8000/api/security/zones/update/${id}/`, finalPayload);
       }
-
       navigate('/security/zones/list');
     } catch (error) {
       console.log(error);
@@ -142,77 +153,99 @@ export default function SecurityZoneConfig() {
   };
 
   return (
-    <div>
-      <div className="sticky top-14 z-10 bg-white shadow">
-        <SelectedDevice />
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col bg-white p-8 rounded-xl shadow max-w-4xl mx-auto mt-2 gap-6"
+    >
+      {/* Close button */}
+      <div className="flex items-center justify-end gap-4">
+        <button
+          type="button"
+          aria-label="Close"
+          onClick={handleCloseBtn}
+          className="relative inline-flex h-9 w-9 items-center justify-center rounded-full border border-gray-300 bg-white hover:bg-gray-50"
+        >
+          <span className="absolute h-5 w-1 rotate-45 rounded bg-gray-800"></span>
+          <span className="absolute h-5 w-1 -rotate-45 rounded bg-gray-800"></span>
+        </button>
       </div>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col bg-white p-8 rounded-xl shadow max-w-4xl mx-auto mt-2 gap-6"
-      >
-        <div className="flex items-center gap-4">
-          <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
-          <input
-            type="text"
-            {...register('zone_name')}
-            placeholder="Enter Zone name"
-            className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-          />
-        </div>
+      {/* Zone name */}
+      <div className="flex items-center gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700">Zone Name:</label>
+        <input
+          type="text"
+          {...register('zone_name')}
+          className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
 
-        <div className="flex items-center gap-4">
-          <label className="w-40 font-semibold text-sm text-gray-700">Description:</label>
-          <input
-            type="text"
-            {...register('description')}
-            placeholder="Enter Description"
-            className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-          />
-        </div>
+      {/* Description */}
+      <div className="flex items-center gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700">Description:</label>
+        <input
+          type="text"
+          {...register('description')}
+          className="flex-1 border rounded px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+        />
+      </div>
 
-        <div className="flex items-start gap-4">
-          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Interfaces:</label>
-          <Controller
-            name="interfaces"
-            control={control}
-            render={({ field: { ref, ...rest } }) => (
-              <DualListSelector items={Interfaces} {...rest} />
-            )}
-          />
-        </div>
+      {/* Interfaces */}
+      <div className="flex items-start gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">Interfaces:</label>
+        <Controller
+          name="interfaces"
+          control={control}
+          render={({ field }) => (
+            <DualListSelector
+              items={Interfaces}
+              value={field.value ?? []}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
 
-        <div className="flex items-start gap-4">
-          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
-          <Controller
-            name="system_services"
-            control={control}
-            render={({ field: { ref, ...rest } }) => (
-              <DualListSelector items={services} {...rest} />
-            )}
-          />
-        </div>
+      <div className="flex items-start gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Services:</label>
 
-        <div className="flex items-start gap-4">
-          <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Protocols:</label>
-          <Controller
-            name="system_protocols"
-            control={control}
-            render={({ field: { ref, ...rest } }) => (
-              <DualListSelector items={protocols} {...rest} />
-            )}
-          />
-        </div>
+        <Controller
+          name="system_services"
+          control={control}
+          render={({ field }) => (
+            <DualListSelector
+              items={services}
+              value={field.value ?? []}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded text-sm font-medium"
-          >
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
+      <div className="flex items-start gap-4">
+        <label className="w-40 font-semibold text-sm text-gray-700 mt-3">System Protocols:</label>
+
+        <Controller
+          name="system_protocols"
+          control={control}
+          render={({ field }) => (
+            <DualListSelector
+              items={protocols}
+              value={field.value ?? []}
+              onChange={field.onChange}
+            />
+          )}
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <button
+          type="submit"
+          className="px-6 py-2 bg-sky-500 hover:bg-sky-600 text-white rounded text-sm font-medium"
+        >
+          {isEditMode ? 'Update' : 'Save'}
+        </button>
+      </div>
+    </form>
   );
 }

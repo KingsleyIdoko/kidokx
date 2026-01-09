@@ -1,65 +1,43 @@
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import SecuritySidebar from './SecuritySidebar';
-import AddressList from './addresses/addresslist';
 import SecurityOverview from './overview';
-import SecurityPolicies from './policies';
+
+import SecurityZonesLayout from './securitylayout';
 import SecurityZoneConfig from './zoneconfig';
 import SecurityZone from './zones';
 
-const SiteToSiteVPN = () => <div className="p-4">Site-to-Site VPN Page</div>;
-const RemoteAccessVPN = () => <div className="p-4">Remote Access VPN Page</div>;
+// // Placeholder components for now (replace with your real ones)
+// const AddressCreate = () => <div className="p-4">Address Create</div>;
+// const AddressUpdate = () => <div className="p-4">Address Update</div>;
+// const AddressDelete = () => <div className="p-4">Address Delete</div>;
+
+// // Placeholder components for now (replace with your real ones)
+// const PolicyCreate = () => <div className="p-4">Policy Create</div>;
+// const PolicyUpdate = () => <div className="p-4">Policy Update</div>;
+// const PolicyDelete = () => <div className="p-4">Policy Delete</div>;
 
 export default function Security() {
   const menu = [
     {
       label: 'Dashboard',
       dropdownKey: 'Dashboard',
-      items: [{ label: 'Overviews', path: '/security/zones/list/' }],
+      items: [{ label: 'Overview', path: '/security' }],
     },
     {
       label: 'Security',
       dropdownKey: 'security',
       items: [
-        { label: 'Zones', path: '/security/zones/list/' },
-        {
-          label: 'Policies & Objects',
-          children: [
-            { label: 'Policies', path: '/security/policies/config/rewards' },
-            { label: 'Objects', path: '/security/objects/lists/' },
-          ],
-        },
-      ],
-    },
-    {
-      label: 'Routing',
-      dropdownKey: 'routing',
-      items: [
-        { label: 'Static', path: '/routing/static/' },
-        {
-          label: 'Dynamic',
-          children: [
-            { label: 'BGP', path: '/routing/dynamic/bgp/config' },
-            { label: 'OSPF', path: '/routing/dynamic/ospf/config' },
-            { label: 'RIP', path: '/routing/dynamic/rip/config' },
-            { label: 'EIGRP', path: '/routing/dynamic/eigrp/config' },
-          ],
-        },
-      ],
-    },
-    {
-      label: 'Switching',
-      dropdownKey: 'switching',
-      items: [
-        { label: 'Site-to-Site', path: '/vpn/site-to-site/' },
-        { label: 'Remote Access', path: '/vpn/remote-access/' },
-      ],
-    },
-    {
-      label: 'VPN',
-      dropdownKey: 'vpn',
-      items: [
-        { label: 'Site-to-Site', path: '/vpn/site-to-site/' },
-        { label: 'Remote Access', path: '/vpn/remote-access/' },
+        { label: 'Zones', path: '/security/zones/list' },
+
+        { label: 'Addresses', path: '/security/objects/list' },
+        { label: 'Policies', path: '/security/zones/list' },
+        // {
+        //   label: 'Policies & Objects',
+        //   children: [
+        //     { label: 'Policies', path: '/security/policies/list' },
+        //     { label: 'Objects', path: '/security/objects/list' },
+        //   ],
+        // },
       ],
     },
   ];
@@ -67,17 +45,39 @@ export default function Security() {
   return (
     <div className="bg-white min-h-screen flex">
       <SecuritySidebar menu={menu} />
+
       <div className="w-full bg-gray-100">
         <div className="bg-sky-100">
           <Routes>
-            <Route path="/" element={<SecurityOverview />} />
-            <Route path="/zones/list/" element={<SecurityZone />} />
-            <Route path="/zones/create/" element={<SecurityZoneConfig />} />
-            <Route path="/zones/update/*" element={<SecurityZoneConfig />} />
-            <Route path="/objects/lists/*" element={<AddressList />} />
-            <Route path="/policies/config/*" element={<SecurityPolicies />} />
-            <Route path="/vpn/site-to-site/*" element={<SiteToSiteVPN />} />
-            <Route path="/vpn/remote-access/*" element={<RemoteAccessVPN />} />
+            {/* Overview */}
+            <Route index element={<SecurityOverview />} />
+
+            {/* ZONES */}
+            <Route path="zones" element={<SecurityZonesLayout />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<SecurityZone />} />
+              <Route path="create" element={<SecurityZoneConfig />} />
+              <Route path="update/:id" element={<SecurityZoneConfig />} />
+              <Route path="delete/:id" element={<div className="p-4">Zone Delete</div>} />
+            </Route>
+
+            {/* OBJECTS (Address Book / Addresses etc.) */}
+            {/* <Route path="objects" element={<SecurityObjectsLayout />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<AddressList />} />
+              <Route path="create" element={<AddressCreate />} />
+              <Route path="update/:id" element={<AddressUpdate />} />
+              <Route path="delete/:id" element={<AddressDelete />} />
+            </Route> */}
+
+            {/* POLICIES */}
+            {/* <Route path="policies" element={<SecurityPoliciesLayout />}>
+              <Route index element={<Navigate to="list" replace />} />
+              <Route path="list" element={<SecurityPolicies />} />
+              <Route path="create" element={<PolicyCreate />} />
+              <Route path="update/:id" element={<PolicyUpdate />} />
+              <Route path="delete/:id" element={<PolicyDelete />} />
+            </Route> */}
           </Routes>
         </div>
       </div>
